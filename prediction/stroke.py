@@ -243,7 +243,6 @@ if __name__ == '__main__':
             break
         else:
             try:
-                t = None
                 stroke_lambda[menu](ss)
             except KeyError as e:
                 if 'some error message' in str(e):

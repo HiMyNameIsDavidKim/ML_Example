@@ -96,7 +96,7 @@ fashion_menus = ["Exit", # 0
 ]
 fashion_lambda = {
     "1": lambda t: FashionModel().process(),
-    "2": lambda t: FashionService().process(),
+    "2": lambda t: FashionServices().process(),
     "3": lambda t: print(" ** No Function ** "),
     "4": lambda t: print(" ** No Function ** "),
     "5": lambda t: print(" ** No Function ** "),

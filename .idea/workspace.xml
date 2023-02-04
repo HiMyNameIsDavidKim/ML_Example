@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="66064004-86d3-406c-be9d-8744351843fb" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/prediction/data/adult.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/prediction/oklahoma.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/prediction/state_income.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CV/fashion.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/fashion.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/prediction/stroke.py" beforeDir="false" afterPath="$PROJECT_DIR$/prediction/stroke.py" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectId" id="2LCtQHgtQ2UkSP0Hii6wJ8PqP8d" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/davidkim/PycharmProjects/pythonProject/ML_Example&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/prediction/data" />
+      <recent name="$PROJECT_DIR$/prediction" />
+      <recent name="$PROJECT_DIR$/prediction/save" />
+      <recent name="$PROJECT_DIR$/CV/data" />
+      <recent name="$PROJECT_DIR$/CV" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/prediction/data" />
+      <recent name="$PROJECT_DIR$/CV/save" />
+      <recent name="$PROJECT_DIR$/NLP/save" />
+      <recent name="$PROJECT_DIR$/prediction" />
+    </key>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="66064004-86d3-406c-be9d-8744351843fb" name="Changes" comment="" />
+      <created>1675386874520</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1675386874520</updated>
+      <workItem from="1675386875621" duration="15132000" />
+      <workItem from="1675411064994" duration="680000" />
+      <workItem from="1675431644270" duration="896000" />
+      <workItem from="1675433226872" duration="155000" />
+      <workItem from="1675433632025" duration="1966000" />
+      <workItem from="1675493430996" duration="316000" />
+      <workItem from="1675493755648" duration="991000" />
+      <workItem from="1675502688002" duration="3000" />
+      <workItem from="1675519124883" duration="3724000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/ML_Example$stock_lstm_ensemble.coverage" NAME="stock_lstm_ensemble Coverage Results" MODIFIED="1675399841792" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/prediction" />
+    <SUITE FILE_PATH="coverage/ML_Example$state_income.coverage" NAME="state_income Coverage Results" MODIFIED="1675521637192" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/prediction" />
+    <SUITE FILE_PATH="coverage/ML_Example$stock_dnn.coverage" NAME="stock_dnn Coverage Results" MODIFIED="1675399142258" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/prediction" />
+    <SUITE FILE_PATH="coverage/ML_Example$number.coverage" NAME="number Coverage Results" MODIFIED="1675393937894" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
+    <SUITE FILE_PATH="coverage/ML_Example$stock_lstm.coverage" NAME="stock_lstm Coverage Results" MODIFIED="1675399331884" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/prediction" />
+    <SUITE FILE_PATH="coverage/ML_Example$stock_dnn_ensemble.coverage" NAME="stock_dnn_ensemble Coverage Results" MODIFIED="1675399821898" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/prediction" />
+    <SUITE FILE_PATH="coverage/ML_Example$fashion.coverage" NAME="fashion Coverage Results" MODIFIED="1675391165698" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
+    <SUITE FILE_PATH="coverage/ML_Example$iris.coverage" NAME="iris Coverage Results" MODIFIED="1675392824226" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/prediction" />
+    <SUITE FILE_PATH="coverage/ML_Example$stock_controller.coverage" NAME="stock_controller Coverage Results" MODIFIED="1675400295412" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/prediction" />
+    <SUITE FILE_PATH="coverage/ML_Example$fruit.coverage" NAME="fruit Coverage Results" MODIFIED="1675393601337" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
+    <SUITE FILE_PATH="coverage/ML_Example$stroke.coverage" NAME="stroke Coverage Results" MODIFIED="1675403633544" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/prediction" />
+  </component>
+</project>
