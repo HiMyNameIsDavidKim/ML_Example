@@ -16,7 +16,7 @@ import os
 class FashionModel(object):
     def __init__(self):
         global model_path
-        model_path = f'./save/fashionDNN.h5'
+        model_path = f'./save/fashion_DNN.h5'
 
     def process(self):
         self.dataset()
@@ -54,7 +54,7 @@ class FashionService(object):
         global class_names, model_path
         class_names = ['T-shirt/top', 'Trouser', 'Pullover', 'Dress', 'Coat',
                        'Sandal', 'Shirt', 'Sneaker', 'Bag', 'Ankle boot']
-        model_path = f'./save/fashionDNN.h5'
+        model_path = f'./save/fashion_DNN.h5'
         self.i = None
 
     def process(self):
@@ -96,7 +96,7 @@ fashion_menus = ["Exit", # 0
 ]
 fashion_lambda = {
     "1": lambda t: FashionModel().process(),
-    "2": lambda t: FashionServices().process(),
+    "2": lambda t: FashionService().process(),
     "3": lambda t: print(" ** No Function ** "),
     "4": lambda t: print(" ** No Function ** "),
     "5": lambda t: print(" ** No Function ** "),
