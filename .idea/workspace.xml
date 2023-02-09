@@ -5,11 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="66064004-86d3-406c-be9d-8744351843fb" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/CV/number_torch.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/NLP/shakespeare.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CV/fashion.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/fashion.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/prediction/iris.py" beforeDir="false" afterPath="$PROJECT_DIR$/prediction/iris.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/prediction/oklahoma.py" beforeDir="false" afterPath="$PROJECT_DIR$/prediction/oklahoma.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CV/lenna.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/lenna.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -88,7 +87,7 @@
       <workItem from="1675819122898" duration="4502000" />
       <workItem from="1675832840457" duration="5017000" />
       <workItem from="1675837880499" duration="2753000" />
-      <workItem from="1675906798969" duration="14788000" />
+      <workItem from="1675906798969" duration="18380000" />
     </task>
     <servers />
   </component>
@@ -100,15 +99,15 @@
     <SUITE FILE_PATH="coverage/ML_Example$oklahoma.coverage" NAME="oklahoma Coverage Results" MODIFIED="1675837485275" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/prediction" />
     <SUITE FILE_PATH="coverage/ML_Example$stock_dnn.coverage" NAME="stock_dnn Coverage Results" MODIFIED="1675399142258" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/prediction" />
     <SUITE FILE_PATH="coverage/ML_Example$number.coverage" NAME="number Coverage Results" MODIFIED="1675393937894" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
-    <SUITE FILE_PATH="coverage/ML_Example$fashion.coverage" NAME="fashion Coverage Results" MODIFIED="1675743402624" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
+    <SUITE FILE_PATH="coverage/ML_Example$fashion.coverage" NAME="fashion Coverage Results" MODIFIED="1675930753582" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
     <SUITE FILE_PATH="coverage/ML_Example$iris.coverage" NAME="iris Coverage Results" MODIFIED="1675743587099" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/prediction" />
-    <SUITE FILE_PATH="coverage/ML_Example$number_torch.coverage" NAME="number_torch Coverage Results" MODIFIED="1675923701489" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
+    <SUITE FILE_PATH="coverage/ML_Example$number_torch.coverage" NAME="number_torch Coverage Results" MODIFIED="1675923901801" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
     <SUITE FILE_PATH="coverage/ML_Example$state_income.coverage" NAME="state_income Coverage Results" MODIFIED="1675521637192" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/prediction" />
     <SUITE FILE_PATH="coverage/ML_Example$stock_lstm.coverage" NAME="stock_lstm Coverage Results" MODIFIED="1675399331884" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/prediction" />
     <SUITE FILE_PATH="coverage/ML_Example$stock_dnn_ensemble.coverage" NAME="stock_dnn_ensemble Coverage Results" MODIFIED="1675399821898" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/prediction" />
     <SUITE FILE_PATH="coverage/ML_Example$stock_controller.coverage" NAME="stock_controller Coverage Results" MODIFIED="1675743633680" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/prediction" />
     <SUITE FILE_PATH="coverage/ML_Example$fruit.coverage" NAME="fruit Coverage Results" MODIFIED="1675393601337" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
     <SUITE FILE_PATH="coverage/ML_Example$stroke.coverage" NAME="stroke Coverage Results" MODIFIED="1675662023549" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/prediction" />
-    <SUITE FILE_PATH="coverage/ML_Example$lenna.coverage" NAME="lenna Coverage Results" MODIFIED="1675743233497" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
+    <SUITE FILE_PATH="coverage/ML_Example$lenna.coverage" NAME="lenna Coverage Results" MODIFIED="1675930679423" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
   </component>
 </project>

@@ -77,7 +77,7 @@ class LennaService(object):
         img = self.ExecuteLambda('IMAGE_READ', params[1])
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         print(f' Shape is {img.shape}')
-        plt.imshow('Original', img)
+        plt.imshow(img)
         plt.show()
 
     def menu_2(self, *params):
@@ -85,7 +85,7 @@ class LennaService(object):
         src = self.ExecuteLambda('IMAGE_READ', params[1])
         src = cv2.cvtColor(src, cv2.COLOR_BGR2RGB)
         src = self.ExecuteLambda('GRAY_SCALE', src)
-        plt.imshow('Grey', src)
+        plt.imshow(src)
         plt.show()
 
     def menu_3(self, *params):
