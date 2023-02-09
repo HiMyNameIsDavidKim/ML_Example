@@ -64,7 +64,7 @@ class IrisService(object):
         Y_prob = model.predict(self.features, verbose=0)
         predicted = Y_prob.argmax(axis=-1)
         result = predicted[0]
-        print(f'species: {class_names[result]}')
+        print(f'###### species: {class_names[result]} ######')
 
 
 iris_menus = ["Exit", # 0

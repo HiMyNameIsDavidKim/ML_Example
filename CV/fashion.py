@@ -78,8 +78,8 @@ class FashionService(object):
         predictions_array, true_label, img = predictions[i], self.test_labels[i], self.test_images[i]
 
         result = np.argmax(predictions_array)
-        print(f"예측한 답 : {result}")
-        print(class_names[result])
+        print(f"###### 예측한 답 : {result} ######")
+        print(f'###### {class_names[result]} ######')
 
     def show(self):
         i = self.i
