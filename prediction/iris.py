@@ -67,10 +67,10 @@ class IrisService(object):
         print(f'###### species: {class_names[result]} ######')
 
 
-iris_menus = ["Exit", # 0
-               "Modeling", # 1
-               "Service", # 2
-]
+iris_menus = ["Exit",  # 0
+              "Modeling",  # 1
+              "Service",  # 2
+              ]
 iris_lambda = {
     "1": lambda t: IrisModel().process(),
     "2": lambda t: IrisService().process(),
@@ -82,7 +82,6 @@ iris_lambda = {
     "8": lambda t: print(" ** No Function ** "),
     "9": lambda t: print(" ** No Function ** "),
 }
-
 
 if __name__ == '__main__':
     while True:
