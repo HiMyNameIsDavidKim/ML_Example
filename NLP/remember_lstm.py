@@ -4,9 +4,9 @@ import torch.optim as optim
 import numpy as np
 
 
-class ShakeSpearModel(nn.Module):
+class RememberRNNModel(nn.Module):
     def __init__(self):
-        super(ShakeSpearModel, self).__init__()
+        super(RememberRNNModel, self).__init__()
 
         global n_hidden, lr, epochs, string, chars, char_list, n_letters, device, model_path
         n_hidden = 35
@@ -17,7 +17,7 @@ class ShakeSpearModel(nn.Module):
         char_list = [i for i in chars]
         n_letters = len(char_list)
         device = 'cpu'
-        model_path = './save/shakespear_RNN.pt'
+        model_path = './save/remember_RNN.pt'
         self.input_size = None
         self.hidden_size = None
         self.output_size = None
@@ -116,5 +116,5 @@ class ShakeSpearModel(nn.Module):
 
 
 if __name__ == '__main__':
-    ShakeSpearModel().process()
-    ShakeSpearModel().eval_test()
+    RememberRNNModel().process()
+    RememberRNNModel().eval_test()
