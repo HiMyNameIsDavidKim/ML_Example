@@ -4,9 +4,9 @@ import torch.optim as optim
 import numpy as np
 
 
-class RememberModel(nn.Module):
+class RememberRNNModel(nn.Module):
     def __init__(self):
-        super(RememberModel, self).__init__()
+        super(RememberRNNModel, self).__init__()
 
         global n_hidden, lr, epochs, string, chars, char_list, n_letters, device, model_path
         n_hidden = 35
@@ -116,5 +116,5 @@ class RememberModel(nn.Module):
 
 
 if __name__ == '__main__':
-    RememberModel().process()
-    RememberModel().eval_test()
+    RememberRNNModel().process()
+    RememberRNNModel().eval_test()
