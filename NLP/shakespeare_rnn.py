@@ -59,7 +59,7 @@ class ShakeSpeareRNNModel(nn.Module):
         chunk = self.random_chunk()
         inp = self.char_tensor(chunk[:-1])
         target = self.char_tensor(chunk[1:])
-        return inp, target
+        return inp, target, chunk
 
     def test(self, model):
         start_str = "b"
@@ -106,7 +106,7 @@ class ShakeSpeareRNNModel(nn.Module):
         loss_func = nn.CrossEntropyLoss()
 
         for i in range(num_epochs):
-            inp, label = self.random_training_set()
+            inp, label, chunk = self.random_training_set()
             hidden = model.init_hidden()
 
             loss = torch.tensor([0]).type(torch.FloatTensor)
@@ -122,6 +122,9 @@ class ShakeSpeareRNNModel(nn.Module):
 
             if i % 100 == 0:
                 print("\n", loss / chunk_len, "\n")
+                print("\n", "=" * 50, 'target', "=" * 50)
+                print(chunk)
+                print("\n", "=" * 50, 'remember', "=" * 50)
                 self.test(model)
                 print("\n", "=" * 100)
 

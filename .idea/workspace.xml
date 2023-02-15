@@ -5,10 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="66064004-86d3-406c-be9d-8744351843fb" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/NLP/shakespeare_gru.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/NLP/shakespeare_rnn.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/NLP/shakespeare.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/NLP/shakespeare_gru.py" beforeDir="false" afterPath="$PROJECT_DIR$/NLP/shakespeare_gru.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/NLP/shakespeare_rnn.py" beforeDir="false" afterPath="$PROJECT_DIR$/NLP/shakespeare_rnn.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -107,7 +105,7 @@
       <workItem from="1676018023005" duration="306000" />
       <workItem from="1676018335012" duration="12000" />
       <workItem from="1676442482199" duration="344000" />
-      <workItem from="1676442834345" duration="3309000" />
+      <workItem from="1676442834345" duration="3879000" />
     </task>
     <servers />
   </component>
@@ -133,6 +131,6 @@
     <SUITE FILE_PATH="coverage/ML_Example$fruit.coverage" NAME="fruit Coverage Results" MODIFIED="1675393601337" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
     <SUITE FILE_PATH="coverage/ML_Example$stroke.coverage" NAME="stroke Coverage Results" MODIFIED="1675662023549" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/prediction" />
     <SUITE FILE_PATH="coverage/ML_Example$lenna.coverage" NAME="lenna Coverage Results" MODIFIED="1675930679423" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
-    <SUITE FILE_PATH="coverage/ML_Example$shakespeare_gru.coverage" NAME="shakespeare_gru Coverage Results" MODIFIED="1676446920714" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/NLP" />
+    <SUITE FILE_PATH="coverage/ML_Example$shakespeare_gru.coverage" NAME="shakespeare_gru Coverage Results" MODIFIED="1676447569671" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/NLP" />
   </component>
 </project>
