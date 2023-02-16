@@ -122,9 +122,9 @@ class ShakeSpeareGRUModel(nn.Module):
 
             if i % 100 == 0:
                 print("\n", loss / chunk_len, "\n")
-                print("\n", "=" * 50, 'target', "=" * 50)
+                print("\n", "=" * 40, 'target', "=" * 40)
                 print(chunk)
-                print("\n", "=" * 50, 'remember', "=" * 50)
+                print("\n", "=" * 40, 'remember', "=" * 40)
                 self.test(model)
                 print("\n", "=" * 100)
 

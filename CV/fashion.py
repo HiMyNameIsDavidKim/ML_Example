@@ -90,9 +90,9 @@ class FashionService(object):
         plt.show()
 
 
-fashion_menus = ["Exit", # 0
-               "Modeling", # 1
-               "Service", # 2
+fashion_menus = ["Exit",  # 0
+                 "Modeling",  # 1
+                 "Service",  # 2
 ]
 fashion_lambda = {
     "1": lambda t: FashionModel().process(),
