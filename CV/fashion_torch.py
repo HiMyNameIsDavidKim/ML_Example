@@ -11,6 +11,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 from torchsummary import summary
 
+batch_size = 256
+learning_rate = 0.0002
+num_epoch = 10
+device = 'mps'
+model_path = './save/fashion.pt'
+
 
 class DNNModel(nn.Module):
     def __init__(self):
@@ -25,23 +31,43 @@ class DNNModel(nn.Module):
         return x
 
 
+class CNNModel(nn.Module):
+    def __init__(self):
+        out = [1, 16, 32, 64]
+        super(CNNModel, self).__init__()
+        self.cnn1 = nn.Conv2d(out[0], out[1], 5)
+        self.cnn2 = nn.Conv2d(out[1], out[2], 5)
+        self.maxPool1 = nn.MaxPool2d(2)
+        self.cnn3 = nn.Conv2d(out[2], out[3], 5)
+        self.maxPool2 = nn.MaxPool2d(2)
+
+        self.fc1 = nn.Linear(out[3] * 3 * 3, 100)
+        self.fc2 = nn.Linear(100, 10)
+
+    # Prediction
+    def forward(self, x):
+        x = F.relu(self.cnn1(x))
+        x = F.relu(self.cnn2(x))
+        x = self.maxPool1(x)
+        x = F.relu(self.cnn3(x))
+        x = self.maxPool2(x)
+        x = x.view(x.size(0), -1)
+        x = F.relu(self.fc1(x))
+        x = self.fc2(x)
+        return x
+
+
 class FashionModel(object):
     def __init__(self):
-        global batch_size, learning_rate, num_epoch, device, model_path
-        batch_size = 256
-        learning_rate = 0.0002
-        num_epoch = 10
-        device = 'mps'
-        model_path = './save/fashion_DNN.pt'
         self.mnist_train = None
         self.mnist_test = None
         self.train_loader = None
         self.test_loader = None
         self.model = None
 
-    def process(self):
+    def process(self, typ):
         self.dataset()
-        self.modeling()
+        self.modeling(typ)
         self.save_model()
 
     def dataset(self):
@@ -70,8 +96,9 @@ class FashionModel(object):
                                       num_workers=2,
                                       drop_last=True)
 
-    def modeling(self):
-        model = DNNModel().to(device)
+    def modeling(self, typ):
+        if typ == 'DNN': model = DNNModel().to(device)
+        elif typ == 'CNN': model = CNNModel().to(device)
         loss_func = nn.CrossEntropyLoss()
         optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
@@ -102,6 +129,7 @@ class FashionModel(object):
         correct = 0
         total = 0
 
+        model.eval()
         with torch.no_grad():
             for image, label in self.test_loader:
                 x = image.to(device)
@@ -119,14 +147,9 @@ class FashionModel(object):
 
 class FashionService(object):
     def __init__(self):
-        global class_names, batch_size, learning_rate, num_epoch, device, model_path
+        global class_names
         class_names = ['T-shirt/top', 'Trouser', 'Pullover', 'Dress', 'Coat',
                        'Sandal', 'Shirt', 'Sneaker', 'Bag', 'Ankle boot']
-        batch_size = 256
-        learning_rate = 0.0002
-        num_epoch = 10
-        device = 'mps'
-        model_path = './save/fashion_DNN.pt'
         self.mnist_train = None
         self.mnist_test = None
         self.train_loader = None
@@ -206,7 +229,7 @@ fashion_menus = ["Exit",  # 0
                  ]
 
 fashion_lambda = {
-    "1": lambda t: FashionModel().process(),
+    "1": lambda t: FashionModel().process(input('DNN or CNN : ')),
     "2": lambda t: FashionModel().eval_test(),
     "3": lambda t: t.process(),
     "4": lambda t: print(" ** No Function ** "),
