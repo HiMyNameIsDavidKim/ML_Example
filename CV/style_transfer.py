@@ -17,10 +17,6 @@ content_dir = "./data/content/Neckarfront_origin.jpg"
 style_dir = "./data/style/monet.jpg"
 device = 'mps'
 
-# 점진적 학습 시, checkpoint 수정 필요.
-checkpoint = 0
-checkpoint_img = f'./save/style_transfer/{checkpoint}.jpg'
-
 
 class Resnet(nn.Module):
     def __init__(self):
@@ -33,7 +29,7 @@ class Resnet(nn.Module):
         self.layer4 = nn.Sequential(*list(resnet.children())[6:7])
         self.layer5 = nn.Sequential(*list(resnet.children())[7:8])
 
-    def forward(self,x):
+    def forward(self, x):
         out_0 = self.layer0(x)
         out_1 = self.layer1(out_0)
         out_2 = self.layer2(out_1)
@@ -45,9 +41,9 @@ class Resnet(nn.Module):
 
 class GramMatrix(nn.Module):
     def forward(self, input):
-        b,c,h,w = input.size()
-        F = input.view(b, c, h*w)
-        G = torch.bmm(F, F.transpose(1,2))
+        b, c, h, w = input.size()
+        F = input.view(b, c, h * w)
+        G = torch.bmm(F, F.transpose(1, 2))
         return G
 
 
@@ -57,17 +53,20 @@ class GramMSELoss(nn.Module):
         return out
 
 
-class StyleTransfer(object):
+class StyleTransferModel(object):
     def __init__(self):
         self.content = None
         self.style = None
         self.generated = None
-        self.cnt = checkpoint
+        self.cnt = 0
 
-    def process(self):
+    def process(self, cp):
+        global checkpoint, checkpoint_img
+        checkpoint = cp
+        checkpoint_img = f'./save/style_transfer/{checkpoint}.jpg'
+        self.cnt = cp
         self.prepare_img()
         self.modeling()
-        self.show_result()
 
     def image_preprocess(self, img_dir):
         img = Image.open(img_dir)
@@ -151,15 +150,44 @@ class StyleTransfer(object):
         plt.imshow(gen_img)
         plt.show()
 
-    def show_result(self):
-        gen_img = self.image_postprocess(self.generated[0].cpu()).data.numpy()
-        gen_img = Image.fromarray((gen_img * 255).astype(np.uint8))
-        gen_img.save(f'./save/style_transfer_result.jpg')
+    def show_result(self, arg):
+        gen_img = Image.open(f'./save/style_transfer/{arg}.jpg')
 
         plt.figure(figsize=(10, 10))
         plt.imshow(gen_img)
         plt.show()
 
 
+style_menus = ["Exit",  # 0
+               "Modeling",  # 1
+               "Check Image",  # 2
+               ]
+
+style_lambda = {
+    "1": lambda t: t.process(int(input('Please input start point : '))),
+    "2": lambda t: t.show_result(int(input('Please input file name : '))),
+    "3": lambda t: print(" ** No Function ** "),
+    "4": lambda t: print(" ** No Function ** "),
+    "5": lambda t: print(" ** No Function ** "),
+    "6": lambda t: print(" ** No Function ** "),
+    "7": lambda t: print(" ** No Function ** "),
+    "8": lambda t: print(" ** No Function ** "),
+    "9": lambda t: print(" ** No Function ** "),
+}
+
 if __name__ == '__main__':
-    StyleTransfer().process()
+    st = StyleTransferModel()
+    while True:
+        [print(f"{i}. {j}") for i, j in enumerate(style_menus)]
+        menu = input('Choose menu : ')
+        if menu == '0':
+            print("### Exit ###")
+            break
+        else:
+            try:
+                style_lambda[menu](st)
+            except KeyError as e:
+                if 'some error message' in str(e):
+                    print('Caught error message.')
+                else:
+                    print("Didn't catch error message.")
