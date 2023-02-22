@@ -4,30 +4,42 @@ import torch.optim as optim
 import numpy as np
 
 
-class RememberRNNModel(nn.Module):
-    def __init__(self):
-        super(RememberRNNModel, self).__init__()
+n_hidden = 35
+lr = 0.01
+epochs = 1000
+string = "hello pytorch. how long can a rnn cell remember? show me your limit!"
+chars = "abcdefghijklmnopqrstuvwxyz ?!.,:;01"
+char_list = [i for i in chars]
+n_letters = len(char_list)
+device = 'cpu'
+model_path = './save/remember_RNN.pt'
 
-        global n_hidden, lr, epochs, string, chars, char_list, n_letters, device, model_path
-        n_hidden = 35
-        lr = 0.01
-        epochs = 1000
-        string = "hello pytorch. how long can a rnn cell remember? show me your limit!"
-        chars = "abcdefghijklmnopqrstuvwxyz ?!.,:;01"
-        char_list = [i for i in chars]
-        n_letters = len(char_list)
-        device = 'cpu'
-        model_path = './save/remember_RNN.pt'
-        self.input_size = None
-        self.hidden_size = None
-        self.output_size = None
-        self.i2h = None
-        self.i2o = None
-        self.act_fn = None
+
+class RNNModel(nn.Module):
+    def __init__(self):
+        super(RNNModel, self).__init__()
+        self.input_size = n_letters
+        self.hidden_size = n_hidden
+        self.output_size = n_letters
+        self.i2h = nn.Linear(self.input_size + self.hidden_size, self.hidden_size)
+        self.i2o = nn.Linear(self.input_size + self.hidden_size, self.output_size)
+        self.act_fn = nn.Tanh()
+
+    def forward(self, input_layer, hidden_layer):
+        combined = torch.cat((input_layer, hidden_layer), 1)
+        hidden = self.act_fn(self.i2h(combined))
+        output = self.i2o(combined)
+        return output, hidden
+
+    def init_hidden(self):
+        return torch.zeros(1, self.hidden_size)
+
+
+class RememberRNNModel(object):
+    def __init__(self):
         self.model = None
 
     def process(self):
-        self.architect()
         self.modeling()
         self.save_model()
 
@@ -48,25 +60,8 @@ class RememberRNNModel(nn.Module):
         onehot = torch.Tensor.numpy(onehot_1)
         return char_list[onehot.argmax()]
 
-    def architect(self):
-        self.input_size = n_letters
-        self.hidden_size = n_hidden
-        self.output_size = n_letters
-        self.i2h = nn.Linear(self.input_size + self.hidden_size, self.hidden_size)
-        self.i2o = nn.Linear(self.input_size + self.hidden_size, self.output_size)
-        self.act_fn = nn.Tanh()
-
-    def forward(self, inputt, hidden):
-        combined = torch.cat((inputt, hidden), 1)
-        hidden = self.act_fn(self.i2h(combined))
-        output = self.i2o(combined)
-        return output, hidden
-
-    def init_hidden(self):
-        return torch.zeros(1, self.hidden_size)
-
     def modeling(self):
-        model = self.to(device)
+        model = RNNModel().to(device)
         loss_func = nn.MSELoss()
         optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
@@ -97,7 +92,6 @@ class RememberRNNModel(nn.Module):
         torch.save(self.model, model_path)
 
     def eval_test(self):
-        self.architect()
         model = torch.load(model_path)
         start = torch.zeros(1, n_letters)
         start[:, -2] = 1

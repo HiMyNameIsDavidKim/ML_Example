@@ -100,7 +100,7 @@ class FashionModel(object):
         if typ == 'DNN': model = DNNModel().to(device)
         elif typ == 'CNN': model = CNNModel().to(device)
         loss_func = nn.CrossEntropyLoss()
-        optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+        optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
         loss_arr = []
         for i in range(num_epoch):

@@ -6,8 +6,11 @@
   <component name="ChangeListManager">
     <list default="true" id="66064004-86d3-406c-be9d-8744351843fb" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CV/fashion_torch.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/fashion_torch.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/CV/number_torch.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/number_torch.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CV/save/number_CNN.pt" beforeDir="false" afterPath="$PROJECT_DIR$/CV/save/number_CNN.pt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CV/save/fashion.pt" beforeDir="false" afterPath="$PROJECT_DIR$/CV/save/fashion.pt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/NLP/remember_rnn.py" beforeDir="false" afterPath="$PROJECT_DIR$/NLP/remember_rnn.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/NLP/save/remember_RNN.pt" beforeDir="false" afterPath="$PROJECT_DIR$/NLP/save/remember_RNN.pt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -114,7 +117,7 @@
       <workItem from="1676944212818" duration="18994000" />
       <workItem from="1677031067773" duration="1204000" />
       <workItem from="1677033296991" duration="749000" />
-      <workItem from="1677034213034" duration="3954000" />
+      <workItem from="1677034213034" duration="9018000" />
     </task>
     <servers />
   </component>
@@ -129,11 +132,12 @@
     <SUITE FILE_PATH="coverage/ML_Example$shakespear.coverage" NAME="shakespear Coverage Results" MODIFIED="1676009940967" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/NLP" />
     <SUITE FILE_PATH="coverage/ML_Example$remember_lstm.coverage" NAME="remember_lstm Coverage Results" MODIFIED="1676016512298" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/NLP" />
     <SUITE FILE_PATH="coverage/ML_Example$style_transfer.coverage" NAME="style_transfer Coverage Results" MODIFIED="1676946007858" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
+    <SUITE FILE_PATH="coverage/ML_Example$remember_rnn.coverage" NAME="remember_rnn Coverage Results" MODIFIED="1677046364717" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/NLP" />
     <SUITE FILE_PATH="coverage/ML_Example$fashion.coverage" NAME="fashion Coverage Results" MODIFIED="1675993896364" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
     <SUITE FILE_PATH="coverage/ML_Example$iris.coverage" NAME="iris Coverage Results" MODIFIED="1675743587099" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/prediction" />
-    <SUITE FILE_PATH="coverage/ML_Example$number_torch.coverage" NAME="number_torch Coverage Results" MODIFIED="1677039742122" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
-    <SUITE FILE_PATH="coverage/ML_Example$fashion_torch.coverage" NAME="fashion_torch Coverage Results" MODIFIED="1676611691064" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
+    <SUITE FILE_PATH="coverage/ML_Example$number_torch.coverage" NAME="number_torch Coverage Results" MODIFIED="1677044199498" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
     <SUITE FILE_PATH="coverage/ML_Example$celeb.coverage" NAME="celeb Coverage Results" MODIFIED="1676957726069" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
+    <SUITE FILE_PATH="coverage/ML_Example$fashion_torch.coverage" NAME="fashion_torch Coverage Results" MODIFIED="1677045227266" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
     <SUITE FILE_PATH="coverage/ML_Example$state_income.coverage" NAME="state_income Coverage Results" MODIFIED="1675521637192" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/prediction" />
     <SUITE FILE_PATH="coverage/ML_Example$stock_report_v2_3.coverage" NAME="stock_report_v2.3 Coverage Results" MODIFIED="1676018249312" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../auto_stock_report/latest_version" />
     <SUITE FILE_PATH="coverage/ML_Example$mnist_gan.coverage" NAME="mnist_gan Coverage Results" MODIFIED="1676962957081" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
