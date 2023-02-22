@@ -7,12 +7,12 @@ import numpy as np
 n_hidden = 35
 lr = 0.01
 epochs = 1000
+device = 'cpu'
+model_path = './save/remember_RNN.pt'
 string = "hello pytorch. how long can a rnn cell remember? show me your limit!"
 chars = "abcdefghijklmnopqrstuvwxyz ?!.,:;01"
 char_list = [i for i in chars]
 n_letters = len(char_list)
-device = 'cpu'
-model_path = './save/remember_RNN.pt'
 
 
 class RNNModel(nn.Module):
@@ -25,8 +25,8 @@ class RNNModel(nn.Module):
         self.i2o = nn.Linear(self.input_size + self.hidden_size, self.output_size)
         self.act_fn = nn.Tanh()
 
-    def forward(self, input_layer, hidden_layer):
-        combined = torch.cat((input_layer, hidden_layer), 1)
+    def forward(self, input_state, hidden_state):
+        combined = torch.cat((input_state, hidden_state), 1)
         hidden = self.act_fn(self.i2h(combined))
         output = self.i2o(combined)
         return output, hidden
@@ -106,7 +106,8 @@ class RememberRNNModel(object):
                 output_string += self.onehot_to_word(output.data)
                 input_ = output
 
-        print(output_string)
+        print(f'[Remember]\n{output_string}')
+        print(f'[Answer]\n{string}')
 
 
 if __name__ == '__main__':

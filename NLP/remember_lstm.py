@@ -110,6 +110,7 @@ class RememberLSTMModel(nn.Module):
         self.architect()
         model = torch.load(model_path)
         hidden, cell = model.init_hidden_cell()
+        output_string = ""
 
         one_hot = torch.from_numpy(self.string_to_onehot(string)).type_as(torch.FloatTensor())
 
@@ -119,8 +120,11 @@ class RememberLSTMModel(nn.Module):
             label = one_hot[j + 1:j + 1 + 1].view(1, batch_size, n_letters)
 
             output, hidden, cell = model(input_data, hidden, cell)
-            print(self.onehot_to_word(output.data), end="")
 
+            output_string += self.onehot_to_word(output.data)
+
+        print(f'[Remember]\n{output_string}')
+        print(f'[Answer]\n{string}')
 
 if __name__ == '__main__':
     # RememberLSTMModel().process()
