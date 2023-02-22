@@ -11,18 +11,41 @@ import matplotlib.pyplot as plt
 from torchsummary import summary
 
 
-class NumberModel(nn.Module):
-    def __init__(self):
-        super(NumberModel, self).__init__()
-        self.layer = None
-        self.fc_layer = None
+batch_size = 256
+learning_rate = 0.0002
+num_epoch = 10
+device = 'mps'
+model_path = './save/number_CNN.pt'
 
-        global batch_size, learning_rate, num_epoch, device, model_path
-        batch_size = 256
-        learning_rate = 0.0002
-        num_epoch = 10
-        device = 'mps'
-        model_path = './save/number_CNN.pt'
+
+class CNNModel(nn.Module):
+    def __init__(self):
+        super(CNNModel, self).__init__()
+        self.layer = nn.Sequential(
+            nn.Conv2d(1, 16, 5),  # [batch_size,1,28,28] -> [batch_size,16,24,24]
+            nn.ReLU(),
+            nn.Conv2d(16, 32, 5),  # [batch_size,16,24,24] -> [batch_size,32,20,20]
+            nn.ReLU(),
+            nn.MaxPool2d(2, 2),  # [batch_size,32,20,20] -> [batch_size,32,10,10]
+            nn.Conv2d(32, 64, 5),  # [batch_size,32,10,10] -> [batch_size,64,6,6]
+            nn.ReLU(),
+            nn.MaxPool2d(2, 2)  # [batch_size,64,6,6] -> [batch_size,64,3,3]
+        )
+        self.fc_layer = nn.Sequential(
+            nn.Linear(64 * 3 * 3, 100),  # [batch_size,64*3*3] -> [batch_size,100]
+            nn.ReLU(),
+            nn.Linear(100, 10)  # [batch_size,100] -> [batch_size,10]
+        )
+
+    def forward(self, x):
+        out = self.layer(x)
+        out = out.view(batch_size, -1)
+        out = self.fc_layer(out)
+        return out
+
+
+class NumberModel(object):
+    def __init__(self):
         self.mnist_train = None
         self.mnist_test = None
         self.train_loader = None
@@ -31,7 +54,6 @@ class NumberModel(nn.Module):
 
     def process(self):
         self.dataset()
-        self.architect()
         self.modeling()
         self.save_model()
 
@@ -61,31 +83,8 @@ class NumberModel(nn.Module):
                                       num_workers=2,
                                       drop_last=True)
 
-    def architect(self):
-        self.layer = nn.Sequential(
-            nn.Conv2d(1, 16, 5),  # [batch_size,1,28,28] -> [batch_size,16,24,24]
-            nn.ReLU(),
-            nn.Conv2d(16, 32, 5),  # [batch_size,16,24,24] -> [batch_size,32,20,20]
-            nn.ReLU(),
-            nn.MaxPool2d(2, 2),  # [batch_size,32,20,20] -> [batch_size,32,10,10]
-            nn.Conv2d(32, 64, 5),  # [batch_size,32,10,10] -> [batch_size,64,6,6]
-            nn.ReLU(),
-            nn.MaxPool2d(2, 2)  # [batch_size,64,6,6] -> [batch_size,64,3,3]
-        )
-        self.fc_layer = nn.Sequential(
-            nn.Linear(64 * 3 * 3, 100),  # [batch_size,64*3*3] -> [batch_size,100]
-            nn.ReLU(),
-            nn.Linear(100, 10)  # [batch_size,100] -> [batch_size,10]
-        )
-
-    def forward(self, x):
-        out = self.layer(x)
-        out = out.view(batch_size, -1)
-        out = self.fc_layer(out)
-        return out
-
     def modeling(self):
-        model = self.to(device)
+        model = CNNModel().to(device)
         loss_func = nn.CrossEntropyLoss()
         optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
@@ -133,12 +132,6 @@ class NumberModel(nn.Module):
 
 class NumberService(object):
     def __init__(self):
-        global batch_size, learning_rate, num_epoch, device, model_path
-        batch_size = 256
-        learning_rate = 0.0002
-        num_epoch = 10
-        device = 'mps'
-        model_path = './save/number_CNN.pt'
         self.mnist_train = None
         self.mnist_test = None
         self.train_loader = None
