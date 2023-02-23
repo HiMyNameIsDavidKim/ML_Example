@@ -27,7 +27,7 @@ class StockLSTM(object):
         self.df_modify(self.df_kospi, self.df_sam)
         self.np_read()
         self.process_lstm(self.fit_refresh)
-        self.pred_test(lstm_model, x_test_lstm, y_test_lstm)
+        # self.pred_test(lstm_model, x_test_lstm, y_test_lstm)
 
     def df_modify(self, df1, df2):
         # print(df1, df1.shape)
@@ -54,8 +54,6 @@ class StockLSTM(object):
                 df2.iloc[i, j] = int(df2.iloc[i, j].replace(',', ''))
         df1 = df1.sort_values(['날짜'], ascending=[True])
         df2 = df2.sort_values(['날짜'], ascending=[True])
-        # print(df1, df1.shape)
-        # print(df2, df2.shape)
 
         df1 = df1.values
         df2 = df2.values

@@ -39,7 +39,7 @@ class NumberModel(object):
         model.fit(self.x_train, self.y_train, epochs=5)
 
         test_loss, test_acc = model.evaluate(self.x_test, self.y_test)
-        print('테스트 정확도:', test_acc)
+        print('테스트 정확도:', f'{test_acc * 100:.2f}%')
 
         model.save(model_path)
 

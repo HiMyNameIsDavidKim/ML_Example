@@ -45,7 +45,7 @@ class FashionModel(object):
                       metrics=['accuracy'])
         model.fit(self.train_images, self.train_labels, epochs=5)
         test_loss, test_acc = model.evaluate(self.test_images, self.test_labels)
-        print(f'Test Accuracy is {test_acc}')
+        print(f'Test Accuracy is {test_acc * 100 :.2f}%')
         model.save(model_path)
 
 

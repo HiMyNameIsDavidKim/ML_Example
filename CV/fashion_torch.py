@@ -12,8 +12,8 @@ import matplotlib.pyplot as plt
 from torchsummary import summary
 
 batch_size = 256
-learning_rate = 0.0002
-num_epoch = 10
+learning_rate = 0.001
+num_epoch = 5
 device = 'mps'
 model_path = './save/fashion.pt'
 

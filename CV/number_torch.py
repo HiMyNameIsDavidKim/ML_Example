@@ -8,12 +8,13 @@ import torchvision.transforms as transforms
 from torch.utils.data import DataLoader
 import numpy as np
 import matplotlib.pyplot as plt
+import torch.nn.functional as F
 from torchsummary import summary
 
 
 batch_size = 256
-learning_rate = 0.0002
-num_epoch = 10
+learning_rate = 0.001
+num_epoch = 5
 device = 'mps'
 model_path = './save/number_CNN.pt'
 
@@ -42,6 +43,19 @@ class CNNModel(nn.Module):
         out = out.view(batch_size, -1)
         out = self.fc_layer(out)
         return out
+
+
+class DNNModel(nn.Module):
+    def __init__(self):
+        super(DNNModel, self).__init__()
+        self.fc1 = nn.Linear(28 * 28, 512)
+        self.output = nn.Linear(512, 10)
+
+    def forward(self, x):
+        x = x.view(-1, 28 * 28)
+        x = F.relu(self.fc1(x))
+        x = self.output(x)
+        return x
 
 
 class NumberModel(object):
@@ -84,7 +98,7 @@ class NumberModel(object):
                                       drop_last=True)
 
     def modeling(self):
-        model = CNNModel().to(device)
+        model = DNNModel().to(device)
         loss_func = nn.CrossEntropyLoss()
         optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 

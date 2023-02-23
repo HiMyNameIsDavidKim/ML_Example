@@ -3,38 +3,43 @@ import torch.nn as nn
 import torch.optim as optim
 import numpy as np
 
+n_hidden = 35
+lr = 0.01
+epochs = 1000
+string = "hello pytorch. how long can a rnn cell remember? show me your limit!"
+chars = "abcdefghijklmnopqrstuvwxyz ?!.,:;01"
+char_list = [i for i in chars]
+n_letters = len(char_list)
+device = 'cpu'
+model_path = './save/remember_LSTM.pt'
+batch_size = 1
+seq_len = 1
+num_layers = 3
 
-class RememberLSTMModel(nn.Module):
+
+class LSTMModel(nn.Module):
     def __init__(self):
-        super(RememberLSTMModel, self).__init__()
+        super(LSTMModel, self).__init__()
+        self.input_size = n_letters
+        self.hidden_size = n_hidden
+        self.num_layers = num_layers
+        self.lstm = nn.LSTM(self.input_size, self.hidden_size, self.num_layers)
 
-        global n_hidden, lr, epochs, string, chars, char_list, n_letters, device, model_path, \
-            batch_size, seq_len, num_layers
-        n_hidden = 35
-        lr = 0.01
-        epochs = 1000
-        string = "hello pytorch. how long can a rnn cell remember? show me your limit!"
-        chars = "abcdefghijklmnopqrstuvwxyz ?!.,:;01"
-        char_list = [i for i in chars]
-        n_letters = len(char_list)
-        device = 'cpu'
-        model_path = './save/remember_LSTM.pt'
-        batch_size = 1
-        seq_len = 1
-        num_layers = 3
-        self.input_size = None
-        self.hidden_size = None
-        self.num_layers = None
-        self.lstm = None
-        self.output_size = None
-        self.i2h = None
-        self.i2o = None
-        self.act_fn = None
+    def forward(self, input_, hidden, cell):
+        output, (hidden, cell) = self.lstm(input_, (hidden, cell))
+        return output, hidden, cell
+
+    def init_hidden_cell(self):
+        hidden = torch.zeros(num_layers, batch_size, n_hidden)
+        cell = torch.zeros(num_layers, batch_size, n_hidden)
+        return hidden, cell
+
+
+class RememberLSTMModel(object):
+    def __init__(self):
         self.model = None
 
-
     def process(self):
-        self.architect()
         self.modeling()
         self.save_model()
 
@@ -55,23 +60,8 @@ class RememberLSTMModel(nn.Module):
         onehot = torch.Tensor.numpy(onehot_1)
         return char_list[onehot.argmax()]
 
-    def architect(self):
-        self.input_size = n_letters
-        self.hidden_size = n_hidden
-        self.num_layers = num_layers
-        self.lstm = nn.LSTM(self.input_size, self.hidden_size, self.num_layers)
-
-    def forward(self, input_, hidden, cell):
-        output, (hidden, cell) = self.lstm(input_, (hidden, cell))
-        return output, hidden, cell
-
-    def init_hidden_cell(self):
-        hidden = torch.zeros(num_layers, batch_size, n_hidden)
-        cell = torch.zeros(num_layers, batch_size, n_hidden)
-        return hidden, cell
-
     def modeling(self):
-        model = self.to(device)
+        model = LSTMModel().to(device)
         loss_func = nn.MSELoss()
         optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
@@ -107,7 +97,6 @@ class RememberLSTMModel(nn.Module):
         torch.save(self.model, model_path)
 
     def eval_test(self):
-        self.architect()
         model = torch.load(model_path)
         hidden, cell = model.init_hidden_cell()
         output_string = ""
@@ -127,5 +116,5 @@ class RememberLSTMModel(nn.Module):
         print(f'[Answer]\n{string}')
 
 if __name__ == '__main__':
-    # RememberLSTMModel().process()
+    RememberLSTMModel().process()
     RememberLSTMModel().eval_test()
