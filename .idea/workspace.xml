@@ -5,11 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="66064004-86d3-406c-be9d-8744351843fb" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/CV/auto_encoder,py.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CV/save/style_transfer/3.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/CV/save/style_transfer/3.jpg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/prediction/save/stock_LSTM_Ensemble.pt" beforeDir="false" afterPath="$PROJECT_DIR$/prediction/save/stock_LSTM_Ensemble.pt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/prediction/stock_lstm.py" beforeDir="false" afterPath="$PROJECT_DIR$/prediction/stock_lstm.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/prediction/stock_torch.py" beforeDir="false" afterPath="$PROJECT_DIR$/prediction/stock_torch.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -120,7 +117,7 @@
       <workItem from="1677114755412" duration="28117000" />
       <workItem from="1677204814865" duration="4376000" />
       <workItem from="1677209211036" duration="653000" />
-      <workItem from="1677209875193" duration="4535000" />
+      <workItem from="1677209875193" duration="13286000" />
     </task>
     <servers />
   </component>
@@ -134,6 +131,7 @@
     <SUITE FILE_PATH="coverage/ML_Example$fashion.coverage" NAME="fashion Coverage Results" MODIFIED="1677120344157" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
     <SUITE FILE_PATH="coverage/ML_Example$iris.coverage" NAME="iris Coverage Results" MODIFIED="1675743587099" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/prediction" />
     <SUITE FILE_PATH="coverage/ML_Example$number_torch.coverage" NAME="number_torch Coverage Results" MODIFIED="1677119979013" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
+    <SUITE FILE_PATH="coverage/ML_Example$auto_encoder_py.coverage" NAME="auto_encoder,py Coverage Results" MODIFIED="1677225863451" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
     <SUITE FILE_PATH="coverage/ML_Example$celeb.coverage" NAME="celeb Coverage Results" MODIFIED="1676957726069" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
     <SUITE FILE_PATH="coverage/ML_Example$fashion_torch.coverage" NAME="fashion_torch Coverage Results" MODIFIED="1677120430536" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
     <SUITE FILE_PATH="coverage/ML_Example$stock_torch.coverage" NAME="stock_torch Coverage Results" MODIFIED="1677210374950" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/prediction" />
