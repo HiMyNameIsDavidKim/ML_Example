@@ -1,3 +1,5 @@
+import pickle
+
 import numpy as np
 import pandas as pd
 from keras import Input, Model
@@ -5,6 +7,7 @@ from keras.callbacks import EarlyStopping
 from keras.models import Sequential
 from keras.layers import Dense, LSTM, concatenate
 from keras.saving.save import load_model
+from matplotlib import pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 
@@ -27,7 +30,7 @@ class StockLSTM(object):
         self.df_modify(self.df_kospi, self.df_sam)
         self.np_read()
         self.process_lstm(self.fit_refresh)
-        # self.pred_test(lstm_model, x_test_lstm, y_test_lstm)
+        self.pred_test(lstm_model, x_test_lstm, y_test_lstm)
 
     def df_modify(self, df1, df2):
         # print(df1, df1.shape)
@@ -118,9 +121,11 @@ class StockLSTM(object):
         model.compile(loss='mse', optimizer='adam', metrics=['mse'])
 
         early_stopping = EarlyStopping(patience=20)
-        model.fit(x_train_scaled, y_train, validation_split=0.2, verbose=1,
-                  batch_size=1, epochs=100, callbacks=[early_stopping])
+        history = model.fit(x_train_scaled, y_train, validation_split=0.2, verbose=1,
+                            batch_size=1, epochs=100, callbacks=[early_stopping])
         model.save(name)
+        df = pd.DataFrame(history.history)
+        df.to_csv('./save/lstm_loss.csv')
 
         loss, mse = model.evaluate(x_test_scaled, y_test, batch_size=1)
         print('loss: ', loss)
@@ -134,6 +139,13 @@ class StockLSTM(object):
             print('close: ', int(y_test[i]), ' / ', 'predict: ', int(y_pred[i]))
         return str(int(y_test[0]))
 
+    def loss_plot(self):
+        df = pd.read_csv('./save/lstm_loss.csv')
+        plt.plot(df['loss'], label='loss')
+        plt.legend()
+        plt.show()
+
 
 if __name__ == '__main__':
     StockLSTM(fit_refresh=False).process()
+    # StockLSTM(fit_refresh=False).loss_plot()

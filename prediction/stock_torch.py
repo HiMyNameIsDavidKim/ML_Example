@@ -17,13 +17,13 @@ end = datetime(2023, 1, 2)
 name = '005930.KS'
 ticker = yf.Ticker(name)
 device = 'cpu'
-num_epochs = 100
+num_epochs = 30000
 lr = 0.01
 num_classes = 1
 input_size = 3
-hidden_size = 2
+hidden_size = 3
 num_layers = 1
-# seq_length = 14
+seq_length = 4
 model_path = './save/stock_LSTM_Ensemble.pt'
 
 
@@ -49,8 +49,9 @@ class LSTMEnModel(nn.Module):
         self.seq_length = seq_length
         self.lstm = nn.LSTM(input_size=input_size, hidden_size=hidden_size,
                             num_layers=num_layers, batch_first=True)
-        self.fc1 = nn.Linear(hidden_size, 128)
-        self.fc2 = nn.Linear(128, num_classes)
+        self.fc1 = nn.Linear(hidden_size, 32)
+        self.fc2 = nn.Linear(32, 32)
+        self.fc3 = nn.Linear(32, num_classes)
         self.relu = nn.ReLU()
 
     def forward(self, x):
@@ -59,10 +60,12 @@ class LSTMEnModel(nn.Module):
 
         output, (hn, cn) = self.lstm(x, (h_0, c_0))
         hn = hn.view(-1, self.hidden_size)
-        out = self.relu(hn)
-        out = self.fc1(out)
-        out = self.relu(out)
-        out = self.fc2(out)
+        out = F.relu(hn)
+        out = F.relu(self.fc1(out))
+        out = F.relu(self.fc2(out))
+        out = F.relu(self.fc2(out))
+        out = F.relu(self.fc2(out))
+        out = self.fc3(out)
         return out
 
 
@@ -75,10 +78,12 @@ class StockModel(object):
         self.y_train = None
         self.y_test = None
         self.model = None
+        self.hist = None
 
     def process(self):
         self.prepare_ds()
         self.train_model()
+        self.loss_plot()
         self.save_model()
 
     # def split_xy(self, dataset):
@@ -102,16 +107,13 @@ class StockModel(object):
         ratio = int(x.shape[0] * 0.80)
 
         scaler_x = StandardScaler()
-        scaler_y = MinMaxScaler()
         scaler_x.fit(x)
-        scaler_y.fit(y)
         x = scaler_x.transform(x)
-        y = scaler_y.transform(y)
 
         x_train = x[:ratio, :]
         x_test = x[ratio:, :]
-        y_train = y[:ratio, :]
-        y_test = y[ratio:, :]
+        y_train = np.array(y)[:ratio, :]
+        y_test = np.array(y)[ratio:, :]
 
         x_train = Variable(torch.Tensor(x_train))
         x_test = Variable(torch.Tensor(x_test))
@@ -129,6 +131,7 @@ class StockModel(object):
         loss_function = nn.MSELoss()
         optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
+        self.hist = np.zeros(num_epochs)
         for epoch in range(num_epochs):
             x = self.x_train.to(device)
             y_ = self.y_train.to(device)
@@ -141,10 +144,17 @@ class StockModel(object):
             loss.backward()
             optimizer.step()
 
-            if epoch % 10 == 0:
-                print("Epoch: %d, loss: %1.5f" % (epoch, loss.item()))
+            if epoch % 300 == 0:
+                print(f"Epoch: {epoch}, loss: {loss.item():.5f}")
+            self.hist[epoch] = loss.item()
 
         self.model = model
+
+    def loss_plot(self):
+        x = [self.hist[i] for i in range(len(self.hist)) if i % 300 == 0]
+        plt.plot(x, label='loss')
+        plt.legend()
+        plt.show()
 
     def save_model(self):
         torch.save(self.model, model_path)
@@ -155,11 +165,8 @@ class StockModel(object):
         y = self.samsung.iloc[:, 3:4]
 
         scaler_x = StandardScaler()
-        scaler_y = MinMaxScaler()
         scaler_x.fit(x)
-        scaler_y.fit(y)
         x = scaler_x.transform(x)
-        y = scaler_y.transform(y)
 
         x_eval = Variable(torch.Tensor(np.array(x)))
         y_eval = Variable(torch.Tensor(np.array(y)))
@@ -168,9 +175,6 @@ class StockModel(object):
         train_predict = model(x_eval.to(device))
         data_predict = train_predict.data.detach().cpu().numpy()
         dataY_plot = y_eval.data.numpy()
-
-        data_predict = scaler_y.inverse_transform(data_predict)
-        dataY_plot = scaler_y.inverse_transform(dataY_plot)
 
         plt.figure(figsize=(10, 6))
         plt.axvline(x=x_eval.shape[0], c='r', linestyle='--')
