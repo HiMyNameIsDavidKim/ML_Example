@@ -9,6 +9,7 @@ from torch.utils.data import DataLoader, random_split
 import numpy as np
 import matplotlib.pyplot as plt
 from torchsummary import summary
+import pickle
 
 device = 'mps'
 path = './save/resnet_paper.pt'
@@ -139,6 +140,8 @@ class ResnetPaperModel(nn.Module):
 class ClassifyModel(object):
     def __init__(self):
         self.model = None
+        self.optimizer = None
+        self.errors = []
 
     def process(self):
         self.pre_ds()
@@ -169,22 +172,29 @@ class ClassifyModel(object):
                 if iter % 1000 == 0:
                     print(f'[epoch: {epoch}, iter: {iter}] ({loss:.4f}, device is {x.device})')
                     loss_arr.append(loss.cpu().detach().numpy())
-                    self.loss_graph(loss_arr)
+                    self.save_model(iter, model, optimizer, loss)
+                    self.load_model()
+                    self.eval_model()
+                    self.error_graph()
+
+                if iter == 32000:
+                    optimizer = optim.Adam(model.parameters(), lr=lr[1])
+                elif iter == 48000:
+                    optimizer = optim.Adam(model.parameters(), lr=lr[2])
+
                 iter += 1
 
-                if epoch % 10 == 0:
-                    self.save_model(epoch, model, optimizer, loss)
-
-    def loss_graph(self, loss_arr):
+    def error_graph(self):
+        error_arr = self.errors
         plt.figure(figsize=(5, 5))
         plt.xlabel('Iteration (1e3)')
-        plt.ylabel('Loss')
-        plt.plot(loss_arr)
+        plt.ylabel('Error (%)')
+        plt.plot(error_arr)
         plt.show()
 
-    def save_model(self, epoch, model, optimizer, loss):
+    def save_model(self, iter, model, optimizer, loss):
         torch.save({
-            'epoch': epoch,
+            'iter': iter,
             'model_state_dict': model.state_dict(),
             'optimizer_state_dict': optimizer.state_dict(),
             'loss': loss,
@@ -192,15 +202,22 @@ class ClassifyModel(object):
 
     def load_model(self):
         model = ResnetPaperModel(BasicBlock, [3, 3, 3])
-        optimizer = optim.Adam(model.parameters(), lr=lr[0])
 
         checkpoint = torch.load(path)
         model.load_state_dict(checkpoint['model_state_dict'])
-        optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
-        epoch = checkpoint['epoch']
+        iter = checkpoint['iter']
         loss = checkpoint['loss']
 
+        if iter < 32000:
+            optimizer = optim.Adam(model.parameters(), lr=lr[0])
+        elif iter < 48000:
+            optimizer = optim.Adam(model.parameters(), lr=lr[1])
+        else:
+            optimizer = optim.Adam(model.parameters(), lr=lr[2])
+        optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+
         self.model = model
+        self.optimizer = optimizer
 
     def eval_model(self):
         model = self.model.to(device)
@@ -219,11 +236,13 @@ class ClassifyModel(object):
                 total += label.size(0)
                 correct += (output_index == y_).sum().float()
 
-            print(total)
-            print(f"Accuracy of Validation Data: {100 * correct / total:.2f}%")
+            error = 100 - (100 * correct / total)
+            self.errors.append(error.cpu().detach().numpy())
+            print(f"Error of Validation Data: {error:.2f}%")
 
 
 if __name__ == '__main__':
     # resnet = ResnetPaperModel(BasicBlock, [3, 3, 3])
     # summary(resnet, (3, 32, 32), batch_size=1)
     ClassifyModel().process()
+
