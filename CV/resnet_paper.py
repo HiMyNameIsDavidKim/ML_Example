@@ -15,7 +15,7 @@ device = 'mps'
 path = './save/resnet_paper.pt'
 batch_size = 128
 lr = [0.1, 0.01, 0.001]
-num_epoch = 183  # iter = 64000
+num_epoch = 185
 
 transform = transforms.Compose(
     [transforms.ToTensor(),
@@ -105,7 +105,7 @@ class BottleNeckBlock(nn.Module):
 
 
 class ResnetPaperModel(nn.Module):
-    def __init__(self, block, num_blocks, classes=10):
+    def __init__(self, block, num_blocks):
         super(ResnetPaperModel, self).__init__()
         self.in_size = 16
         self.cnn1 = nn.Conv2d(3, self.in_size, 3, padding=1, bias=False)
@@ -115,7 +115,7 @@ class ResnetPaperModel(nn.Module):
         self.cnn4 = self.make_layer(BasicBlock, 64, num_blocks[2], stride=2)
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
 
-        self.fc = nn.Linear(64 * block.expand, classes)
+        self.fc = nn.Linear(64 * block.expand, 10)
 
     def make_layer(self, block, out_size, num_block, stride):
         strides = [stride] + [1] * (num_block - 1)
@@ -156,7 +156,7 @@ class ClassifyModel(object):
         loss_func = nn.CrossEntropyLoss()
         optimizer = optim.Adam(model.parameters(), lr=lr[0])
 
-        iter = 0
+        iters = 0
         loss_arr = []
         for epoch in range(num_epoch):
             for j, [image, label] in enumerate(train_loader):
@@ -169,20 +169,19 @@ class ClassifyModel(object):
                 loss.backward()
                 optimizer.step()
 
-                if iter % 1000 == 0:
-                    print(f'[epoch: {epoch}, iter: {iter}] ({loss:.4f}, device is {x.device})')
+                if iters % 1000 == 0:
+                    print(f'[iters: {iters}] ({loss:.4f}, device is {x.device})')
                     loss_arr.append(loss.cpu().detach().numpy())
-                    self.save_model(iter, model, optimizer, loss)
+                    self.save_model(iters, model, optimizer, loss)
                     self.load_model()
                     self.eval_model()
                     self.error_graph()
+                iters += 1
 
-                if iter == 32000:
+                if iters == 32000:
                     optimizer = optim.Adam(model.parameters(), lr=lr[1])
-                elif iter == 48000:
+                elif iters == 48000:
                     optimizer = optim.Adam(model.parameters(), lr=lr[2])
-
-                iter += 1
 
     def error_graph(self):
         error_arr = self.errors
@@ -192,9 +191,9 @@ class ClassifyModel(object):
         plt.plot(error_arr)
         plt.show()
 
-    def save_model(self, iter, model, optimizer, loss):
+    def save_model(self, iters, model, optimizer, loss):
         torch.save({
-            'iter': iter,
+            'iters': iters,
             'model_state_dict': model.state_dict(),
             'optimizer_state_dict': optimizer.state_dict(),
             'loss': loss,
@@ -205,12 +204,12 @@ class ClassifyModel(object):
 
         checkpoint = torch.load(path)
         model.load_state_dict(checkpoint['model_state_dict'])
-        iter = checkpoint['iter']
+        iters = checkpoint['iters']
         loss = checkpoint['loss']
 
-        if iter < 32000:
+        if iters < 32000:
             optimizer = optim.Adam(model.parameters(), lr=lr[0])
-        elif iter < 48000:
+        elif iters < 48000:
             optimizer = optim.Adam(model.parameters(), lr=lr[1])
         else:
             optimizer = optim.Adam(model.parameters(), lr=lr[2])
