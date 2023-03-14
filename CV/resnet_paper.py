@@ -239,9 +239,32 @@ class ClassifyModel(object):
             self.errors.append(error.cpu().detach().numpy())
             print(f"Error of Validation Data: {error:.2f}%")
 
+    def test_model(self):
+        model = self.model.to(device)
+        correct = 0
+        total = 0
+
+        model.eval()
+        with torch.no_grad():
+            for image, label in test_loader:
+                x = image.to(device)
+                y_ = label.to(device)
+
+                output = model.forward(x)
+                _, output_index = torch.max(output, 1)
+
+                total += label.size(0)
+                correct += (output_index == y_).sum().float()
+
+            error = 100 - (100 * correct / total)
+            self.errors.append(error.cpu().detach().numpy())
+            print(f"Error of Validation Data: {error:.2f}%")
+
 
 if __name__ == '__main__':
     # resnet = ResnetPaperModel(BasicBlock, [3, 3, 3])
     # summary(resnet, (3, 32, 32), batch_size=1)
-    ClassifyModel().process()
-
+    # ClassifyModel().process()
+    cm = ClassifyModel()
+    cm.load_model()
+    cm.test_model()
