@@ -1,5 +1,4 @@
-from random import randint
-
+import joblib
 import numpy as np
 import pandas as pd
 from keras import Input, Model
@@ -18,8 +17,8 @@ lotto_csv = './data/lotto_data.csv'
 lotto_npy = './data/lotto_data.npy'
 lotto_new_csv = './data/lotto_new_data.csv'
 lotto_new_npy = './data/lotto_new_data.npy'
-epochs = 60
-lr = 0.0006
+epochs = 10
+lr = 0.0001
 col = 1
 
 
@@ -38,7 +37,7 @@ class LottoModel(object):
         self.path_model = f'./save/lotto/lotto_c{col}_t{l}.h5'
         x1, y1 = self.split_xy(self.df, self.step)
         x1_train, x1_test, y1_train, y1_test = self.dataset(x1, y1, self.step)
-        # self.build_model(x1_train, x1_test, y1_train, y1_test)
+        self.build_model(x1_train, x1_test, y1_train, y1_test)
         self.predict_test(x1_test, y1_test)
 
     def df_modify(self):
@@ -75,6 +74,7 @@ class LottoModel(object):
         x_test = np.reshape(x_test_scaled, (x_test_scaled.shape[0], step, 1)).astype(float)
         y_train = y_train.astype(float)
         y_test = y_test.astype(float)
+        joblib.dump(scaler, f'./save/lotto/scaler_c{col}_t{self.step}.pkl')
         return x_train, x_test, y_train, y_test
 
     def build_model(self, x_train, x_test, y_train, y_test):
@@ -168,7 +168,7 @@ class LottoServices(object):
         return np.array(x), np.array(y)
 
     def dataset(self, x, y, step):
-        scaler = StandardScaler()
+        scaler = joblib.load(f'./save/lotto/scaler_c{col}_t{step}.pkl')
         scaler.fit(x)
         x_scaled = scaler.transform(x).astype(float)
         x = np.reshape(x_scaled, (x_scaled.shape[0], step, 1)).astype(float)
@@ -222,15 +222,15 @@ class LottoServices(object):
         df = df.values
         np.save(lotto_new_npy, arr=df)
 
-    def split_lotto(self, time_steps):
+    def split_lotto(self, time_steps, column):
         df = np.load(lotto_new_npy, allow_pickle=True)
         x = []
-        tmp_x = df[-1-time_steps:-1, col - 1]
+        tmp_x = df[-time_steps:, column - 1]
         x.append(tmp_x)
         return np.array(x)
 
-    def ds_lotto(self, x, step):
-        scaler = StandardScaler()
+    def ds_lotto(self, x, step, column):
+        scaler = joblib.load(f'./save/lotto/scaler_c{column}_t{step}.pkl')
         scaler.fit(x)
         x_scaled = scaler.transform(x).astype(float)
         x = np.reshape(x_scaled, (x_scaled.shape[0], step, 1)).astype(float)
@@ -264,17 +264,19 @@ class LottoServices(object):
 
         self.df2np()
         for num in range(len(list_model)):
-            x = self.split_lotto(list_step[num])
-            x = self.ds_lotto(x, list_step[num])
+            column = num + 1
+            x = self.split_lotto(list_step[num], column)
+            x = self.ds_lotto(x, list_step[num], column)
             model = load_model(list_model[num])
             y = model.predict(x)
-            y_b = round(y[0][0]) + biases[col-1]
+            y_b = round(y[0][0]) + biases[column-1]
             lotto_1.append(y_b)
+            print(lotto_1)
         lotto_1 = self.verify_numbers(lotto_1)
         print(lotto_1)
 
 def auto_run():
-    for i in range(2, 7):
+    for i in range(1, 7):
         global col, epochs, lr
         col = i
         epochs = col * 10
