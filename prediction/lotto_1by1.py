@@ -18,31 +18,57 @@ lotto_csv = './data/lotto_data.csv'
 lotto_npy = './data/lotto_data.npy'
 lotto_new_csv = './data/lotto_new_data.csv'
 lotto_new_npy = './data/lotto_new_data.npy'
-step = 260
-epochs = 77
+col = 2
+step = 1
+epochs = 20
 lr = 0.0001
 
 
 '''
-step1 = 0130
-step2 = 0030
-step4 = 0151
-step8 = 0110
-step12 = 0050
-step26 = 0040
-step38 = 0030
-step52 = 0030
-step260 = 0020
+c1
+step1 = 19
+step4 = 22  3rd
+step26 = 26  1st
+step52 = 20
+step104 = 26  2nd
+c2
+step1 = 
+step4 = 
+step26 = 
+step52 = 
+step104 = 
+c3
+step1 = 
+step4 = 
+step26 = 
+step52 = 
+step104 = 
+c4
+step1 = 
+step4 = 
+step26 = 
+step52 = 
+step104 = 
+c5
+step1 = 
+step4 = 
+step26 = 
+step52 = 
+step104 = 
+c6
+step1 = 
+step4 = 
+step26 = 
+step52 = 
+step104 = 
 '''
 
 def lr_schedule(epochs):
-    lr = 0.0001
-    if epochs > 20:
+    lr = 0.00002
+    if epochs >= 10:
         lr *= 0.1
-    if epochs > 40:
-        lr *= 0.1
-    if epochs > 60:
-        lr *= 0.1
+    # if epochs >= 20:
+    #     lr *= 0.1
     return lr
 
 
@@ -50,7 +76,7 @@ class LottoModel(object):
     def __init__(self):
         self.df_lotto = pd.read_csv(lotto_csv, index_col=0, header=0, encoding='utf-8', sep=',')
         self.df = None
-        self.path_model = f'./save/lotto_1hot/lotto_1hot_t{step}.h5'
+        self.path_model = f'./save/lotto_1by1/lotto_1by1_c{col}_t{step}.h5'
         self.x_train = None
         self.x_test = None
         self.y_train = None
@@ -82,7 +108,7 @@ class LottoModel(object):
 
     def num2onehot(self, numbers):
         onehot = np.zeros(45)
-        for i in range(6):
+        for i in range(1):
             onehot[int(numbers[i])-1] = 1
         return onehot
 
@@ -107,6 +133,7 @@ class LottoModel(object):
             ball = temp[ball_index]
             if ball not in numbers:
                 numbers.append(ball)
+        numbers = [sorted(numbers)[col - 1]]
         return numbers
 
     def split(self, df, step):
@@ -123,7 +150,7 @@ class LottoModel(object):
         return np.array(x), np.array(y)
 
     def dataset(self):
-        df_numbers = self.df[:, 0:6]
+        df_numbers = self.df[:, col-1:col]
         df_onehot = list(map(self.num2onehot, df_numbers))
 
         x, y = self.split(df_onehot, step)
@@ -140,7 +167,6 @@ class LottoModel(object):
         # print('onehot')
         # print(f'X[0]: {str(self.x[0])}')
         # print(f'Y[0]: {str(self.y[0])}')
-        #
         # print('numbers')
         # print(f'X[0]: {str(self.onehot2num(self.x[0]))}')
         # print(f'Y[0]: {str(self.onehot2num(self.y[0]))}')
@@ -148,8 +174,13 @@ class LottoModel(object):
     def build_model(self):
         input1 = Input(shape=(step, 45))
         dense1 = GRU(128)(input1)
-        dense1 = Dense(45, activation='relu')(dense1)
-        output1 = dense1
+        dense1 = LayerNormalization()(dense1)
+        dense1 = Dropout(0.3)(dense1)
+        dense1 = Dense(64)(dense1)
+        dense1 = LayerNormalization()(dense1)
+        dense1 = Dropout(0.3)(dense1)
+        dense1 = Dense(1000)(dense1)
+        output1 = Dense(45, activation='relu')(dense1)
 
         model = Model(inputs=input1, outputs=output1)
         model.compile(loss='mse', optimizer=Adam(learning_rate=lr), metrics=['mse'])
@@ -168,29 +199,20 @@ class LottoModel(object):
     def predict_test(self):
         model = load_model(self.path_model)
         inters = []
-        preds = []
-        truths = []
-        for j in range(5):
-            y_pred = model.predict(self.x_test)
-            for i in range(len(y_pred)):
-                pred = sorted(self.prob2num(y_pred[i]))
-                truth = sorted(self.onehot2num(self.y_test[i][0]))
-                preds.append(pred)
-                truths.append(truth)
-                inter = len(set(pred) & set(truth))
-                inters.append(inter)
-        for i in range(len(truths)//5):
-            for j in range(5):
-                print(f'predict{j+1}: {preds[i+j]}')
+        y_pred = model.predict(self.x_test)
+        for i in range(len(y_pred)):
+            pred = sorted(self.prob2num(y_pred[i]))
+            truth = sorted(self.onehot2num(self.y_test[i][0]))
+            print(f'predict: {pred}')
+            print(f'truth: {truth}')
+            inter = len(set(pred) & set(truth))
+            print(f'model got {inter}ea number!')
             print('\n')
-            print(f'truth: {truths[i]}')
-            for j in range(5):
-                print(f'model got {inters[i+j]}ea number!')
-            print('\n')
+            inters.append(inter)
         self.inters = inters
 
     def inter2grade(self, inters):
-        grade_index = ['꽝_0', '꽝_1', '꽝_2', '5동', '4등', '2/3등', '1등']
+        grade_index = ['꽝', '정답']
         grades = []
         for inter in inters:
             grade = grade_index[inter]
@@ -199,26 +221,21 @@ class LottoModel(object):
 
     def predict_summary(self):
         grades = self.inter2grade(self.inters)
-        print(f'1등 당첨 횟수: {Counter(grades)["1등"]}')
-        print(f'2/3등 당첨 횟수: {Counter(grades)["2/3등"]}')
-        print(f'4등 당첨 횟수: {Counter(grades)["4등"]}')
-        print(f'5등 당첨 횟수: {Counter(grades)["5등"]}')
-        print(f'2개 맞은 횟수: {Counter(grades)["꽝_2"]}')
-        print(f'1개 맞은 횟수: {Counter(grades)["꽝_1"]}')
-        print(f'0개 맞은 횟수: {Counter(grades)["꽝_0"]}')
+        print(f'정답 횟수: {Counter(grades)["정답"]}')
+        print(f'꽝 횟수: {Counter(grades)["꽝"]}')
         print(f'\n')
 
 
 class LottoServices(object):
     def __init__(self):
         self.df_lotto = pd.read_csv(lotto_new_csv, index_col=0, header=0, encoding='utf-8', sep=',')
-        self.model1 = f'./save/lotto_1hot/lotto_1hot_t1.h5'
-        self.model2 = f'./save/lotto_1hot/lotto_1hot_t2.h5'
-        self.model3 = f'./save/lotto_1hot/lotto_1hot_t4.h5'
-        self.model4 = f'./save/lotto_1hot/lotto_1hot_t8.h5'
-        self.model5 = f'./save/lotto_1hot/lotto_1hot_t12.h5'
-        self.list_model = [self.model1, self.model2, self.model3, self.model4, self.model5]
-        self.list_step = [1, 2, 4, 8, 12]
+        self.model1 = f'./save/lotto_1by1/lotto_1by1_c1_t26.h5'
+        self.model2 = f'./save/lotto_1by1/lotto_1by1_c1_t104.h5'
+        self.model3 = f'./save/lotto_1by1/lotto_1by1_c1_t4.h5'
+        self.list_model = [self.model1, self.model2, self.model3,
+                           ]
+        self.list_step = [26, 104, 4,
+                          ]
         self.df = None
         self.x = None
 
@@ -239,7 +256,7 @@ class LottoServices(object):
 
     def num2onehot(self, numbers):
         onehot = np.zeros(45)
-        for i in range(6):
+        for i in range(1):
             onehot[int(numbers[i])-1] = 1
         return onehot
 
@@ -264,6 +281,7 @@ class LottoServices(object):
             ball = temp[ball_index]
             if ball not in numbers:
                 numbers.append(ball)
+        numbers = [sorted(numbers)[col - 1]]
         return numbers
 
     def split(self, df, step):
@@ -273,7 +291,7 @@ class LottoServices(object):
         return np.array(x)
 
     def dataset(self, step):
-        df_numbers = self.df[-step:, 0:6]
+        df_numbers = self.df[-step:, col-1:col]
         df_onehot = list(map(self.num2onehot, df_numbers))
 
         x = self.split(df_onehot, step)
@@ -285,17 +303,28 @@ class LottoServices(object):
             model = load_model(self.list_model[i])
             self.dataset(self.list_step[i])
             y = model.predict(self.x)
-            pred = sorted(self.prob2num(y[0]))
+            pred = self.prob2num(y[0])
             results += f'good luck bro! {pred}\n'
+        preds = []
+        for i in range(len(self.list_model)):
+            model = load_model(self.list_model[i])
+            self.dataset(self.list_step[i])
+            y = model.predict(self.x)
+            pred = self.prob2num(y[0])
+            preds.append(pred)
+        results += f'good luck bro! {(preds[0][0] + preds[1][0])//2}\n'
+        results += f'good luck bro! {(preds[0][0] + preds[1][0] + preds[2][0])//3}\n'
         print(results)
 
 
 def auto_run():
-    list_step = [2, 8]
-    for s in list_step:
-        global step
-        step = s
-        LottoModel().process_main()
+    for c in [2, 3, 4, 5, 6]:
+        global col
+        col = c
+        for s in [1, 4, 26, 52, 104]:
+            global step
+            step = s
+            LottoModel().process_main()
 
 
 lotto_menus = ["Exit",  # 0

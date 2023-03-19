@@ -5,15 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6dc597b5-90f3-42c0-9fbe-571e0fb81339" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/prediction/lotto_1hot.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/prediction/save/lotto/scaler_c1_t104.pkl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/prediction/save/lotto/scaler_c1_t156.pkl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/prediction/save/lotto/scaler_c1_t208.pkl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/prediction/save/lotto/scaler_c1_t312.pkl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/prediction/save/lotto/scaler_c1_t364.pkl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/prediction/save/lotto/scaler_c1_t52.pkl" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/prediction/lotto_1by1.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/prediction/lotto.py" beforeDir="false" afterPath="$PROJECT_DIR$/prediction/lotto.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/prediction/lotto_1hot.py" beforeDir="false" afterPath="$PROJECT_DIR$/prediction/lotto_1hot.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -79,7 +73,7 @@
       <workItem from="1678884687086" duration="602000" />
       <workItem from="1678940247666" duration="1210000" />
       <workItem from="1679026110212" duration="17236000" />
-      <workItem from="1679045718451" duration="52576000" />
+      <workItem from="1679045718451" duration="61513000" />
     </task>
     <servers />
   </component>
@@ -88,7 +82,8 @@
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/ML_Example$lotto.coverage" NAME="lotto Coverage Results" MODIFIED="1679154983113" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/prediction" />
-    <SUITE FILE_PATH="coverage/ML_Example$lotto_1hot.coverage" NAME="lotto_1hot Coverage Results" MODIFIED="1679204779515" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/prediction" />
+    <SUITE FILE_PATH="coverage/ML_Example$lotto_1hot.coverage" NAME="lotto_1hot Coverage Results" MODIFIED="1679214552186" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/prediction" />
     <SUITE FILE_PATH="coverage/ML_Example$resnet_paper.coverage" NAME="resnet_paper Coverage Results" MODIFIED="1678164384940" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
+    <SUITE FILE_PATH="coverage/ML_Example$lotto_1by1.coverage" NAME="lotto_1by1 Coverage Results" MODIFIED="1679229926651" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/prediction" />
   </component>
 </project>
