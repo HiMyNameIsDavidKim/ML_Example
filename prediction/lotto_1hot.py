@@ -8,7 +8,7 @@ from keras.optimizers.schedules.learning_rate_schedule import ExponentialDecay
 from sklearn.utils import shuffle
 from keras.callbacks import EarlyStopping, LearningRateScheduler
 from keras.models import Sequential
-from keras.layers import Dense, LSTM, ReLU, LayerNormalization, Dropout, GRU
+from keras.layers import Dense, LSTM, ReLU, LayerNormalization, Dropout, GRU, Flatten, Multiply, Concatenate
 from keras.saving.save import load_model
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
@@ -18,22 +18,36 @@ lotto_csv = './data/lotto_data.csv'
 lotto_npy = './data/lotto_data.npy'
 lotto_new_csv = './data/lotto_new_data.csv'
 lotto_new_npy = './data/lotto_new_data.npy'
-step = 260
+step = 12
 epochs = 77
 lr = 0.0001
 
-
 '''
+test_size=0.1
+step1 = 0120
+step2 = 1040
+step4 = 0090
+step8 = 0190
+step12 = 0270
+'''
+'''
+test_size=0.2
 step1 = 0130
 step2 = 0030
 step4 = 0151
 step8 = 0110
 step12 = 0050
-step26 = 0040
-step38 = 0030
-step52 = 0030
-step260 = 0020
 '''
+'''
+test_size=0.4
+step1 = 0020
+step2 = 0040
+step4 = 0010
+step8 = 0030
+step12 = 0020
+'''
+compare = [7, 10, 22, 25, 34, 40]
+
 
 def lr_schedule(epochs):
     lr = 0.0001
@@ -131,7 +145,7 @@ class LottoModel(object):
         x_train, x_test, \
             y_train, y_test = train_test_split(x, y,
                                                random_state=42,
-                                               test_size=0.2)
+                                               test_size=0.1)
         self.x_train = np.reshape(x_train, (x_train.shape[0], step, 45)).astype(float)
         self.x_test = np.reshape(x_test, (x_test.shape[0], step, 45)).astype(float)
         self.y_train = np.reshape(y_train, (y_train.shape[0], 1, 45)).astype(float)
@@ -212,13 +226,13 @@ class LottoModel(object):
 class LottoServices(object):
     def __init__(self):
         self.df_lotto = pd.read_csv(lotto_new_csv, index_col=0, header=0, encoding='utf-8', sep=',')
-        self.model1 = f'./save/lotto_1hot/lotto_1hot_t1.h5'
-        self.model2 = f'./save/lotto_1hot/lotto_1hot_t2.h5'
-        self.model3 = f'./save/lotto_1hot/lotto_1hot_t4.h5'
-        self.model4 = f'./save/lotto_1hot/lotto_1hot_t8.h5'
+        self.model1 = f'./save/lotto_1hot/lotto_1hot_t12.h5'
+        self.model2 = f'./save/lotto_1hot/lotto_1hot_t12.h5'
+        self.model3 = f'./save/lotto_1hot/lotto_1hot_t12.h5'
+        self.model4 = f'./save/lotto_1hot/lotto_1hot_t12.h5'
         self.model5 = f'./save/lotto_1hot/lotto_1hot_t12.h5'
         self.list_model = [self.model1, self.model2, self.model3, self.model4, self.model5]
-        self.list_step = [1, 2, 4, 8, 12]
+        self.list_step = [12, 12, 12, 12, 12]
         self.df = None
         self.x = None
 
@@ -286,12 +300,18 @@ class LottoServices(object):
             self.dataset(self.list_step[i])
             y = model.predict(self.x)
             pred = sorted(self.prob2num(y[0]))
-            results += f'good luck bro! {pred}\n'
+            inter = len(set(pred) & set(compare))
+            results += f'good luck bro! {pred} ({self.inter2grade(inter)})\n'
         print(results)
+
+    def inter2grade(self, inter):
+        grade_index = ['꽝_0', '꽝_1', '꽝_2', '5동', '4등', '2/3등', '1등']
+        grade = grade_index[inter]
+        return grade
 
 
 def auto_run():
-    list_step = [2, 8]
+    list_step = [1, 2, 4, 8, 12]
     for s in list_step:
         global step
         step = s
