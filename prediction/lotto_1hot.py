@@ -3,12 +3,14 @@ import joblib
 import numpy as np
 import pandas as pd
 from keras import Input, Model
+from keras.backend import expand_dims
 from keras.optimizers import Adam
 from keras.optimizers.schedules.learning_rate_schedule import ExponentialDecay
 from sklearn.utils import shuffle
 from keras.callbacks import EarlyStopping, LearningRateScheduler
 from keras.models import Sequential
-from keras.layers import Dense, LSTM, ReLU, LayerNormalization, Dropout, GRU, Flatten, Multiply, Concatenate
+from keras.layers import Dense, LSTM, ReLU, LayerNormalization, Dropout, GRU, Flatten, Multiply, Concatenate, RNN, \
+    SimpleRNN, Conv1D, MaxPooling1D
 from keras.saving.save import load_model
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
@@ -18,10 +20,13 @@ lotto_csv = './data/lotto_data.csv'
 lotto_npy = './data/lotto_data.npy'
 lotto_new_csv = './data/lotto_new_data.csv'
 lotto_new_npy = './data/lotto_new_data.npy'
-step = 10
+step = 2
 epochs = 77
 lr = 0.0001
 
+# 데이터셋이 작아서 구조가 간단하면 유리하다...?
+# GRU, LSTM, RNN, DNN, ARIMA set
+compare = []
 '''
 test_size=0.1
 step1 = 0120
@@ -33,23 +38,90 @@ step10 = 0270
 step12 = 0270
 '''
 '''
-test_size=0.2
-step1 = 0130
-step2 = 0030
-step4 = 0151
-step8 = 0110
-step12 = 0050
-'''
-'''
-test_size=0.4
-step1 = 0020
-step2 = 0040
-step4 = 0010
-step8 = 0030
-step12 = 0020
-'''
-compare = [7, 10, 22, 25, 34, 40]
+[2, 2, 2, 2, 2]
+###### 72회 시행 결과 ###### 38%
+1등: 0회
+2/3등: 0회
+4등: 1회
+5등: 28회
 
+[1, 1, 1, 1, 1]
+###### 14회 시행 결과 ###### 36%
+1등: 0회
+2/3등: 0회
+4등: 1회
+5등: 5회
+
+[8, 8, 8, 8, 8]
+###### 99회 시행 결과 ###### 14%
+1등: 0회
+2/3등: 0회
+4등: 1회
+5등: 14회
+
+[10, 10, 10, 10, 10]
+###### 145회 시행 결과 ###### 20%
+1등: 0회
+2/3등: 0회
+4등: 1회
+5등: 29회
+
+[12, 12, 12, 12, 12]
+###### 93회 시행 결과 ###### 28%
+1등: 0회
+2/3등: 0회
+4등: 1회
+5등: 26회
+
+[1, 1, 2, 2, 12]
+###### 288회 시행 결과 ###### 21%
+1등: 0회
+2/3등: 0회
+4등: 1회
+5등: 62회
+
+[2, 2, 2, 12, 12]
+###### 28회 시행 결과 ###### 36%
+1등: 0회
+2/3등: 0회
+4등: 1회
+5등: 10회
+
+[2, 2, 12, 12, 12]
+###### 25회 시행 결과 ###### 36%
+1등: 0회
+2/3등: 0회
+4등: 1회
+5등: 9회
+
+[2, 2, 1, 12, 12]
+###### 39회 시행 결과 ###### 23%
+1등: 0회
+2/3등: 0회
+4등: 1회
+5등: 9회
+
+[2, 2, 2, 1, 1]
+###### 64회 시행 결과 ###### 20%
+1등: 0회
+2/3등: 0회
+4등: 1회
+5등: 13회
+
+[2, 2, 8, 12, 12]
+###### 40회 시행 결과 ###### 20%
+1등: 0회
+2/3등: 0회
+4등: 1회
+5등: 8회
+
+[2, 2, 10, 12, 12]
+###### 59회 시행 결과 ###### 20%
+1등: 0회
+2/3등: 0회
+4등: 1회
+5등: 12회
+'''
 
 def lr_schedule(epochs):
     lr = 0.0001
@@ -66,7 +138,7 @@ class LottoModel(object):
     def __init__(self):
         self.df_lotto = pd.read_csv(lotto_csv, index_col=0, header=0, encoding='utf-8', sep=',')
         self.df = None
-        self.path_model = f'./save/lotto_1hot/lotto_1hot_t{step}.h5'
+        self.path_model = f'./save/lotto_1hot/lotto_1hot_DNN.h5'
         self.x_train = None
         self.x_test = None
         self.y_train = None
@@ -147,7 +219,7 @@ class LottoModel(object):
         x_train, x_test, \
             y_train, y_test = train_test_split(x, y,
                                                random_state=42,
-                                               test_size=0.2)
+                                               test_size=0.1)
         self.x_train = np.reshape(x_train, (x_train.shape[0], step, 45)).astype(float)
         self.x_test = np.reshape(x_test, (x_test.shape[0], step, 45)).astype(float)
         self.y_train = np.reshape(y_train, (y_train.shape[0], 1, 45)).astype(float)
@@ -163,9 +235,8 @@ class LottoModel(object):
 
     def build_model(self):
         input1 = Input(shape=(step, 45))
-        dense1 = GRU(128)(input1)
-        dense1 = Dense(45, activation='relu')(dense1)
-        output1 = dense1
+        dense1 = Dense(128)(input1)
+        output1 = Dense(45, activation='relu')(dense1)
 
         model = Model(inputs=input1, outputs=output1)
         model.compile(loss='mse', optimizer=Adam(learning_rate=lr), metrics=['mse'])
@@ -228,7 +299,7 @@ class LottoModel(object):
 class LottoServices(object):
     def __init__(self):
         self.df_lotto = pd.read_csv(lotto_new_csv, index_col=0, header=0, encoding='utf-8', sep=',')
-        self.list_step = [1, 2, 8, 10, 12]
+        self.list_step = [2, 2, 2, 2, 2]  # [1, 2, 8, 10, 12]
         self.model1 = f'./save/lotto_1hot/lotto_1hot_t{self.list_step[0]}.h5'
         self.model2 = f'./save/lotto_1hot/lotto_1hot_t{self.list_step[1]}.h5'
         self.model3 = f'./save/lotto_1hot/lotto_1hot_t{self.list_step[2]}.h5'
@@ -237,6 +308,7 @@ class LottoServices(object):
         self.list_model = [self.model1, self.model2, self.model3, self.model4, self.model5]
         self.df = None
         self.x = None
+        self.grades = []
 
     def process(self):
         self.df2np()
@@ -302,9 +374,11 @@ class LottoServices(object):
             self.dataset(self.list_step[i])
             y = model.predict(self.x)
             pred = sorted(self.prob2num(y[0]))
-            inter = len(set(pred) & set(compare))
-            results += f'good luck bro! {pred} ({self.inter2grade(inter)})\n'
+            results += f'good luck bro! {pred}\n'  # {self.inter2grade(inter)}
+            # inter = len(set(pred) & set(compare))
+            # self.grades.append(self.inter2grade(inter))
         print(results)
+        print(f'last week cross checker: {self.onehot2num(self.x[0][-1])}\n')
 
     def inter2grade(self, inter):
         grade_index = ['꽝_0', '꽝_1', '꽝_2', '5등', '4등', '2/3등', '1등']
@@ -313,11 +387,27 @@ class LottoServices(object):
 
 
 def auto_run():
-    list_step = [6, 10]
+    list_step = [1, 2, 8, 10, 12]
     for s in list_step:
         global step
         step = s
         LottoModel().process_main()
+
+
+def auto_test():
+    cnt = 0
+    ls = LottoServices()
+    while True:
+        ls.process()
+        cnt += 1
+        if ('1등' in ls.grades) or ('2/3등' in ls.grades) or ('4등' in ls.grades):
+            print(f'###### {cnt}회 시행 결과 ######')
+            print(f'1등: {ls.grades.count("1등")}회')
+            print(f'2/3등: {ls.grades.count("2/3등")}회')
+            print(f'4등: {ls.grades.count("4등")}회')
+            print(f'5등: {ls.grades.count("5등")}회')
+            print('\n')
+            break
 
 
 lotto_menus = ["Exit",  # 0
@@ -325,6 +415,7 @@ lotto_menus = ["Exit",  # 0
                "Test Model",  # 2
                "Predict This Week",  # 3
                "Auto Run",  # 4
+               "Auto Test",  # 5
                ]
 
 lotto_lambda = {
@@ -332,7 +423,7 @@ lotto_lambda = {
     "2": lambda t: LottoModel().process_test(),
     "3": lambda t: t.process(),
     "4": lambda t: auto_run(),
-    "5": lambda t: print(" ** No Function ** "),
+    "5": lambda t: auto_test(),
     "6": lambda t: print(" ** No Function ** "),
     "7": lambda t: print(" ** No Function ** "),
     "8": lambda t: print(" ** No Function ** "),
