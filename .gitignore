@@ -6,3 +6,4 @@ celeba/
 cifar-10-batches-py/
 *.gz
 *.pt
+ImageNet/

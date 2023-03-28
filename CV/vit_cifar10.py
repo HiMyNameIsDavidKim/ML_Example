@@ -10,6 +10,17 @@ from tqdm import tqdm
 from CV.vit_paper import ViT
 
 
+'''
+timm 라이브러리를 불러오면 사전학습된 ViT 사용 가능하다.
+import timm
+model = timm.models.vit_base_patch16_224(pretrained=True).to(device)
+vit_base_patch16_224  # OK
+vit_large_patch14_224  # ? but second model
+vit_huge_patch14_224  # ? but best model
+(https://velog.io/@gtpgg1013/pytorch-Image-Classification-Using-ViT)
+'''
+
+
 device = 'mps'
 # device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 model_path = './save/ViT_Cifar10.pt'
@@ -49,7 +60,7 @@ class ViTCifar10Model(object):
         self.model = None
 
     def process(self):
-        self.pretrain_model()  # Check pre-training setting.
+        # self.pretrain_model()  # Check pre-training setting. We need to prepare super large dataset for this.
         self.train_model()
         self.save_model()
         self.eval_model()
