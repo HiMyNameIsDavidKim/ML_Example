@@ -5,6 +5,7 @@ import torch.utils.data as data
 import torchvision.transforms as transforms
 
 device = 'mps'
+# device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 BATCH_SIZE = 100
 NUM_WORKERS = 2
 
@@ -59,11 +60,11 @@ class ViTImageNet21k(object):
                 correct_top5 += correct_k.item()
 
                 print(f"Step : {idx + 1} / {int(len(test_set) / int(labels.size(0)))}")
-                print(f"top-1 percentage :  {correct_top1 / total * 100:0.2f}%")
-                print(f"top-5 percentage :  {correct_top5 / total * 100:0.2f}%")
+                print(f"top-1 Accuracy :  {correct_top1 / total * 100:0.2f}%")
+                print(f"top-5 Accuracy :  {correct_top5 / total * 100:0.2f}%")
 
-        print(f"top-1 percentage :  {correct_top1 / total * 100:0.2f}%")
-        print(f"top-5 percentage :  {correct_top5 / total * 100:0.2f}%")
+        print(f"top-1 Accuracy :  {correct_top1 / total * 100:0.2f}%")
+        print(f"top-5 Accuracy :  {correct_top5 / total * 100:0.2f}%")
 
 
 if __name__ == "__main__":
