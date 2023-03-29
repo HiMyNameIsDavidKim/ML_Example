@@ -44,7 +44,7 @@ history = ['유저 질문', 'GPT 대답']
 'I give you a Chat History of someone and me chatting.
 New Question is the next question following the chat history.
 Please create a new "Standalone Question" that combines chat history and new questions.
-Please reply in question language.
+Please reply in korean.
 Chat History: {chat_history}
 New Question: {question}'
 
@@ -56,31 +56,31 @@ You should only reply that reference the document below.
 Generation of unreferenced answers is prohibited.
 If you can't find the answer in the document below, just say "Hmm, I'm not sure."
 Don't make up hyperlinks.
-Please reply in question language.
+Please reply in korean.
 Question: {question}
 Document: {context}'
 
 
 [히스토리 생성]
 history = [f"me: {question}\n”, f”someone: {answer}\n”]
+'''
 
+'''
+간단한 작업에 대해서는 더 빠르게 수행가능 함.
+(키워드 요약 지시)
+기존(12.2초) : 내용 동일함. 
+수정(8.1초) : 내용 동일함.
 
-[통합형 프롬프트]
-{chat_history} = 히스토리, {question} = 새 질문, {context} = 문서
-'I give you chat history and my new question and the document.
-You should only reply that reference the document below.
-Generation of unreferenced answers is prohibited.
-If you can't find the answer in the document below, just say "Hmm, I'm not sure."
-Don't make up hyperlinks.
-Please reply in question language.
-Chat History: {chat_history}
-My New Question: {question}
-Document: {context}'
+요약 작업에 대하여 맥락을 더 잘 이해 했으며,
+생성된 답변이 더 자연스러운 편임.
+(문서 전체 요약)
+기존(31.8초) : 이 문서는 미래를 예측하는 다양한 단서 중 하나인 '사람'에 초점을 맞추고 있습니다. 각 세대의 특성을 규정하는 계기 중 가장 큰 영향력을 미치는 사건은 코로나19로, 모든 세대가 영향을 받았지만 특히 어린 세대가 더 크게 영향을 받았습니다. 코로나19로 인해 비대면 상황이 뉴노멀이 되었고, 어린 시절에 포스트 팬데믹 시대를 겪은 세대는 알파 세대와 후기 Z세대로 볼 수 있습니다. 알파 세대는 2010년에서 2024년에 태어난 아이들로, Z세대 다음 세대이고 밀레니얼의 자녀입니다.
+수정(35.2초) : 본 문서는 미래를 예측하는 다양한 단서 중 하나인 '사람'에 초점을 맞추고 있습니다. 각 세대의 특성을 규정하는 계기 중 하나로 코로나19가 큰 영향력을 미치고 있다고 설명하며, 이로 인해 모든 세대가 영향을 받았지만 특히 어린 세대가 더 크게 영향을 받았다고 합니다. 어린 시절에 포스트 팬데믹 시대를 겪은 세대는 알파 세대와 후기 Z세대로 볼 수 있으며, 이들은 비대면 상황으로 인해 정상적인 사회화 과정을 거치지 못하고 있습니다.
 '''
 
 '''
 [`100단어 내외 요약 실험`]
-요약 / 핵심 아이디어 / 키워드
+목차별 요약 / 키워드 (+핵심 아이디어)
 
 질문: 
 다음 3개의 문서를 요약하는 리포트를 100단어 내외로 작성해줘.
@@ -95,4 +95,14 @@ Document: {context}'
 
 요약 리포트 내용: 
 2021년 대출 증가율이 둔화되었지만, 소득이 높아질수록 대출액도 높아지는 추세를 보이며, 20대 대출 증가율이 눈에 띄게 높아졌다. 대출 연체율은 20대가 가장 높았다. 미국 지역 은행 위기가 촉발된 3월 중순 실리콘 밸리 은행 파산 사건은 유동성, 체계적, 실질적인 경기 순환 위기로 계속해서 전개되고 있으며, 바이든 행정부는 위기가 시스템 위기로 번지는 것을 막기 위해 최선을 다하고 있다. 반면에 국내 투자자들은 반도체 테마 ETF에 대한 관심을 계속 유지하고 있으며, TIGER Fn 반도체 TOP10 ETF는 개인 투자자들이 순자산 1조원을 돌파하는 등 상당한 인기를 끌고 있다.
+
+{num_doc} : 문서 갯수 / {lang_type} : 새 보고서의 말투 / {doc1} / {doc2}
+Please write a report summarizing the following {num_doc} documents in about 100 words.
+Please speak like {lang_type}.
+
+document 1:
+{doc1}
+
+document 2:
+{doc2}
 '''
