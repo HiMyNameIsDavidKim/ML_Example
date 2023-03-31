@@ -5,9 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6dc597b5-90f3-42c0-9fbe-571e0fb81339" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/NLP/crawling_pdf.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CV/timm_vit_cifar100.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/timm_vit_cifar100.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/NLP/gpt_prompt.py" beforeDir="false" afterPath="$PROJECT_DIR$/NLP/gpt_prompt.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/prediction/data/lotto_new_data.npy" beforeDir="false" afterPath="$PROJECT_DIR$/prediction/data/lotto_new_data.npy" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -107,7 +107,11 @@
       <workItem from="1679988079263" duration="2913000" />
       <workItem from="1679999647867" duration="6079000" />
       <workItem from="1680052963952" duration="22000" />
-      <workItem from="1680064886548" duration="6362000" />
+      <workItem from="1680064886548" duration="6445000" />
+      <workItem from="1680102954924" duration="1000" />
+      <workItem from="1680140705129" duration="3035000" />
+      <workItem from="1680194548401" duration="1000" />
+      <workItem from="1680226201613" duration="3701000" />
     </task>
     <servers />
   </component>
@@ -118,7 +122,7 @@
     <SUITE FILE_PATH="coverage/ML_Example$lotto.coverage" NAME="lotto Coverage Results" MODIFIED="1679154983113" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/prediction" />
     <SUITE FILE_PATH="coverage/ML_Example$vit_cifar10.coverage" NAME="vit_cifar10 Coverage Results" MODIFIED="1679971290257" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
     <SUITE FILE_PATH="coverage/ML_Example$lotto_arima.coverage" NAME="lotto_arima Coverage Results" MODIFIED="1679451207531" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/prediction" />
-    <SUITE FILE_PATH="coverage/ML_Example$lotto_1hot.coverage" NAME="lotto_1hot Coverage Results" MODIFIED="1679632336615" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/prediction" />
+    <SUITE FILE_PATH="coverage/ML_Example$lotto_1hot.coverage" NAME="lotto_1hot Coverage Results" MODIFIED="1680150834098" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/prediction" />
     <SUITE FILE_PATH="coverage/ML_Example$resnet_paper.coverage" NAME="resnet_paper Coverage Results" MODIFIED="1678164384940" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
     <SUITE FILE_PATH="coverage/ML_Example$lotto_1by1.coverage" NAME="lotto_1by1 Coverage Results" MODIFIED="1679238804794" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/prediction" />
     <SUITE FILE_PATH="coverage/ML_Example$timm_vit.coverage" NAME="timm_vit Coverage Results" MODIFIED="1679979340677" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
