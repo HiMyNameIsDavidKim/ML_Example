@@ -5,9 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6dc597b5-90f3-42c0-9fbe-571e0fb81339" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/NLP/crawling_pdf.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/prediction/data/lotto_new_data.npy" beforeDir="false" afterPath="$PROJECT_DIR$/prediction/data/lotto_new_data.npy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/NLP/gpt_prompt.py" beforeDir="false" afterPath="$PROJECT_DIR$/NLP/gpt_prompt.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -111,7 +110,8 @@
       <workItem from="1680102954924" duration="1000" />
       <workItem from="1680140705129" duration="3035000" />
       <workItem from="1680194548401" duration="1000" />
-      <workItem from="1680226201613" duration="3701000" />
+      <workItem from="1680226201613" duration="5199000" />
+      <workItem from="1680494950473" duration="8578000" />
     </task>
     <servers />
   </component>
