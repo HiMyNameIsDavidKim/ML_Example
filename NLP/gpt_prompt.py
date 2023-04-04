@@ -66,6 +66,27 @@ history = [f"me: {question}\n”, f”someone: {answer}\n”]
 '''
 
 '''
+[2차 수정]
+
+[standalone 프롬프트]
+삭제
+New Question: I give you chat history and question.\n{chat_history}\n{question}
+
+
+[문서 내용 탐색 프롬프트]
+I give you chat history and question and document.
+Please reply in language used in the question.
+
+Question: {question}
+Document: {context}
+
+문서를 750자 분량으로 요약해줘.
+
+
+'''
+
+
+'''
 간단한 작업에 대해서는 더 빠르게 수행가능 함.
 (키워드 요약 지시)
 기존(12.2초) : 내용 동일함. 
@@ -110,7 +131,6 @@ document 2:
 '''
 5W1H를 기반으로 자세한 사항을 명령
 Executive Summary + Details
-
 일단 한 문서의 요약은 500자가 넘어야 함.
 500, 750, 1000으로 실험.
 
@@ -129,38 +149,39 @@ Bullet Point에 대한 details
 - 본문 : 
 Bullet Point 마다 자세히 설명, 300자 내
 
-[벡터 스토어 전처리 프롬프트]
-'
-나는 보고서의 일부를 발췌해 줄거야. 이 내용들을 기억했다가 내가 요청하면 요약을 해줘.
-보고서의 일부를 줄게 기억해. (내용1)
-보고서의 일부를 줄게 기억해. (내용2) 반복
-'
 
-'
-내가 지금까지 준 모든 내용을 자세하게 요약해줘.
-'
+크롤링 -> Preprocess -> Gen 레포트(1000자)(=Details) -> Summary
 
-'
-다음 문서의 핵심 키워드 5개를 추출해줘.
-'
 
-[Executive Summary 프롬프트]
-'
-다음 3개의 문서를 요약하는 리포트를 작성할거야.
-이 요약 리포트의 구성은 다음과 같아.
-1. 30자 내외의 타이틀
-2. 300자 내외의 요약글
-3. 핵심 포인트 5개에 대한 타이틀
-4. 5개 타이틀에 대한 각각의 키워드
-5. 5개 타이틀에 대한 각각의 100자 내외의 설명
-리더에게 보고하는 말투로 부탁해.
-'
+[Preprocess 프롬프트]
+I give you my question and the document.
+You should only reply that reference the document below.
+Generation of unreferenced answers is prohibited.
+Don't make up hyperlinks.
+Please reply in korean.
+Question: {question}
+Document: {context}
 
-[Details 프롬프트]
-'
-다음 3개의 문서를 요약하는 리포트를 작성할거야.
-3개 문서의 핵심 포인트의 타이틀은 {bullet_point}야.
-각 핵심 포인트에 대한 자세한 설명을 300자 내외로 작성해줘.
-답변은 (타이틀, 설명)이 반복되는 구조로 부탁해.
-'
+
+[Gen 프롬프트](완료)
+I give you three documents.
+I want to create a 1700 characters new content that combines three documents.
+Choose 5 key topics and create 5 new contents that details.
+Please reply in korean.
+Document1: {document_1}
+Document2: {document_2}
+Document3: {document_3}
+
+
+[Summary 프롬프트]
+I give you the new structure and the document.
+Please summarize the document according to the new structure.
+Please reply in korean.
+New Structure: 
+1. Title
+2. 300-character summary
+3-1. key topic
+3-2. Keywords and 100-character descriptions of key topics
+Document: {context}
 '''
+
