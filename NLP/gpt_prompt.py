@@ -80,11 +80,10 @@ Please reply in language used in the question.
 Question: {question}
 Document: {context}
 
-문서를 750자 분량으로 요약해줘.
+Please summarize the document into 500~550 characters.
 
 
 '''
-
 
 '''
 간단한 작업에 대해서는 더 빠르게 수행가능 함.
@@ -183,5 +182,10 @@ New Structure:
 3-1. key topic
 3-2. Keywords and 100-character descriptions of key topics
 Document: {context}
+
+
+[목차 대체 프롬프트](완료)
+Please extract 5 key topics from the document in list type.
+Please reply in korean.
 '''
 
