@@ -149,7 +149,7 @@ Bullet Point 마다 자세히 설명, 300자 내
 마지막 500자 만든 2500자는 저장 해두기.
 
 
-[Preprocess 프롬프트](완료)
+[전처리 프롬프트](완료)
 I'll give you the document, remember this.
 Please summarize the document into 500-550 Korean characters. Please reply in Korean.
 
