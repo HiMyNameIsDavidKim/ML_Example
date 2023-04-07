@@ -133,14 +133,6 @@ Executive Summary + Details
 일단 한 문서의 요약은 500자가 넘어야 함.
 500, 750, 1000으로 실험.
 
-<Executive Summary 영역>
-- 타이틀 : 30자 내
-- 써머리 : 300자 내로 보고서 전체를 요약한 글
-- 본문 : 
-Bullet Point로 구성
-Bullet Point는 대표 키워드와 간단한 설명이 있음.
-대표 키워드는 20자 내, 간단한 설명은 100자 내
-
 <Details 영역>
 Bullet Point에 대한 details
 (타이틀-본문) 반복되는 구조
@@ -148,12 +140,13 @@ Bullet Point에 대한 details
 - 본문 : 
 Bullet Point 마다 자세히 설명, 300자 내
 
-[전체 프로세스]
-크롤링 -> 전처리 -> Gen 레포트(1000자)(=Details) -> Summary
+[Gen 전체 프로세스]
+크롤링 -> 전처리(2500자) -> 전처리(500자) -> Gen(Details) 레포트(1700자)
 
 [전처리 프로세스]
 2500자씩 썰기 -> 500자 요약 -> 취합 -> 다시 2500자 썰기 -> 500자 요약 -> 취합
-500자로 최종 문서 만들기
+500자로 최종 문서 만들기.
+마지막 500자 만든 2500자는 저장 해두기.
 
 
 [Preprocess 프롬프트](완료)
@@ -161,7 +154,7 @@ I'll give you the document, remember this.
 Please summarize the document into 500-550 Korean characters. Please reply in Korean.
 
 
-[Gen 프롬프트](완료)
+[Gen(Detail) 프롬프트](완료)
 I give you three documents.
 I want to create a 1700 Korean characters new content that combines three documents.
 Choose 5 key topics and create 5 new contents that details.
@@ -169,18 +162,6 @@ Please reply in Korean.
 Document1: {document_1}
 Document2: {document_2}
 Document3: {document_3}
-
-
-[Summary 프롬프트]
-I give you the new structure and the document.
-Please summarize the document according to the new structure.
-Please reply in Korean.
-New Structure: 
-1. Title
-2. 300-character summary
-3-1. key topic
-3-2. Keywords and 100-character descriptions of key topics
-Document: {context}
 
 
 [목차 대체 프롬프트](완료)

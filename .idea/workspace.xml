@@ -7,7 +7,6 @@
     <list default="true" id="6dc597b5-90f3-42c0-9fbe-571e0fb81339" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/NLP/gpt_prompt.py" beforeDir="false" afterPath="$PROJECT_DIR$/NLP/gpt_prompt.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/prediction/data/lotto_new_data.npy" beforeDir="false" afterPath="$PROJECT_DIR$/prediction/data/lotto_new_data.npy" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -122,7 +121,7 @@
       <workItem from="1680745313883" duration="2268000" />
       <workItem from="1680831239752" duration="4037000" />
       <workItem from="1680877656801" duration="5000" />
-      <workItem from="1680879848417" duration="1096000" />
+      <workItem from="1680879848417" duration="2245000" />
     </task>
     <servers />
   </component>
