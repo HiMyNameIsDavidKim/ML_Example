@@ -1,3 +1,4 @@
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -10,20 +11,10 @@ from tqdm import tqdm
 from CV.vit_paper import ViT
 
 
-'''
-timm 라이브러리를 불러오면 사전학습된 ViT 사용 가능하다.
-import timm
-model = timm.models.vit_base_patch16_224(pretrained=True).to(device)
-vit_base_patch16_224  # OK
-vit_large_patch14_224  # ? but second model
-vit_huge_patch14_224  # ? but best model
-(https://velog.io/@gtpgg1013/pytorch-Image-Classification-Using-ViT)
-'''
-
-
 device = 'mps'
 # device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 model_path = './save/ViT_Cifar10.pt'
+cls_token_path = './save/ViT_Cifar10_cls_token.npy'
 BATCH_SIZE = 512
 NUM_EPOCHS = 10
 LEARNING_RATE = 0.001
@@ -58,10 +49,11 @@ testloader = DataLoader(testset, batch_size=BATCH_SIZE, shuffle=True, num_worker
 class ViTCifar10Model(object):
     def __init__(self):
         self.model = None
+        self.cls_token = None
 
     def process(self):
         # self.pretrain_model()  # Check pre-training setting. We need to prepare super large dataset for this.
-        self.train_model()
+        self.finetune_model()
         self.save_model()
         self.eval_model()
 
@@ -97,9 +89,11 @@ class ViTCifar10Model(object):
         print('****** Finished Pre-Training ******')
 
         self.model = model
+        self.cls_token = model.cls_token
 
-    def train_model(self):
+    def finetune_model(self):
         model = self.model.to(device)
+        model.cls_token = self.cls_token
         criterion = nn.CrossEntropyLoss()
         optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
 
@@ -123,9 +117,12 @@ class ViTCifar10Model(object):
         print('****** Finished Training ******')
 
         self.model = model
+        self.cls_token = model.cls_token
 
     def save_model(self):
         torch.save(self.model, model_path)
+        cls_token_npy = self.cls_token.detach().numpy()
+        np.save(cls_token_path, cls_token_npy)
 
     def eval_model(self):
         model = torch.load(model_path).to(device)

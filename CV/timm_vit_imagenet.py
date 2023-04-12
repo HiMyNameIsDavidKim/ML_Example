@@ -8,42 +8,54 @@ device = 'mps'
 # device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 BATCH_SIZE = 100
 NUM_WORKERS = 2
+model_path = f'./save/ViT_ImageNet21k.pt'
 
-
-transform = transforms.Compose([
+transform_train = transforms.Compose([
+    transforms.RandomResizedCrop(224),
+    transforms.RandomHorizontalFlip(),
+    transforms.ToTensor(),
+    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+])
+transform_test = transforms.Compose([
     transforms.Resize(256),
     transforms.CenterCrop(224),
     transforms.ToTensor(),
     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 ])
-test_set = torchvision.datasets.ImageFolder('./data/ImageNet/val', transform=transform)
+train_set = torchvision.datasets.ImageFolder('./data/ImageNet/train', transform=transform_train)
+train_loader = data.DataLoader(train_set, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
+test_set = torchvision.datasets.ImageFolder('./data/ImageNet/val', transform=transform_test)
 test_loader = data.DataLoader(test_set, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
 
 
 class ViTImageNet21k(object):
     def __init__(self):
+        self.optimizer = None
         self.model = None
 
-    def process(self):
-        self.build_modeL()
+    def process_eval(self):
+        self.build_model()
         self.eval_model()
 
-    def build_modeL(self):
+    def process_finetune(self):
+        self.build_model()
+        self.finetune_model()
+        self.save_model()
+
+    def build_model(self):
         self.model = timm.models.vit_base_patch16_224(pretrained=True).to(device)
         # self.model = timm.models.vit_large_patch16_224(pretrained=True).to(device)
+        # self.model = torch.load(model_path).to(device)
         print(f'Parameter : {sum(p.numel() for p in self.model.parameters() if p.requires_grad)}')
 
     def eval_model(self):
         model = self.model
         model.to(device).eval()
-
         correct_top1 = 0
         correct_top5 = 0
         total = 0
-
         with torch.no_grad():
             for idx, (images, labels) in enumerate(test_loader):
-
                 images = images.to(device)
                 labels = labels.to(device)
                 outputs = model(images)
@@ -66,6 +78,54 @@ class ViTImageNet21k(object):
         print(f"top-1 Accuracy :  {correct_top1 / total * 100:0.2f}%")
         print(f"top-5 Accuracy :  {correct_top5 / total * 100:0.2f}%")
 
+    def finetune_model(self):
+        model = self.model
+        optimizer = torch.optim.AdamW(model.parameters(), lr=0.001)
+        scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=1, gamma=0.95)
+        criterion = torch.nn.CrossEntropyLoss()
+        model.train()
+        for epoch in range(3):
+            print(f"Epoch {epoch + 1}/3")
+            for i, (images, labels) in enumerate(train_loader):
+                images = images.to(device)
+                labels = labels.to(device)
+                optimizer.zero_grad()
+                outputs = model(images)
+                loss = criterion(outputs, labels)
+
+                loss.backward()
+                optimizer.step()
+                if i % 50 == 0:
+                    with torch.no_grad():
+                        model.eval()
+                        correct_top1 = 0
+                        total = 0
+                        for j, (images, labels) in enumerate(test_loader):
+                            images = images.to(device)
+                            labels = labels.to(device)
+                            outputs = model(images)
+
+                            _, pred = torch.max(outputs, 1)
+                            total += labels.size(0)
+                            correct_top1 += (pred == labels).sum().item()
+
+                        print(f"Step : {j + 1} / {int(len(test_set) / int(labels.size(0)))}")
+                        print(f"top-1 Accuracy :  {correct_top1 / total * 100:0.2f}%")
+
+                    scheduler.step()
+
+        self.model = model
+        self.optimizer = optimizer
+
+    def save_model(self):
+        checkpoint = {
+            'model': self.model.state_dict(),
+            'optimizer': self.optimizer.state_dict()
+        }
+        torch.save(checkpoint, model_path)
+        print(f"Model saved to {model_path}")
+
 
 if __name__ == "__main__":
-    ViTImageNet21k().process()
+    ViTImageNet21k().process_eval()
+    # ViTImageNet21k().process_finetune()

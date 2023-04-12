@@ -6,7 +6,9 @@
   <component name="ChangeListManager">
     <list default="true" id="6dc597b5-90f3-42c0-9fbe-571e0fb81339" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/NLP/gpt_prompt.py" beforeDir="false" afterPath="$PROJECT_DIR$/NLP/gpt_prompt.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CV/timm_vit_imagenet.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/timm_vit_imagenet.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CV/vit_cifar10.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/vit_cifar10.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CV/vit_paper.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/vit_paper.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -42,20 +44,20 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "last_opened_file_path": "/Users/davidkim/PycharmProjects/pythonProject/ML_Example",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/davidkim/PycharmProjects/pythonProject/ML_Example&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/prediction" />
@@ -121,7 +123,10 @@
       <workItem from="1680745313883" duration="2268000" />
       <workItem from="1680831239752" duration="4037000" />
       <workItem from="1680877656801" duration="5000" />
-      <workItem from="1680879848417" duration="3839000" />
+      <workItem from="1680879848417" duration="3851000" />
+      <workItem from="1681252393033" duration="4000" />
+      <workItem from="1681271396097" duration="1000" />
+      <workItem from="1681275654068" duration="14135000" />
     </task>
     <servers />
   </component>
