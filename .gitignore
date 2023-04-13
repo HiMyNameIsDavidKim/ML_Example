@@ -7,3 +7,4 @@ cifar-10-batches-py/
 *.gz
 *.pt
 ImageNet/
+cifar-100-python/
