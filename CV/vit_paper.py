@@ -128,12 +128,14 @@ class MLPHead(nn.Module):
 
 
 class ViT(nn.Module):
-    def __init__(self, image_size, patch_size, in_channels, num_classes, embed_dim, depth, num_heads):
+    def __init__(self, image_size, patch_size, in_channels, num_classes, embed_dim, depth, num_heads, cls_token=None):
         super(ViT, self).__init__()
         self.patch_embed = PatchEmbedding(image_size=image_size, patch_size=patch_size, in_channels=in_channels,
                                           embed_dim=embed_dim)
         self.num_patches = self.patch_embed.num_patches
-        self.cls_token = nn.Parameter(torch.randn(1, 1, embed_dim))
+        self.cls_token = cls_token
+        if cls_token is None:
+            self.cls_token = nn.Parameter(torch.randn(1, 1, embed_dim))
         self.pos_embed = PositionalEmbedding(num_patches=self.num_patches + 1, embed_dim=embed_dim)
         self.encoder_blocks = nn.ModuleList([
             EncoderBlock(embed_dim=embed_dim, num_heads=num_heads, qkv_bias=False)
@@ -141,14 +143,13 @@ class ViT(nn.Module):
         ])
         self.mlp_head = MLPHead(embed_dim=embed_dim, mlp_hidden_dim=embed_dim * 4, num_classes=num_classes)
 
-    def forward(self, x, cls_token=None):
+    def forward(self, x):
         x = self.patch_embed(x)
-        if cls_token is None:
-            cls_token = self.cls_token.repeat(x.shape[0], 1, 1)
-        x = torch.cat((cls_token, x), dim=1)
+        x = torch.cat((self.cls_token, x), dim=1)
         x = self.pos_embed(x)
         for encoder_block in self.encoder_blocks:
             x = encoder_block(x)
         x = x[:, 0]
         x = self.mlp_head(x)
         return x
+
