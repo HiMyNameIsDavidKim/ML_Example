@@ -139,5 +139,8 @@ class ViTCifar10Model(object):
         print(f'Accuracy of the network on the {len(testset)} test images: {100 * correct / total:.2f} %')
 
 
+# 이미지넷 프리트레이닝 클래스
+
+
 if __name__ == '__main__':
     ViTCifar10Model().process()

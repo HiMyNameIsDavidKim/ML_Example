@@ -5,7 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6dc597b5-90f3-42c0-9fbe-571e0fb81339" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/CV/timm_ViT_cifar-100.ipynb" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CV/timm_vit_cifar100.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/CV/timm_vit_cifar100.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/timm_vit_cifar100.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CV/vit_cifar10.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/vit_cifar10.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -62,6 +66,7 @@
       <recent name="$PROJECT_DIR$/prediction/data" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/CV" />
       <recent name="$PROJECT_DIR$/prediction" />
       <recent name="$PROJECT_DIR$/prediction/save/lotto" />
     </key>
@@ -126,7 +131,7 @@
       <workItem from="1681275654068" duration="14158000" />
       <workItem from="1681290146028" duration="393000" />
       <workItem from="1681349773595" duration="9917000" />
-      <workItem from="1681436278096" duration="1635000" />
+      <workItem from="1681436278096" duration="2522000" />
     </task>
     <servers />
   </component>

@@ -113,5 +113,8 @@ class ViTCifar100Model(object):
         print(f'Accuracy {len(testset)} test images: {100 * correct / total:.2f} %')
 
 
+# 평가 클래스
+
+
 if __name__ == "__main__":
     ViTCifar100Model().process()
