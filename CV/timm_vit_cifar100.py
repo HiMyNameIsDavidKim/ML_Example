@@ -50,7 +50,7 @@ class ViTCifar100Model(object):
     def build_modeL(self):
         self.model = timm.models.vit_base_patch16_224(pretrained=True).to(device)
         # self.model = timm.models.vit_large_patch16_224(pretrained=True).to(device)
-        print(f'Parameter : {sum(p.numel() for p in self.model.parameters() if p.requires_grad)}')
+        print(f'Parameter: {sum(p.numel() for p in self.model.parameters() if p.requires_grad)}')
 
     def train_model(self):
         model = self.model.to(device)
@@ -114,6 +114,42 @@ class ViTCifar100Model(object):
 
 
 # 평가 클래스
+class Tester(object):
+    def __init__(self):
+        self.model = None
+        self.optimizer = None
+        self.scheduler = None
+        self.epoch = 0
+
+    def process(self):
+        self.build_model()
+        self.eval_model()
+
+    def build_model(self):
+        self.model = timm.models.vit_base_patch16_224(pretrained=True).to(device)
+        self.optimizer = Adam(self.model.parameters(), lr=LEARNING_RATE)
+
+        checkpoint = torch.load(model_path)
+        self.epoch = checkpoint['epoch']
+        self.model.load_state_dict(checkpoint['model'])
+        self.optimizer.load_state_dict(checkpoint['optimizer'])
+        print(f'Parameter: {sum(p.numel() for p in self.model.parameters() if p.requires_grad)}')
+
+    def eval_model(self):
+        print(f'epoch: {self.epoch}')
+        self.model.eval()
+
+        correct = 0
+        total = 0
+        with torch.no_grad():
+            for data in testloader:
+                images, labels = data
+                images, labels = images.to(device), labels.to(device)
+                outputs = self.model(images)
+                _, predicted = torch.max(outputs.data, 1)
+                total += labels.size(0)
+                correct += (predicted == labels).sum().item()
+        print(f'Accuracy {len(testset)} test images: {100 * correct / total:.2f} %')
 
 
 if __name__ == "__main__":
