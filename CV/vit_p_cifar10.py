@@ -12,7 +12,7 @@ from CV.vit_paper import ViT
 
 device = 'mps'
 # device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-model_path = './save/ViT_Cifar10.pt'
+model_path = './save/paper_ViT_Cifar10.pt'
 BATCH_SIZE = 1
 NUM_EPOCHS = 10
 LEARNING_RATE = 0.001
@@ -44,11 +44,12 @@ testset = datasets.CIFAR10(root='./data/', train=False, download=True, transform
 testloader = DataLoader(testset, batch_size=BATCH_SIZE, shuffle=True, num_workers=2)
 
 
-class ViTPaperCifar10Model(object):
+class PaperViTCifar10Model(object):
     def __init__(self):
-        self.epoch = None
+        self.epochs = []
         self.model = None
         self.optimizer = None
+        self.losses = []
         self.cls_token = None
 
     def process(self):
@@ -75,25 +76,24 @@ class ViTPaperCifar10Model(object):
         for epoch in range(NUM_EPOCHS):
             running_loss = 0.0
             for i, data in tqdm(enumerate(trainloader, 0), total=len(trainloader)):
-                inputs, _ = data
-                inputs = inputs.to(device)
+                inputs, labels = data
+                inputs, labels = inputs.to(device), labels.to(device)
 
                 optimizer.zero_grad()
 
                 outputs = model(inputs)
-                print(outputs.shape, inputs.shape)
-                loss = criterion(outputs, inputs)  # 클래스로 하는게 맞나 이미지로 하는게 맞나. 이미지면 어떻게 해야하나.
+                loss = criterion(outputs, labels)
                 loss.backward()
                 optimizer.step()
 
                 running_loss += loss.item()
                 if i % 100 == 0:
                     print(f'[Epoch {epoch + 1}, Batch {i + 1:5d}] loss: {running_loss / 100:.3f}')
-                    running_loss = 0.0
             if epoch % 1 == 0:
-                self.epoch = epoch + 1
+                self.epochs.append(epoch + 1)
                 self.model = model
                 self.optimizer = optimizer
+                self.losses.append(running_loss)
                 self.save_model()
         print('****** Finished Pre-Training ******')
 
@@ -102,9 +102,10 @@ class ViTPaperCifar10Model(object):
 
     def save_model(self):
         checkpoint = {
-            'epoch': self.epoch,
+            'epochs': self.epochs,
             'model': self.model,
             'optimizer': self.optimizer.state_dict(),
+            'losses': self.losses,
             'cls_token': self.cls_token.detach().numpy(),
         }
         torch.save(checkpoint, model_path)
@@ -174,4 +175,4 @@ class Tester(object):
 
 
 if __name__ == '__main__':
-    ViTPaperCifar10Model().process()
+    PaperViTCifar10Model().process()

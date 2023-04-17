@@ -40,7 +40,8 @@ class ViTCifar100Model(object):
         self.model = None
         self.optimizer = None
         self.scheduler = None
-        self.epoch = 0
+        self.epochs = []
+        self.losses = []
 
     def process(self):
         self.build_modeL()
@@ -74,25 +75,26 @@ class ViTCifar100Model(object):
                 running_loss += loss.item()
                 if i % 100 == 0:
                     print(f'[Epoch {epoch + 1}, Batch {i + 1:5d}] loss: {running_loss / 100:.3f}')
-                    running_loss = 0.0
-            if epoch % 10 == 0:
-                self.epoch = epoch
+            if epoch % 1 == 0:
+                self.epochs.append(epoch + 1)
                 self.model = model
                 self.optimizer = optimizer
                 self.scheduler = scheduler
+                self.losses.append(running_loss)
                 self.save_model()
             scheduler.step()
-        print('****** Finished Training ******')
+            print('****** Finished Training ******')
 
     def save_model(self):
         checkpoint = {
-            'epoch': self.epoch,
+            'epoch': self.epochs,
             'model': self.model.state_dict(),
             'optimizer': self.optimizer.state_dict(),
             'scheduler': self.scheduler.state_dict(),
+            'losses': self.losses,
         }
         torch.save(checkpoint, model_path)
-        print(f"****** Model checkpoint saved at epoch {self.epoch} ******")
+        print(f"****** Model checkpoint saved at epoch {self.epochs[-1]} ******")
 
     def eval_model(self):
         checkpoint = torch.load(model_path)
@@ -118,7 +120,8 @@ class Tester(object):
         self.model = None
         self.optimizer = None
         self.scheduler = None
-        self.epoch = 0
+        self.epochs = []
+        self.losses = []
 
     def process(self):
         self.build_model()
@@ -129,13 +132,14 @@ class Tester(object):
         self.optimizer = Adam(self.model.parameters(), lr=LEARNING_RATE)
 
         checkpoint = torch.load(model_path)
-        self.epoch = checkpoint['epoch']
+        self.epochs = checkpoint['epochs']
         self.model.load_state_dict(checkpoint['model'])
         self.optimizer.load_state_dict(checkpoint['optimizer'])
+        self.losses = checkpoint['losses']
         print(f'Parameter: {sum(p.numel() for p in self.model.parameters() if p.requires_grad)}')
+        print(f'epoch: {self.epochs[-1]}')
 
     def eval_model(self):
-        print(f'epoch: {self.epoch}')
         self.model.eval()
 
         correct = 0
