@@ -3,11 +3,16 @@ import torch
 import torchvision
 import torch.utils.data as data
 import torchvision.transforms as transforms
+from keras.optimizers import Adam
+from torch import nn
+from torch.optim.lr_scheduler import CosineAnnealingLR
 
 device = 'mps'
 # device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 BATCH_SIZE = 100
+NUM_EPOCHS = 10
 NUM_WORKERS = 2
+LR = 0.001
 model_path = f'./save/ViT_ImageNet21k.pt'
 
 transform_train = transforms.Compose([
@@ -22,8 +27,8 @@ transform_test = transforms.Compose([
     transforms.ToTensor(),
     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 ])
-train_set = torchvision.datasets.ImageFolder('./data/ImageNet/train', transform=transform_train)
-train_loader = data.DataLoader(train_set, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
+# train_set = torchvision.datasets.ImageFolder('./data/ImageNet/train', transform=transform_train)
+# train_loader = data.DataLoader(train_set, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
 test_set = torchvision.datasets.ImageFolder('./data/ImageNet/val', transform=transform_test)
 test_loader = data.DataLoader(test_set, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
 
@@ -46,7 +51,8 @@ class ViTImageNet21k(object):
         self.model = timm.models.vit_base_patch16_224(pretrained=True).to(device)
         # self.model = timm.models.vit_large_patch16_224(pretrained=True).to(device)
         # self.model = torch.load(model_path).to(device)
-        print(f'Parameter : {sum(p.numel() for p in self.model.parameters() if p.requires_grad)}')
+        print(f'Parameter: {sum(p.numel() for p in self.model.parameters() if p.requires_grad)}')
+        print(f'Classes: {self.model.num_classes}')
 
     def eval_model(self):
         model = self.model
@@ -80,9 +86,9 @@ class ViTImageNet21k(object):
 
     def finetune_model(self):
         model = self.model
-        optimizer = torch.optim.AdamW(model.parameters(), lr=0.001)
-        scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=1, gamma=0.95)
-        criterion = torch.nn.CrossEntropyLoss()
+        criterion = nn.CrossEntropyLoss()
+        optimizer = Adam(model.parameters(), lr=LR)
+        scheduler = CosineAnnealingLR(optimizer, T_max=NUM_EPOCHS, eta_min=0, last_epoch=-1)
         model.train()
         for epoch in range(3):
             print(f"Epoch {epoch + 1}/3")

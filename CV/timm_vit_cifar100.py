@@ -13,25 +13,26 @@ model_path = './save/timm_ViT_Cifar100.pt'
 # device = 'mps'
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 BATCH_SIZE = 512
-NUM_EPOCHS = 10000
+NUM_EPOCHS = 500
 NUM_WORKERS = 2
 LEARNING_RATE = 0.001
 
 transform_train = transforms.Compose([
     transforms.RandomCrop(32, padding=4),
-    transforms.RandomHorizontalFlip(),
+    transforms.RandomHorizontalFlip(p=0.3),
+    transforms.RandomVerticalFlip(p=0.3),
     transforms.Resize(224),
     transforms.ToTensor(),
     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
 ])
-trainset = datasets.CIFAR100(root='./data/', train=True, download=True, transform=transform_train)
+trainset = datasets.CIFAR10(root='./data/', train=True, download=True, transform=transform_train)
 trainloader = DataLoader(trainset, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
 transform_test = transforms.Compose([
     transforms.Resize(224),
     transforms.ToTensor(),
     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
 ])
-testset = datasets.CIFAR100(root='./data/', train=False, download=True, transform=transform_test)
+testset = datasets.CIFAR10(root='./data/', train=False, download=True, transform=transform_test)
 testloader = DataLoader(testset, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
 
 
@@ -44,14 +45,16 @@ class ViTCifar100Model(object):
         self.losses = []
 
     def process(self):
-        self.build_modeL()
+        self.build_model()
         self.train_model()
         self.eval_model()
 
-    def build_modeL(self):
+    def build_model(self):
         self.model = timm.models.vit_base_patch16_224(pretrained=True).to(device)
+        self.model.num_classes = 10
         # self.model = timm.models.vit_large_patch16_224(pretrained=True).to(device)
         print(f'Parameter: {sum(p.numel() for p in self.model.parameters() if p.requires_grad)}')
+        print(f'Classes: {self.model.num_classes}')
 
     def train_model(self):
         model = self.model.to(device)
@@ -83,11 +86,11 @@ class ViTCifar100Model(object):
                 self.losses.append(running_loss)
                 self.save_model()
             scheduler.step()
-            print('****** Finished Training ******')
+        print('****** Finished Training ******')
 
     def save_model(self):
         checkpoint = {
-            'epoch': self.epochs,
+            'epochs': self.epochs,
             'model': self.model.state_dict(),
             'optimizer': self.optimizer.state_dict(),
             'scheduler': self.scheduler.state_dict(),
@@ -97,9 +100,6 @@ class ViTCifar100Model(object):
         print(f"****** Model checkpoint saved at epoch {self.epochs[-1]} ******")
 
     def eval_model(self):
-        checkpoint = torch.load(model_path)
-        self.model.load_state_dict(checkpoint['model'])
-        self.optimizer.load_state_dict(checkpoint['optimizer'])
         self.model.eval()
 
         correct = 0
@@ -137,7 +137,7 @@ class Tester(object):
         self.optimizer.load_state_dict(checkpoint['optimizer'])
         self.losses = checkpoint['losses']
         print(f'Parameter: {sum(p.numel() for p in self.model.parameters() if p.requires_grad)}')
-        print(f'epoch: {self.epochs[-1]}')
+        print(f'Epoch: {self.epochs[-1]}')
 
     def eval_model(self):
         self.model.eval()
