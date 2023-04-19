@@ -10,17 +10,16 @@ from tqdm import tqdm
 
 
 model_path = './save/timm_ViT_Cifar100.pt'
-# device = 'mps'
-device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+device = 'mps'
+# device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 BATCH_SIZE = 512
 NUM_EPOCHS = 500
 NUM_WORKERS = 2
 LEARNING_RATE = 0.001
 
 transform_train = transforms.Compose([
-    transforms.RandomCrop(32, padding=4),
+    transforms.RandomCrop(32),
     transforms.RandomHorizontalFlip(p=0.3),
-    transforms.RandomVerticalFlip(p=0.3),
     transforms.Resize(224),
     transforms.ToTensor(),
     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
@@ -76,7 +75,7 @@ class ViTCifar100Model(object):
                 optimizer.step()
 
                 running_loss += loss.item()
-                if i % 100 == 0:
+                if i % 10 == 0:
                     print(f'[Epoch {epoch + 1}, Batch {i + 1:5d}] loss: {loss / 100:.3f}')
             if epoch % 1 == 0:
                 self.epochs.append(epoch + 1)

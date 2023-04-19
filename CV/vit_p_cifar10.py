@@ -90,7 +90,7 @@ class PaperViTCifar10Model(object):
                 optimizer.step()
 
                 running_loss += loss.item()
-                if i % 100 == 0:
+                if i % 10 == 0:
                     print(f'[Epoch {epoch + 1}, Batch {i + 1:5d}] loss: {loss / 100:.3f}')
             if epoch % 1 == 0:
                 self.epochs.append(epoch + 1)
