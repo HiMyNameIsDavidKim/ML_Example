@@ -5,10 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6dc597b5-90f3-42c0-9fbe-571e0fb81339" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/CV/vit_pooling.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/CV/timm_vit_cifar100.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/timm_vit_cifar100.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CV/timm_vit_imagenet.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/timm_vit_imagenet.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/CV/vit_p_cifar10.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/vit_p_cifar10.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -134,7 +132,8 @@
       <workItem from="1681349773595" duration="9917000" />
       <workItem from="1681436278096" duration="9923000" />
       <workItem from="1681704215121" duration="8825000" />
-      <workItem from="1681780312076" duration="12648000" />
+      <workItem from="1681780312076" duration="13752000" />
+      <workItem from="1681869437993" duration="905000" />
     </task>
     <servers />
   </component>
