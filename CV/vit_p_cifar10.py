@@ -14,8 +14,8 @@ from CV.vit_paper import ViT
 device = 'mps'
 # device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 model_path = './save/paper_ViT_Cifar10.pt'
-BATCH_SIZE = 1
-NUM_EPOCHS = 10
+BATCH_SIZE = 64
+NUM_EPOCHS = 500
 NUM_WORKERS = 2
 LEARNING_RATE = 0.001
 
@@ -28,9 +28,8 @@ DEPTH = 12
 NUM_HEADS = 8
 
 transform_train = transforms.Compose([
-    transforms.RandomResizedCrop(32),
-    transforms.RandomHorizontalFlip(p=0.3),
-    transforms.RandomVerticalFlip(p=0.3),
+    transforms.RandomCrop(32, padding=4),
+    transforms.RandomHorizontalFlip(),
     transforms.ToTensor(),
     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
 ])
@@ -49,7 +48,6 @@ class PaperViTCifar10Model(object):
     def __init__(self):
         self.model = None
         self.optimizer = None
-        self.scheduler = None
         self.epochs = []
         self.losses = []
         self.cls_token = None
@@ -74,7 +72,6 @@ class PaperViTCifar10Model(object):
         model = self.model
         criterion = nn.CrossEntropyLoss()
         optimizer = Adam(model.parameters(), lr=LEARNING_RATE)
-        scheduler = CosineAnnealingLR(optimizer, T_max=NUM_EPOCHS, eta_min=0, last_epoch=-1)
 
         for epoch in range(NUM_EPOCHS):
             running_loss = 0.0
@@ -90,16 +87,15 @@ class PaperViTCifar10Model(object):
                 optimizer.step()
 
                 running_loss += loss.item()
-                if i % 10 == 0:
-                    print(f'[Epoch {epoch + 1}, Batch {i + 1:5d}] loss: {loss / 100:.3f}')
-            if epoch % 1 == 0:
-                self.epochs.append(epoch + 1)
-                self.model = model
-                self.optimizer = optimizer
-                self.scheduler = scheduler
-                self.losses.append(running_loss)
-                self.save_model()
-            scheduler.step()
+                if i % 100 == 99:
+                    print(f'[Epoch {epoch}, Batch {i + 1:5d}] loss: {running_loss / 100:.3f}')
+                    running_loss = 0.0
+            self.epochs.append(epoch+1)
+            self.model = model
+            self.optimizer = optimizer
+            self.losses.append(running_loss)
+            self.cls_token = model.cls_token
+            self.save_model()
         print('****** Finished Pre-Training ******')
 
         self.model = model
@@ -108,14 +104,13 @@ class PaperViTCifar10Model(object):
     def save_model(self):
         checkpoint = {
             'epochs': self.epochs,
-            'model': self.model,
+            'model': self.model.state_dict(),
             'optimizer': self.optimizer.state_dict(),
-            'scheduler': self.scheduler.state_dict(),
             'losses': self.losses,
-            'cls_token': self.cls_token.detach().numpy(),
+            'cls_token': self.cls_token.cpu().detach().numpy(),
         }
         torch.save(checkpoint, model_path)
-        print(f"****** Model checkpoint saved at epoch {self.epochs[-1]} ******")
+        print(f"****** Model checkpoint saved at epochs {self.epochs[-1]} ******")
 
     def eval_model(self):
         self.model.eval()
@@ -137,7 +132,6 @@ class Tester(object):
     def __init__(self):
         self.model = None
         self.optimizer = None
-        self.scheduler = None
         self.epochs = []
         self.losses = []
         self.cls_token = None
@@ -158,12 +152,10 @@ class Tester(object):
         self.optimizer = Adam(self.model.parameters(), lr=LEARNING_RATE)
 
         checkpoint = torch.load(model_path)
-        self.epochs = checkpoint['epoch']
+        self.epochs = checkpoint['epochs']
         self.model.load_state_dict(checkpoint['model'])
         self.optimizer.load_state_dict(checkpoint['optimizer'])
         self.losses = checkpoint['losses']
-        self.cls_token = torch.from_numpy(checkpoint['cls_token']).to(device)
-        self.model.cls_token = self.cls_token
         print(f'Parameter: {sum(p.numel() for p in self.model.parameters() if p.requires_grad)}')
         print(f'Epoch: {self.epochs[-1]}')
 
@@ -173,7 +165,7 @@ class Tester(object):
         correct = 0
         total = 0
         with torch.no_grad():
-            for data in testloader:
+            for i, data in tqdm(enumerate(testloader, 0), total=len(testloader)):
                 images, labels = data
                 images, labels = images.to(device), labels.to(device)
                 outputs = self.model(images)

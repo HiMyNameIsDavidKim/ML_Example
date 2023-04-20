@@ -152,4 +152,3 @@ class ViT(nn.Module):
         x = x[:, 0]
         x = self.mlp_head(x)
         return x
-

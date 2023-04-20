@@ -18,8 +18,8 @@ NUM_WORKERS = 2
 LEARNING_RATE = 0.001
 
 transform_train = transforms.Compose([
-    transforms.RandomCrop(32),
-    transforms.RandomHorizontalFlip(p=0.3),
+    transforms.RandomCrop(32, padding=4),
+    transforms.RandomHorizontalFlip(),
     transforms.Resize(224),
     transforms.ToTensor(),
     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
