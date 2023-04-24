@@ -27,7 +27,8 @@ class PatchEmbedding(nn.Module):
             in_channels=in_channels,
             out_channels=embed_dim,
             kernel_size=patch_size,
-            stride=patch_size
+            stride=patch_size,
+            bias=True,
         )
 
     def forward(self, x):
@@ -40,12 +41,7 @@ class PatchEmbedding(nn.Module):
 class PositionalEmbedding(nn.Module):
     def __init__(self, num_patches, embed_dim):
         super(PositionalEmbedding, self).__init__()
-        position = torch.arange(0, num_patches, dtype=torch.float32)
-        div_term = torch.exp(torch.arange(0, embed_dim, 2).float() * (-math.log(10000.0) / embed_dim))
-        pos_embedding = torch.zeros(1, num_patches, embed_dim)
-        pos_embedding[0, :, 0::2] = torch.sin(position[:, None] * div_term[None, :embed_dim // 2])
-        pos_embedding[0, :, 1::2] = torch.cos(position[:, None] * div_term[None, :embed_dim // 2])
-        self.register_buffer('pos_embedding', pos_embedding)
+        self.pos_embedding = nn.Parameter(torch.randn(1, num_patches, embed_dim) * .02)
         self.dropout = nn.Dropout(0.1)
 
     def forward(self, x):
@@ -75,10 +71,10 @@ class Attention(nn.Module):
 
 
 class MLPBody(nn.Module):
-    def __init__(self, in_features, hidden_features, out_features):
+    def __init__(self, in_features, hidden_features, out_features, bias=True):
         super(MLPBody, self).__init__()
-        self.fc1 = nn.Linear(in_features, hidden_features)
-        self.fc2 = nn.Linear(hidden_features, out_features)
+        self.fc1 = nn.Linear(in_features, hidden_features, bias=bias)
+        self.fc2 = nn.Linear(hidden_features, out_features, bias=bias)
         self.dropout = nn.Dropout(0)
 
     def forward(self, x):
@@ -127,9 +123,9 @@ class MLPHead(nn.Module):
         return x
 
 
-class ViT(nn.Module):
+class ViTPooling(nn.Module):
     def __init__(self, image_size, patch_size, in_channels, num_classes, embed_dim, depth, num_heads):
-        super(ViT, self).__init__()
+        super(ViTPooling, self).__init__()
         self.patch_embed = PatchEmbedding(image_size=image_size, patch_size=patch_size, in_channels=in_channels,
                                           embed_dim=embed_dim)
         self.num_patches = self.patch_embed.num_patches
@@ -149,4 +145,3 @@ class ViT(nn.Module):
         x = self.pooling(x)
         x = self.mlp_head(x)
         return x
-

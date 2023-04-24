@@ -27,7 +27,8 @@ class PatchEmbedding(nn.Module):
             in_channels=in_channels,
             out_channels=embed_dim,
             kernel_size=patch_size,
-            stride=patch_size
+            stride=patch_size,
+            bias=True,
         )
 
     def forward(self, x):
@@ -75,10 +76,10 @@ class Attention(nn.Module):
 
 
 class MLPBody(nn.Module):
-    def __init__(self, in_features, hidden_features, out_features):
+    def __init__(self, in_features, hidden_features, out_features, bias=True):
         super(MLPBody, self).__init__()
-        self.fc1 = nn.Linear(in_features, hidden_features)
-        self.fc2 = nn.Linear(hidden_features, out_features)
+        self.fc1 = nn.Linear(in_features, hidden_features, bias=bias)
+        self.fc2 = nn.Linear(hidden_features, out_features, bias=bias)
         self.dropout = nn.Dropout(0)
 
     def forward(self, x):
@@ -117,13 +118,9 @@ class MLPHead(nn.Module):
 
     def forward(self, x):
         x = self.fc1(x)
-        x = F.gelu(x)
-        x = self.dropout(x)
         x = self.fc2(x)
-        x = F.gelu(x)
-        x = self.dropout(x)
         x = self.fc3(x)
-        x = F.softmax(x, dim=-1)
+        x = self.dropout(x)
         return x
 
 
@@ -134,8 +131,7 @@ class ViT(nn.Module):
                                           embed_dim=embed_dim)
         self.num_patches = self.patch_embed.num_patches
         self.cls_token = cls_token
-        if cls_token is None:
-            self.cls_token = nn.Parameter(torch.randn(1, 1, embed_dim))
+        self.cls_token = nn.Parameter(torch.randn(1, 1, embed_dim)) if cls_token is None else None
         self.pos_embed = PositionalEmbedding(num_patches=self.num_patches + 1, embed_dim=embed_dim)
         self.encoder_blocks = nn.ModuleList([
             EncoderBlock(embed_dim=embed_dim, num_heads=num_heads, qkv_bias=False)
@@ -145,7 +141,7 @@ class ViT(nn.Module):
 
     def forward(self, x):
         x = self.patch_embed(x)
-        x = torch.cat((self.cls_token, x), dim=1)
+        x = torch.cat((self.cls_token.expand(x.shape[0], -1, -1), x), dim=1)
         x = self.pos_embed(x)
         for encoder_block in self.encoder_blocks:
             x = encoder_block(x)

@@ -5,11 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6dc597b5-90f3-42c0-9fbe-571e0fb81339" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/CV/timm_ViT_cifar-100.ipynb" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CV/timm_vit_cifar100.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/timm_vit_cifar100.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CV/vit_p_cifar10.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/vit_p_cifar10.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/CV/vit_paper.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/vit_paper.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CV/vit_pooling.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/vit_pooling.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -140,7 +138,11 @@
       <workItem from="1681871502305" duration="110000" />
       <workItem from="1681871621661" duration="4000" />
       <workItem from="1681871631770" duration="649000" />
-      <workItem from="1681962438676" duration="9324000" />
+      <workItem from="1681962438676" duration="9987000" />
+      <workItem from="1682007091770" duration="93000" />
+      <workItem from="1682007203315" duration="108000" />
+      <workItem from="1682041981478" duration="1139000" />
+      <workItem from="1682310783909" duration="9508000" />
     </task>
     <servers />
   </component>
