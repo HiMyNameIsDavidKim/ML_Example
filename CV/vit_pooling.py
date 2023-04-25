@@ -41,7 +41,12 @@ class PatchEmbedding(nn.Module):
 class PositionalEmbedding(nn.Module):
     def __init__(self, num_patches, embed_dim):
         super(PositionalEmbedding, self).__init__()
-        self.pos_embedding = nn.Parameter(torch.randn(1, num_patches, embed_dim) * .02)
+        position = torch.arange(0, num_patches, dtype=torch.float32)
+        div_term = torch.exp(torch.arange(0, embed_dim, 2).float() * (-math.log(10000.0) / embed_dim))
+        pos_embedding = torch.zeros(1, num_patches, embed_dim)
+        pos_embedding[0, :, 0::2] = torch.sin(position[:, None] * div_term[None, :embed_dim // 2])
+        pos_embedding[0, :, 1::2] = torch.cos(position[:, None] * div_term[None, :embed_dim // 2])
+        self.register_buffer('pos_embedding', pos_embedding)
         self.dropout = nn.Dropout(0.1)
 
     def forward(self, x):
@@ -114,12 +119,9 @@ class MLPHead(nn.Module):
     def forward(self, x):
         x = self.fc1(x)
         x = F.gelu(x)
-        x = self.dropout(x)
         x = self.fc2(x)
         x = F.gelu(x)
-        x = self.dropout(x)
         x = self.fc3(x)
-        x = F.softmax(x, dim=-1)
         return x
 
 
@@ -134,7 +136,6 @@ class ViTPooling(nn.Module):
             EncoderBlock(embed_dim=embed_dim, num_heads=num_heads, qkv_bias=False)
             for _ in range(depth)
         ])
-        self.pooling = nn.AdaptiveAvgPool1d(output_size=1)
         self.mlp_head = MLPHead(embed_dim=embed_dim, mlp_hidden_dim=embed_dim * 4, num_classes=num_classes)
 
     def forward(self, x):
@@ -142,6 +143,6 @@ class ViTPooling(nn.Module):
         x = self.pos_embed(x)
         for encoder_block in self.encoder_blocks:
             x = encoder_block(x)
-        x = self.pooling(x)
+        x = x.mean(dim=1)
         x = self.mlp_head(x)
         return x
