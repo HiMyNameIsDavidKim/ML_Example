@@ -1,4 +1,5 @@
 import numpy as np
+import timm
 import torch
 import torch.nn as nn
 import torchvision.transforms as transforms
@@ -18,41 +19,107 @@ NUM_WORKERS = 2
 transform_test = transforms.Compose([
     transforms.Resize(256),
     transforms.CenterCrop(224),
+    # transforms.Lambda(shuffler),  # 여기서 바로 적용 가능함!!!!
     transforms.ToTensor(),
-    # transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
 ])
+transform_origin = transforms.Compose([
+    transforms.Resize(256),
+    transforms.CenterCrop(224),
+    transforms.ToTensor(),
+])
+origin_set = datasets.ImageFolder('./data/ImageNet/val', transform=transform_origin)
 test_set = datasets.ImageFolder('./data/ImageNet/val', transform=transform_test)
+origin_loader = DataLoader(origin_set, batch_size=BATCH_SIZE, shuffle=False, num_workers=NUM_WORKERS)
 test_loader = DataLoader(test_set, batch_size=BATCH_SIZE, shuffle=False, num_workers=NUM_WORKERS)
 
 
-def show_origin(n):
-    for i, data in enumerate(test_loader):
+def shuffler(img):
+    d = 7
+    sub_imgs = []
+    for i in range(d):
+        for j in range(d):
+            sub_img = img[i * 224 // d:(i + 1) * 224 // d, j * 224 // d:(j + 1) * 224 // d]
+            sub_imgs.append(sub_img)
+    np.random.shuffle(sub_imgs)
+    new_img = np.vstack([np.hstack([sub_imgs[i] for i in range(d*j, d*(j+1))]) for j in range(d)])
+    return new_img
+
+
+def rotator(img):
+    d = 7
+    sub_imgs = []
+    for i in range(d):
+        for j in range(d):
+            sub_img = img[i * 224 // d:(i + 1) * 224 // d, j * 224 // d:(j + 1) * 224 // d]
+            sub_imgs.append(sub_img)
+    sub_imgs = [np.rot90(sub_img) for sub_img in sub_imgs]
+    new_img = np.vstack([np.hstack([sub_imgs[i] for i in range(d * j, d * (j + 1))]) for j in range(d)])
+    return new_img
+
+
+def show_img(n, shuffle=False, rotate=False):
+    for i, data in enumerate(origin_loader):
         if i == n:
             inputs, labels = data
             inputs_np, labels_np = inputs.numpy(), labels.numpy()
-
             inputs_np = np.transpose(inputs_np, (0, 2, 3, 1))[0]
+            if shuffle:
+                inputs_np = shuffler(inputs_np)
+            if rotate:
+                inputs_np = rotator(inputs_np)
             plt.imshow(inputs_np)
             plt.title(imagenet_ind2str(int(labels_np)))
             plt.show()
             break
 
-def show_conf(n):
-    pass
 
+def cal_conf(n, shuffle=False, rotate=False):
+    model = timm.models.vit_base_patch16_224(pretrained=True)
+    print(f'Parameter: {sum(p.numel() for p in model.parameters() if p.requires_grad)}')
+    print(f'Classes: {model.num_classes}')
+    print(f'****** Model Creating Completed. ******')
+    model.to(device).eval()
+    with torch.no_grad():
+        for idx, (images, labels) in enumerate(test_loader):
+            if idx == n:
+                images = images.numpy()
+                images = np.transpose(images, (0, 2, 3, 1))[0]
+                if shuffle:
+                    images = shuffler(images)
+                if rotate:
+                    images = rotator(images)
+                images = torch.from_numpy(images.transpose((2, 0, 1)).reshape(1, 3, 224, 224)).float()
+                images = images.to(device)
+                labels = labels.to(device)
+                outputs = model(images)
+
+                _, pred = torch.max(outputs, 1)
+                probs = torch.nn.functional.softmax(outputs, dim=1)[0]
+                conf = probs[int(labels)].to('cpu')
+
+                print(f'Label : {imagenet_ind2str(int(labels))}')
+                print(f'Predict : {imagenet_ind2str(int(pred))}')
+                print(f'Confidence of label : {float(conf):.3f}')
+                break
 
 
 patchTrans_menus = ["Exit",  # 0
                     "Show Original Image",  # 1
+                    "Calculate Confidence to Original Image",  # 2
+                    "Show Shuffle Image",  # 3
+                    "Calculate Confidence to Shuffle Image",  # 4
+                    "Show Rotate Image",  # 5
+                    "Calculate Confidence to Rotate Image",  # 6
                     ]
 
 patchTrans_lambda = {
-    "1": lambda t: show_origin(int(input('Please input image number : '))),
-    "2": lambda t: print(" ** No Function ** "),
-    "3": lambda t: print(" ** No Function ** "),
-    "4": lambda t: print(" ** No Function ** "),
-    "5": lambda t: print(" ** No Function ** "),
-    "6": lambda t: print(" ** No Function ** "),
+    "1": lambda t: show_img(int(input('Please input image number : '))),
+    "2": lambda t: cal_conf(int(input('Please input image number : '))),
+    "3": lambda t: show_img(int(input('Please input image number : ')), shuffle=True),
+    "4": lambda t: cal_conf(int(input('Please input image number : ')), shuffle=True),
+    "5": lambda t: show_img(int(input('Please input image number : ')), rotate=True),
+    "6": lambda t: cal_conf(int(input('Please input image number : ')), rotate=True),
     "7": lambda t: print(" ** No Function ** "),
     "8": lambda t: print(" ** No Function ** "),
     "9": lambda t: print(" ** No Function ** "),
