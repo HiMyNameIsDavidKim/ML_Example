@@ -19,7 +19,6 @@ NUM_WORKERS = 2
 transform_test = transforms.Compose([
     transforms.Resize(256),
     transforms.CenterCrop(224),
-    # transforms.Lambda(shuffler),  # 여기서 바로 적용 가능함!!!!
     transforms.ToTensor(),
     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
 ])
@@ -33,6 +32,24 @@ test_set = datasets.ImageFolder('./data/ImageNet/val', transform=transform_test)
 origin_loader = DataLoader(origin_set, batch_size=BATCH_SIZE, shuffle=False, num_workers=NUM_WORKERS)
 test_loader = DataLoader(test_set, batch_size=BATCH_SIZE, shuffle=False, num_workers=NUM_WORKERS)
 
+# 데이터셋 커스텀 transform, 데이터셋 합치기
+# class YourDataset2(Dataset):
+#     def __init__(self):
+#         pass
+#
+#     def __getitem__(self, idx):
+#         img = self.data[idx]
+#         transform = transforms.Compose([
+#             transforms.ToPILImage(),
+#             transforms.Lambda(shuffler),
+#             transforms.ToTensor(),
+#         ])
+#         img = transform(img)
+#         label = self.labels[idx]
+#         return img, label
+#
+# concat_dataset = ConcatDataset([dataset1, dataset2])
+# concat_dataloader = DataLoader(concat_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
 
 def shuffler(img):
     d = 7
