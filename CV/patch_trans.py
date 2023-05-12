@@ -122,12 +122,12 @@ def cal_conf(n, shuffle=False, rotate=False):
 
 
 patchTrans_menus = ["Exit",  # 0
-                    "Show Original Image",  # 1
-                    "Calculate Confidence to Original Image",  # 2
-                    "Show Shuffle Image",  # 3
-                    "Calculate Confidence to Shuffle Image",  # 4
-                    "Show Rotate Image",  # 5
-                    "Calculate Confidence to Rotate Image",  # 6
+                    "Show Image(Original)",  # 1
+                    "Calculate Confidence of Image(Original)",  # 2
+                    "Show Image(Shuffle)",  # 3
+                    "Calculate Confidence of Image(Shuffle)",  # 4
+                    "Show Image(Rotate)",  # 5
+                    "Calculate Confidence of Image(Rotate)",  # 6
                     ]
 
 patchTrans_lambda = {
