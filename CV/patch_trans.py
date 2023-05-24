@@ -278,7 +278,7 @@ patchTrans_lambda = {
     "4": lambda t: cal_conf(int(input('Please input image number : ')), shuffle=True),
     "5": lambda t: show_img(int(input('Please input image number : ')), rotate=True),
     "6": lambda t: cal_conf(int(input('Please input image number : ')), rotate=True),
-    "7": lambda t: t.process(int(input('Please input image number : ')), shuffle=True),
+    "7": lambda t: t.process_v(int(input('Please input image number : ')), shuffle=True),
     "8": lambda t: print(" ** No Function ** "),
     "9": lambda t: print(" ** No Function ** "),
 }
