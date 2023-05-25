@@ -1,6 +1,7 @@
 import numpy as np
 import timm
 import torch
+import torchvision
 import torch.nn as nn
 import torchvision.transforms as transforms
 from matplotlib import pyplot as plt
@@ -137,9 +138,10 @@ def cal_dist(tensor1, tensor2):
     return distance
 
 
-class PatchHeatMap(object):
+class PatchHeatMapViT(object):
     def __init__(self):
         self.model = None
+        self.model_cnn = None
         self.img_origin = None
         self.img_trans = None
         self.labels = None
@@ -159,10 +161,24 @@ class PatchHeatMap(object):
         self.build_model()
         self.grouping(shuffle, rotate)
 
+    def process_g_cnn(self, shuffle=False, rotate=False):
+        self.build_model_cnn()
+        self.grouping_cnn(shuffle, rotate)
+
+    def process_d(self, n, shuffle=False, rotate=False):
+        self.build_model()
+        self.build_model_cnn()
+        self.extract_tnc_compare(n, shuffle, rotate)
+
     def build_model(self):
         self.model = timm.models.vit_base_patch16_224(pretrained=True)
         print(f'Parameter: {sum(p.numel() for p in self.model.parameters() if p.requires_grad)}')
         print(f'Classes: {self.model.num_classes}')
+        print(f'****** Model Creating Completed. ******\n')
+
+    def build_model_cnn(self):
+        self.model_cnn = torch.hub.load('szq0214/MEAL-V2','meal_v2', 'mealv2_resnest50_cutmix', pretrained=True)
+        print(f'Parameter: {sum(p.numel() for p in self.model_cnn.parameters() if p.requires_grad)}')
         print(f'****** Model Creating Completed. ******\n')
 
     def extract_tnc(self, n, shuffle, rotate):
@@ -260,6 +276,200 @@ class PatchHeatMap(object):
                 self.conf_diff.append(float(self.conf_origin-self.conf_trans))
                 self.list_labels.append(int(self.labels))
 
+    def extract_tnc_compare(self, n, shuffle, rotate):
+        self.model.to(device).eval()
+        self.model_cnn.to(device).eval()
+        with torch.no_grad():
+            (images, labels) = test_set[n]
+            images = images.reshape(1, 3, 224, 224).float()
+            labels = torch.tensor(labels)
+            images = images.numpy()
+            images = np.transpose(images, (0, 2, 3, 1))[0]
+            images_t = images
+            if shuffle:
+                images_t = shuffler(images_t)
+            if rotate:
+                images_t = rotator(images_t)
+
+            self.img_origin = images
+            self.img_trans = images_t
+            self.labels = labels
+
+            images = torch.from_numpy(images.transpose((2, 0, 1)).reshape(1, 3, 224, 224)).float()
+            images = images.to(device)
+            labels = labels.to(device)
+            outputs, self.tensor_origin = self.model(images)
+            _, pred = torch.max(outputs, 1)
+            probs = torch.nn.functional.softmax(outputs, dim=1)[0]
+            self.conf_origin = probs[int(labels)].to('cpu')
+
+            images_t = torch.from_numpy(images_t.transpose((2, 0, 1)).reshape(1, 3, 224, 224)).float()
+            images_t = images_t.to(device)
+            labels = labels.to(device)
+            outputs, self.tensor_trans = self.model(images_t)
+            _, pred = torch.max(outputs, 1)
+            probs = torch.nn.functional.softmax(outputs, dim=1)[0]
+            self.conf_trans = probs[int(labels)].to('cpu')
+
+            print(f'Label : {imagenet_ind2str(int(self.labels))}')
+            print(f'Diff of ViT : {float(self.conf_origin)-float(self.conf_trans):.3f}')
+
+            outputs = self.model_cnn(images)
+            _, pred = torch.max(outputs, 1)
+            probs = torch.nn.functional.softmax(outputs, dim=1)
+            self.conf_origin = probs[0, int(labels)].to('cpu')
+
+            outputs = self.model_cnn(images_t)
+            _, pred = torch.max(outputs, 1)
+            probs = torch.nn.functional.softmax(outputs, dim=1)
+            self.conf_trans = probs[0, int(labels)].to('cpu')
+
+            print(f'Diff of CNN : {float(self.conf_origin) - float(self.conf_trans):.3f}')
+
+    def grouping_cnn(self, shuffle, rotate):
+        self.model_cnn.to(device).eval()
+        with torch.no_grad():
+            for idx, (images, labels) in tqdm(enumerate(test_loader, 0), total=len(test_loader)):
+                images = images.numpy()
+                images = np.transpose(images, (0, 2, 3, 1))[0]
+                images_t = images
+                if shuffle:
+                    images_t = shuffler(images_t)
+                if rotate:
+                    images_t = rotator(images_t)
+
+                self.img_origin = images
+                self.img_trans = images_t
+                self.labels = labels
+
+                images = torch.from_numpy(images.transpose((2, 0, 1)).reshape(1, 3, 224, 224)).float()
+                images = images.to(device)
+                labels = labels.to(device)
+                outputs = self.model_cnn(images)
+                _, pred = torch.max(outputs, 1)
+                probs = torch.nn.functional.softmax(outputs, dim=1)
+                self.conf_origin = probs[0, int(labels)].to('cpu')
+
+                images_t = torch.from_numpy(images_t.transpose((2, 0, 1)).reshape(1, 3, 224, 224)).float()
+                images_t = images_t.to(device)
+                labels = labels.to(device)
+                outputs = self.model_cnn(images_t)
+                _, pred = torch.max(outputs, 1)
+                probs = torch.nn.functional.softmax(outputs, dim=1)
+                self.conf_trans = probs[0, int(labels)].to('cpu')
+
+                self.conf_diff.append(float(self.conf_origin-self.conf_trans))
+                self.list_labels.append(int(self.labels))
+
+
+class PatchHeatMapCNN(object):
+    def __init__(self):
+        self.model = None
+        self.img_origin = None
+        self.img_trans = None
+        self.labels = None
+        self.tensor_origin = None
+        self.tensor_trans = None
+        self.conf_origin = 0
+        self.conf_trans = 0
+        self.conf_diff = []
+        self.list_labels = []
+        self.pred_origin = None
+        self.pred_trans = None
+
+    def process_v(self, n, shuffle=False, rotate=False):
+        self.build_model()
+        self.extract_tnc(n, shuffle, rotate)
+        self.visual()
+
+    def process_g(self, shuffle=False, rotate=False):
+        self.build_model()
+        self.grouping(shuffle, rotate)
+
+    def build_model(self):
+        self.model = torch.hub.load('szq0214/MEAL-V2','meal_v2', 'mealv2_resnest50_cutmix', pretrained=True)
+        print(f'Parameter: {sum(p.numel() for p in self.model.parameters() if p.requires_grad)}')
+        print(f'****** Model Creating Completed. ******\n')
+
+    def extract_tnc(self, n, shuffle, rotate):
+        self.model.to(device).eval()
+        with torch.no_grad():
+            (images, labels) = test_set[n]
+            images = images.reshape(1, 3, 224, 224).float()
+            labels = torch.tensor(labels)
+            images = images.numpy()
+            images = np.transpose(images, (0, 2, 3, 1))[0]
+            images_t = images
+            if shuffle:
+                images_t = shuffler(images_t)
+            if rotate:
+                images_t = rotator(images_t)
+
+            self.img_origin = images
+            self.img_trans = images_t
+            self.labels = labels
+
+            images = torch.from_numpy(images.transpose((2, 0, 1)).reshape(1, 3, 224, 224)).float()
+            images = images.to(device)
+            labels = labels.to(device)
+            outputs = self.model(images)
+            _, pred = torch.max(outputs, 1)
+            self.pred_origin = int(pred.to('cpu'))
+            probs = torch.nn.functional.softmax(outputs, dim=1)
+            self.conf_origin = probs[0, int(labels)].to('cpu')
+
+            images_t = torch.from_numpy(images_t.transpose((2, 0, 1)).reshape(1, 3, 224, 224)).float()
+            images_t = images_t.to(device)
+            labels = labels.to(device)
+            outputs = self.model(images_t)
+            _, pred = torch.max(outputs, 1)
+            self.pred_trans = int(pred.to('cpu'))
+            probs = torch.nn.functional.softmax(outputs, dim=1)
+            self.conf_trans = probs[0, int(labels)].to('cpu')
+
+    def visual(self):
+        show_reverse_img(self.img_origin, self.labels)
+        show_reverse_img(self.img_trans, self.labels)
+        print(f'Label : {imagenet_ind2str(int(self.labels))}')
+        print(f'Confidence of origin : {float(self.conf_origin):.3f}')
+        print(f'Confidence of trans : {float(self.conf_trans):.3f}')
+        print(f'Diff : {float(self.conf_origin) - float(self.conf_trans):.3f}')
+
+    def grouping(self, shuffle, rotate):
+        self.model.to(device).eval()
+        with torch.no_grad():
+            for idx, (images, labels) in tqdm(enumerate(test_loader, 0), total=len(test_loader)):
+                images = images.numpy()
+                images = np.transpose(images, (0, 2, 3, 1))[0]
+                images_t = images
+                if shuffle:
+                    images_t = shuffler(images_t)
+                if rotate:
+                    images_t = rotator(images_t)
+
+                self.img_origin = images
+                self.img_trans = images_t
+                self.labels = labels
+
+                images = torch.from_numpy(images.transpose((2, 0, 1)).reshape(1, 3, 224, 224)).float()
+                images = images.to(device)
+                labels = labels.to(device)
+                outputs, __ = self.model(images)
+                _, pred = torch.max(outputs, 1)
+                probs = torch.nn.functional.softmax(outputs, dim=1)[0]
+                self.conf_origin = probs[int(labels)].to('cpu')
+
+                images_t = torch.from_numpy(images_t.transpose((2, 0, 1)).reshape(1, 3, 224, 224)).float()
+                images_t = images_t.to(device)
+                labels = labels.to(device)
+                outputs, __ = self.model(images_t)
+                _, pred = torch.max(outputs, 1)
+                probs = torch.nn.functional.softmax(outputs, dim=1)[0]
+                self.conf_trans = probs[int(labels)].to('cpu')
+
+                self.conf_diff.append(float(self.conf_origin-self.conf_trans))
+                self.list_labels.append(int(self.labels))
+
 
 patchTrans_menus = ["Exit",  # 0
                     "Show Image(Original)",  # 1
@@ -284,7 +494,7 @@ patchTrans_lambda = {
 }
 
 if __name__ == '__main__':
-    t = PatchHeatMap()
+    t = PatchHeatMapCNN()
     while True:
         [print(f"{i}. {j}") for i, j in enumerate(patchTrans_menus)]
         menu = input('Choose menu : ')
