@@ -19,7 +19,7 @@ from CV.util import imagenet_ind2str
 device = 'mps'
 BATCH_SIZE = 1
 NUM_WORKERS = 2
-IMAGE_PATH = r'./data/ImageNet/shape/n01537544/ILSVRC2012_val_00001462.JPEG'
+IMAGE_PATH = r'./data/ImageNet/shape/n01582220/ILSVRC2012_val_00000963.JPEG'
 
 transform_test = transforms.Compose([
     transforms.Resize(256),
@@ -50,29 +50,25 @@ def ExecuteLambda(*params):
     elif cmd == '':
         pass
 
-def Img2Shape(*params):
+def Img2Edge(*params):
     img = ExecuteLambda('IMAGE_READ', params[0])
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     print(f'img type : {type(img)}')
     edges = cv2.Canny(np.array(img), 100, 200)
+    edges = cv2.cvtColor(edges, cv2.COLOR_GRAY2RGB)
+    cv2.imwrite(r'./save/shape/edge.png', edges)
     plt.subplot(121), plt.imshow(img, cmap='gray')
     plt.title('Original'), plt.xticks([]), plt.yticks([])
     plt.subplot(122), plt.imshow(edges, cmap='gray')
     plt.title('Edge'), plt.xticks([]), plt.yticks([])
     plt.show()
 
-
-
-
-
-
-
 shape_menus = ["Exit",  # 0
                "Image to Shape",  # 1
                ]
 
 shape_lambda = {
-    "1": lambda t: Img2Shape(IMAGE_PATH),
+    "1": lambda t: Img2Edge(IMAGE_PATH),
     "2": lambda t: print(" ** No Function ** "),
     "3": lambda t: print(" ** No Function ** "),
     "4": lambda t: print(" ** No Function ** "),
