@@ -63,13 +63,32 @@ def Img2Edge(*params):
     plt.title('Edge'), plt.xticks([]), plt.yticks([])
     plt.show()
 
+def EdgeImages(*params):
+    img = ExecuteLambda('IMAGE_READ', params[0])
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    print(f'img type : {type(img)}')
+    edges_1 = cv2.Canny(np.array(img), 330, 400)
+    edges_2 = cv2.Canny(np.array(img), 360, 400)
+    edges_3 = cv2.Canny(np.array(img), 390, 400)
+    plt.subplot(221), plt.imshow(img, cmap='gray')
+    plt.title('Original'), plt.xticks([]), plt.yticks([])
+    plt.subplot(222), plt.imshow(edges_1, cmap='gray')
+    plt.title('Edge'), plt.xticks([]), plt.yticks([])
+    plt.subplot(223), plt.imshow(edges_2, cmap='gray')
+    plt.title('Edge'), plt.xticks([]), plt.yticks([])
+    plt.subplot(224), plt.imshow(edges_3, cmap='gray')
+    plt.title('Edge'), plt.xticks([]), plt.yticks([])
+    plt.show()
+
+
 shape_menus = ["Exit",  # 0
                "Image to Shape",  # 1
+               "Edge Images",  # 2
                ]
 
 shape_lambda = {
     "1": lambda t: Img2Edge(IMAGE_PATH),
-    "2": lambda t: print(" ** No Function ** "),
+    "2": lambda t: EdgeImages(IMAGE_PATH),
     "3": lambda t: print(" ** No Function ** "),
     "4": lambda t: print(" ** No Function ** "),
     "5": lambda t: print(" ** No Function ** "),
