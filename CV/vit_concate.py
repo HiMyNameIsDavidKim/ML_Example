@@ -50,8 +50,8 @@ class PositionalEmbedding(nn.Module):
         self.dropout = nn.Dropout(0.1)
 
     def forward(self, x):
-        x = x + self.pos_embedding
-        x = self.dropout(x)
+        x = torch.cat([x, self.pos_embedding], dim=2)
+        # x = self.dropout(x)
         return x
 
 
@@ -132,6 +132,8 @@ class ViTPooling(nn.Module):
                                           embed_dim=embed_dim)
         self.num_patches = self.patch_embed.num_patches
         self.pos_embed = PositionalEmbedding(num_patches=self.num_patches, embed_dim=embed_dim)
+        embed_dim = embed_dim*2
+        num_heads = num_heads*2
         self.encoder_blocks = nn.ModuleList([
             EncoderBlock(embed_dim=embed_dim, num_heads=num_heads, qkv_bias=False)
             for _ in range(depth)
