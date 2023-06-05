@@ -125,9 +125,9 @@ class MLPHead(nn.Module):
         return x
 
 
-class ViTPooling(nn.Module):
+class ViTCat(nn.Module):
     def __init__(self, image_size, patch_size, in_channels, num_classes, embed_dim, depth, num_heads):
-        super(ViTPooling, self).__init__()
+        super(ViTCat, self).__init__()
         self.patch_embed = PatchEmbedding(image_size=image_size, patch_size=patch_size, in_channels=in_channels,
                                           embed_dim=embed_dim)
         self.num_patches = self.patch_embed.num_patches
