@@ -20,19 +20,17 @@ IMAGE_SIZE = 224
 PATCH_SIZE = 16
 IN_CHANNELS = 3
 NUM_CLASSES = 1000
-EMBED_DIM = 512
+EMBED_DIM = 768
 DEPTH = 12
-NUM_HEADS = 8
+NUM_HEADS = 12
 
 transform_train = transforms.Compose([
     transforms.RandomResizedCrop(224),
-    transforms.RandomHorizontalFlip(),
     transforms.ToTensor(),
     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 ])
 transform_test = transforms.Compose([
-    transforms.Resize(256),
-    transforms.CenterCrop(224),
+    transforms.RandomResizedCrop(224),
     transforms.ToTensor(),
     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 ])
@@ -73,6 +71,7 @@ class PreTrainer(object):
 
         for epoch in range(NUM_EPOCHS):
             running_loss = 0.0
+            saving_loss = 0.0
             for i, data in tqdm(enumerate(pre_train_loader, 0), total=len(pre_train_loader)):
                 inputs, labels = data
                 inputs, labels = inputs.to(device), labels.to(device)
@@ -84,16 +83,16 @@ class PreTrainer(object):
                 loss.backward()
                 optimizer.step()
                 running_loss += loss.item()
+                saving_loss = loss.item()
                 if i % 100 == 99:
                     print(f'[Epoch {epoch}, Batch {i + 1:5d}] loss: {running_loss / 100:.3f}')
                     running_loss = 0.0
             self.epochs.append(epoch + 1)
             self.model = model
             self.optimizer = optimizer
-            self.losses.append(running_loss)
+            self.losses.append(saving_loss)
             self.save_model()
         print('****** Finished Pre-training ******')
-
         self.model = model
 
     def save_model(self):
@@ -143,6 +142,7 @@ class FineTunner(object):
 
         for epoch in range(NUM_EPOCHS):
             running_loss = 0.0
+            saving_loss = 0.0
             for i, data in tqdm(enumerate(train_loader, 0), total=len(train_loader)):
                 inputs, labels = data
                 inputs, labels = inputs.to(device), labels.to(device)
@@ -154,16 +154,16 @@ class FineTunner(object):
                 loss.backward()
                 optimizer.step()
                 running_loss += loss.item()
+                saving_loss = loss.item()
                 if i % 100 == 99:
                     print(f'[Epoch {epoch}, Batch {i + 1:5d}] loss: {running_loss / 100:.3f}')
                     running_loss = 0.0
             self.epochs.append(epoch + 1)
             self.model = model
             self.optimizer = optimizer
-            self.losses.append(running_loss)
+            self.losses.append(saving_loss)
             self.save_model()
-        print('****** Finished Fine-tuning ******')
-
+        print('****** Finished Pre-training ******')
         self.model = model
 
     def save_model(self):
