@@ -5,8 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6dc597b5-90f3-42c0-9fbe-571e0fb81339" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/CV/vit_p_imagenet.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CV/vit_concate.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/vit_concate.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -169,7 +169,8 @@
       <workItem from="1685511101907" duration="1937000" />
       <workItem from="1685584851229" duration="2484000" />
       <workItem from="1685670260369" duration="7875000" />
-      <workItem from="1685940229306" duration="1236000" />
+      <workItem from="1685940229306" duration="5285000" />
+      <workItem from="1686118674083" duration="3427000" />
     </task>
     <servers />
   </component>
