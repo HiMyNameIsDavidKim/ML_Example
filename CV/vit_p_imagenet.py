@@ -2,7 +2,7 @@ import torch
 import torchvision
 import torch.utils.data as data
 import torchvision.transforms as transforms
-from keras.optimizers import Adam
+from torch.optim import Adam
 from torch import nn
 from tqdm import tqdm
 
