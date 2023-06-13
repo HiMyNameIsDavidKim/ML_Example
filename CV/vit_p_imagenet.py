@@ -6,7 +6,7 @@ from torch.optim import Adam
 from torch import nn
 from tqdm import tqdm
 
-from CV.vit_GAP import ViTPooling
+from CV.vit_pooling import ViTPooling
 
 device = 'mps'
 pre_model_path = './save/ViT_i21k_ep300_lr0.001_augVanilla.pt'
