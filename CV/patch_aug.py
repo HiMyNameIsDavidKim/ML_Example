@@ -26,6 +26,33 @@ class Cutout(object):
         return F.to_pil_image(img)
 
 
+class CutMix:
+    def __init__(self, beta=1.0):
+        self.beta = beta
+
+    def __call__(self, images, labels):
+        batch_size = images.size(0)
+        indices = torch.randperm(batch_size)
+        lam = torch.FloatTensor([self.beta])
+        lam = lam.to(images.device)
+        bbx1, bby1, bbx2, bby2 = self._generate_bbox(images.size(2), images.size(3), lam)
+        images[:, :, bbx1:bbx2, bby1:bby2] = images[indices, :, bbx1:bbx2, bby1:bby2]
+        labels = lam * labels + (1 - lam) * labels[indices]
+        return images, labels
+
+    def _generate_bbox(self, image_width, image_height, lam):
+        cut_ratio = torch.sqrt(1. - lam)
+        cut_w = (image_width * cut_ratio).type(torch.long)
+        cut_h = (image_height * cut_ratio).type(torch.long)
+        cx = torch.randint(0, image_width, (1,))
+        cy = torch.randint(0, image_height, (1,))
+        bbx1 = torch.clamp(cx - cut_w // 2, 0, image_width)
+        bby1 = torch.clamp(cy - cut_h // 2, 0, image_height)
+        bbx2 = torch.clamp(cx + cut_w // 2, 0, image_width)
+        bby2 = torch.clamp(cy + cut_h // 2, 0, image_height)
+        return bbx1, bby1, bbx2, bby2
+
+
 class PositivePatchShuffle(object):
     def __init__(self, p=0.5, p_size=32):
         self.p = p
