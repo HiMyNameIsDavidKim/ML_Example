@@ -26,31 +26,20 @@ class Cutout(object):
         return F.to_pil_image(img)
 
 
-class CutMix:
-    def __init__(self, beta=1.0):
-        self.beta = beta
+class MixUp(object):
+    def __init__(self, alpha=1.0):
+        self.alpha = alpha
 
-    def __call__(self, images, labels):
-        batch_size = images.size(0)
+    def __call__(self, sample):
+        image, label = sample['image'], sample['label']
+        batch_size = image.size(0)
         indices = torch.randperm(batch_size)
-        lam = torch.FloatTensor([self.beta])
-        lam = lam.to(images.device)
-        bbx1, bby1, bbx2, bby2 = self._generate_bbox(images.size(2), images.size(3), lam)
-        images[:, :, bbx1:bbx2, bby1:bby2] = images[indices, :, bbx1:bbx2, bby1:bby2]
-        labels = lam * labels + (1 - lam) * labels[indices]
-        return images, labels
-
-    def _generate_bbox(self, image_width, image_height, lam):
-        cut_ratio = torch.sqrt(1. - lam)
-        cut_w = (image_width * cut_ratio).type(torch.long)
-        cut_h = (image_height * cut_ratio).type(torch.long)
-        cx = torch.randint(0, image_width, (1,))
-        cy = torch.randint(0, image_height, (1,))
-        bbx1 = torch.clamp(cx - cut_w // 2, 0, image_width)
-        bby1 = torch.clamp(cy - cut_h // 2, 0, image_height)
-        bbx2 = torch.clamp(cx + cut_w // 2, 0, image_width)
-        bby2 = torch.clamp(cy + cut_h // 2, 0, image_height)
-        return bbx1, bby1, bbx2, bby2
+        image2, label2 = image[indices], label[indices]
+        lam = torch.distributions.beta.Beta(self.alpha, self.alpha).sample((batch_size,)).to(image.device)
+        lam = torch.max(lam, 1 - lam)
+        mixed_image = lam.view(batch_size, 1, 1, 1) * image + (1 - lam).view(batch_size, 1, 1, 1) * image2
+        mixed_label = lam * label + (1 - lam) * label2
+        return {'image': mixed_image, 'label': mixed_label}
 
 
 class PositivePatchShuffle(object):
@@ -59,7 +48,7 @@ class PositivePatchShuffle(object):
         self.p_size = p_size
 
     def __call__(self, img):
-        if random.random() > self.p:
+        if torch.rand() > self.p:
             return img
 
         img = np.array(img)
@@ -75,33 +64,41 @@ class PositivePatchShuffle(object):
         return F.to_pil_image(new_img)
 
 
+# 클래스 단위에서 하는게 안됨. (loss를 건드려야함.)
+# negative loss regularization 참고하고, criterion 같은거 다 불러와서 처리.
+
 class NegativePatchShuffle(object):
-    def __init__(self):
-        pass
-
-    def __call__(self, *args, **kwargs):
-        pass
+    def __init__(self, p=0.5, p_size=32):
+        self.p = p
+        self.p_size = p_size
 
 
+if __name__ == '__main__':
+    device = 'mps'
+    BATCH_SIZE = 1
+    NUM_WORKERS = 2
 
-# if __name__ == '__main__':
-#     device = 'mps'
-#     BATCH_SIZE = 1
-#     NUM_WORKERS = 2
-#
-#     transform_test = transforms.Compose([
-#         transforms.Resize(256),
-#         transforms.CenterCrop(224),
-#         PositivePatchShuffle(p=1),
-#         transforms.ToTensor(),
-#     ])
-#     test_set = datasets.ImageFolder('./data/ImageNet/val', transform=transform_test)
-#     test_loader = DataLoader(test_set, batch_size=BATCH_SIZE, shuffle=False, num_workers=NUM_WORKERS)
-#
-#     for idx, (images, labels) in enumerate(test_loader):
-#         if idx == 0:
-#             images = images.numpy()
-#             images = np.transpose(images, (0, 2, 3, 1))[0]
-#             plt.imshow(images)
-#             plt.show()
-#             break
+    transform_test = transforms.Compose([
+        transforms.Resize(256),
+        transforms.CenterCrop(224),
+        PositivePatchShuffle(),
+        transforms.ToTensor(),
+    ])
+    test_set = datasets.ImageFolder('./data/ImageNet/val', transform=transform_test)
+    test_loader = DataLoader(test_set, batch_size=BATCH_SIZE, shuffle=False, num_workers=NUM_WORKERS)
+
+    model = self.model
+    criterion = nn.CrossEntropyLoss()
+    optimizer = Adam(model.parameters(), lr=LEARNING_RATE)
+    shuffler = NegativePatchShuffle()
+
+    for idx, data in enumerate(test_loader):
+        if idx == 0:
+            inputs, labels = data
+            inputs, labels = inputs.to(device), labels.to(device)
+
+            optimizer.zero_grad()
+            outputs = model(inputs)
+            loss = criterion(outputs, labels)
+            loss.backward()
+            optimizer.step()
