@@ -65,7 +65,8 @@ class PositivePatchShuffle(object):
 
 
 # 클래스 단위에서 하는게 안됨. (loss를 건드려야함.)
-# negative loss regularization 참고하고, criterion 같은거 다 불러와서 처리.
+# negative loss regularization 참고하기.
+# criterion 같은거 다 불러와서 처리.
 
 class NegativePatchShuffle(object):
     def __init__(self, p=0.5, p_size=32):
