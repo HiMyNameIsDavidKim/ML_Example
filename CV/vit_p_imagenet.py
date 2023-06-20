@@ -9,12 +9,13 @@ from tqdm import tqdm
 from CV.vit_pooling import ViTPooling
 
 device = 'mps'
-pre_model_path = './save/ViT_i21k_ep300_lr0.001_augVanilla.pt'
-fine_model_path = './save/ViT_i21k_ep300_lr0.001_augVanilla_i2012_step20k_lr0.03.pt'
 BATCH_SIZE = 64
 NUM_EPOCHS = 300
 NUM_WORKERS = 2
-LEARNING_RATE = 0.001
+LEARNING_RATE = 0.00003
+pre_model_path = './save/ViT_i2012_ep300_lr0.00003.pt'
+fine_model_path = './save/ViT_i2012_ep300_lr0.00003_augVanilla_i2012_ep7_lr0.03.pt'
+load_model_path = './save/ViT_i2012_ep300_lr0.00003.pt'
 
 IMAGE_SIZE = 224
 PATCH_SIZE = 16
@@ -49,12 +50,12 @@ class PreTrainer(object):
         self.epochs = []
         self.losses = []
 
-    def process(self):
-        self.build_model()
+    def process(self, load=False):
+        self.build_model(load)
         self.pretrain_model()
         self.save_model()
 
-    def build_model(self):
+    def build_model(self, load):
         self.model = ViTPooling(image_size=IMAGE_SIZE,
                                 patch_size=PATCH_SIZE,
                                 in_channels=IN_CHANNELS,
@@ -63,6 +64,17 @@ class PreTrainer(object):
                                 depth=DEPTH,
                                 num_heads=NUM_HEADS,
                                 ).to(device)
+        if load:
+            checkpoint = torch.load(load_model_path)
+            self.epochs = checkpoint['epochs']
+            self.model.load_state_dict(checkpoint['model'])
+            self.losses = checkpoint['losses']
+            print(f'Parameter: {sum(p.numel() for p in self.model.parameters() if p.requires_grad)}')
+            print(f'Classes: {NUM_CLASSES}')
+            print(f'Epoch: {self.epochs[-1]}')
+            print(f'****** Reset epochs and losses ******')
+            self.epochs = []
+            self.losses = []
 
     def pretrain_model(self):
         model = self.model
@@ -72,7 +84,7 @@ class PreTrainer(object):
         for epoch in range(NUM_EPOCHS):
             running_loss = 0.0
             saving_loss = 0.0
-            for i, data in tqdm(enumerate(pre_train_loader, 0), total=len(pre_train_loader)):
+            for i, data in tqdm(enumerate(train_loader, 0), total=len(train_loader)):
                 inputs, labels = data
                 inputs, labels = inputs.to(device), labels.to(device)
 
@@ -87,13 +99,13 @@ class PreTrainer(object):
                 if i % 100 == 99:
                     print(f'[Epoch {epoch}, Batch {i + 1:5d}] loss: {running_loss / 100:.3f}')
                     running_loss = 0.0
-            self.epochs.append(epoch + 1)
-            self.model = model
-            self.optimizer = optimizer
-            self.losses.append(saving_loss)
-            self.save_model()
+                if i % 1000 == 999:
+                    self.epochs.append(epoch + 1)
+                    self.model = model
+                    self.optimizer = optimizer
+                    self.losses.append(saving_loss)
+                    self.save_model()
         print('****** Finished Pre-training ******')
-        self.model = model
 
     def save_model(self):
         checkpoint = {
@@ -134,6 +146,9 @@ class FineTunner(object):
         print(f'Parameter: {sum(p.numel() for p in self.model.parameters() if p.requires_grad)}')
         print(f'Classes: {NUM_CLASSES}')
         print(f'Epoch: {self.epochs[-1]}')
+        print(f'****** Reset epochs and losses ******')
+        self.epochs = []
+        self.losses = []
 
     def finetune_model(self):
         model = self.model
@@ -158,11 +173,12 @@ class FineTunner(object):
                 if i % 100 == 99:
                     print(f'[Epoch {epoch}, Batch {i + 1:5d}] loss: {running_loss / 100:.3f}')
                     running_loss = 0.0
-            self.epochs.append(epoch + 1)
-            self.model = model
-            self.optimizer = optimizer
-            self.losses.append(saving_loss)
-            self.save_model()
+                if i % 1000 == 999:
+                    self.epochs.append(epoch + 1)
+                    self.model = model
+                    self.optimizer = optimizer
+                    self.losses.append(saving_loss)
+                    self.save_model()
         print('****** Finished Pre-training ******')
         self.model = model
 
