@@ -48,7 +48,7 @@ class PositivePatchShuffle(object):
         self.p_size = p_size
 
     def __call__(self, img):
-        if torch.rand() > self.p:
+        if np.random.random() > self.p:
             return img
 
         img = np.array(img)
@@ -73,33 +73,61 @@ class NegativePatchShuffle(object):
         self.p = p
         self.p_size = p_size
 
+    def process(self, imgs):
+        if np.random.random() > self.p:
+            return imgs
+        else:
+            imgs = self.shuffle(imgs)
+            return imgs
+
+    def shuffle(self, imgs):
+        imgs = imgs.numpy()
+        imgs = np.transpose(imgs, (0, 2, 3, 1))
+        batch_size, height, width, channels = imgs.shape
+        d = int(height / self.p_size)
+        new_imgs = []
+        for img in imgs:
+            sub_imgs = []
+            for i in range(d):
+                for j in range(d):
+                    sub_img = img[i * 224 // d:(i + 1) * 224 // d, j * 224 // d:(j + 1) * 224 // d]
+                    sub_imgs.append(sub_img)
+            np.random.shuffle(sub_imgs)
+            new_img = np.vstack([np.hstack([sub_imgs[i] for i in range(d * j, d * (j + 1))]) for j in range(d)])
+            new_imgs.append(new_img)
+        new_imgs = np.stack(new_imgs)
+        new_imgs = torch.from_numpy(new_imgs.transpose((0, 3, 1, 2))).float()
+        return new_imgs
+
 
 if __name__ == '__main__':
     device = 'mps'
-    BATCH_SIZE = 1
+    BATCH_SIZE = 2
     NUM_WORKERS = 2
 
     transform_test = transforms.Compose([
         transforms.Resize(256),
         transforms.CenterCrop(224),
-        PositivePatchShuffle(),
+        # PositivePatchShuffle(),
         transforms.ToTensor(),
     ])
     test_set = datasets.ImageFolder('./data/ImageNet/val', transform=transform_test)
     test_loader = DataLoader(test_set, batch_size=BATCH_SIZE, shuffle=False, num_workers=NUM_WORKERS)
 
-    model = self.model
-    criterion = nn.CrossEntropyLoss()
-    optimizer = Adam(model.parameters(), lr=LEARNING_RATE)
-    shuffler = NegativePatchShuffle()
+    # model = self.model
+    # criterion = nn.CrossEntropyLoss()
+    # optimizer = Adam(model.parameters(), lr=LEARNING_RATE)
+    aug = NegativePatchShuffle(p=1)
 
     for idx, data in enumerate(test_loader):
         if idx == 0:
             inputs, labels = data
+            inputs = aug.process(inputs)
             inputs, labels = inputs.to(device), labels.to(device)
+            break
 
-            optimizer.zero_grad()
-            outputs = model(inputs)
-            loss = criterion(outputs, labels)
-            loss.backward()
-            optimizer.step()
+            # optimizer.zero_grad()
+            # outputs = model(inputs)
+            # loss = criterion(outputs, labels)
+            # loss.backward()
+            # optimizer.step()
