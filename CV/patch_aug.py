@@ -102,17 +102,19 @@ class NegativePatchShuffle(object):
                 new_imgs.append(new_img)
             new_imgs = np.stack(new_imgs)
             new_imgs = torch.from_numpy(new_imgs.transpose((0, 3, 1, 2))).float()
-            sample = F.to_pil_image(new_imgs[0])
-            plt.imshow(sample)
-            plt.show()
+            # sample = F.to_pil_image(new_imgs[0])
+            # plt.imshow(sample)
+            # plt.show()
             return new_imgs
         else:
             return imgs
 
-    def cal_loss(self, outputs, labels, criterion):
+    def cal_loss(self, outputs, labels, criterion, device):
         loss_ce = criterion(outputs, labels)
         if self.turn_on:
-            loss_neg = 0
+            max_ind = torch.tensor([i.argmax() for i in outputs]).to(device)
+            loss_neg = criterion(outputs, max_ind)/1000
+            print(loss_ce, loss_neg)
             return loss_ce + (self.coefficient * loss_neg)
         else:
             return loss_ce
@@ -120,7 +122,7 @@ class NegativePatchShuffle(object):
 
 if __name__ == '__main__':
     device = 'mps'
-    BATCH_SIZE = 2
+    BATCH_SIZE = 4
     NUM_WORKERS = 2
 
     transform_test = transforms.Compose([
@@ -147,6 +149,7 @@ if __name__ == '__main__':
             optimizer.zero_grad()
 
             outputs = model(inputs)
-            loss = aug.cal_loss(outputs, labels, criterion)
+            loss = aug.cal_loss(outputs, labels, criterion, device)
             loss.backward()
             optimizer.step()
+            break
