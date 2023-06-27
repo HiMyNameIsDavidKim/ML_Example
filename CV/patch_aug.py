@@ -11,40 +11,6 @@ from torch.utils.data import DataLoader
 from torchvision import datasets
 
 
-class Cutout(object):
-    def __init__(self, p=0.5, cutout_ratio=0.2):
-        self.p = p
-        self.cutout_ratio = cutout_ratio
-
-    def __call__(self, img):
-        if random.random() > self.p:
-            return img
-
-        img = F.to_tensor(img)
-        h, w = img.shape[-2:]
-        cutout_size = int(min(w, h) * self.cutout_ratio)
-        left = random.randint(0, w - cutout_size)
-        upper = random.randint(0, h - cutout_size)
-        img[:, upper:upper + cutout_size, left:left + cutout_size] = 0.0
-        return F.to_pil_image(img)
-
-
-class MixUp(object):
-    def __init__(self, alpha=1.0):
-        self.alpha = alpha
-
-    def __call__(self, sample):
-        image, label = sample['image'], sample['label']
-        batch_size = image.size(0)
-        indices = torch.randperm(batch_size)
-        image2, label2 = image[indices], label[indices]
-        lam = torch.distributions.beta.Beta(self.alpha, self.alpha).sample((batch_size,)).to(image.device)
-        lam = torch.max(lam, 1 - lam)
-        mixed_image = lam.view(batch_size, 1, 1, 1) * image + (1 - lam).view(batch_size, 1, 1, 1) * image2
-        mixed_label = lam * label + (1 - lam) * label2
-        return {'image': mixed_image, 'label': mixed_label}
-
-
 class PositivePatchShuffle(object):
     def __init__(self, p=0.5, p_size=32):
         self.p = p
@@ -66,10 +32,6 @@ class PositivePatchShuffle(object):
         new_img = np.vstack([np.hstack([sub_imgs[i] for i in range(d * j, d * (j + 1))]) for j in range(d)])
         return F.to_pil_image(new_img)
 
-
-# 클래스 단위에서 하는게 안됨. (loss를 건드려야함.)
-# negative loss regularization 참고하기.
-# criterion 같은거 다 불러와서 처리.
 
 class NegativePatchShuffle(object):
     def __init__(self, p=0.5, p_size=32):
@@ -118,6 +80,40 @@ class NegativePatchShuffle(object):
             return loss_ce + (self.coefficient * loss_neg)
         else:
             return loss_ce
+
+
+class Cutout(object):
+    def __init__(self, p=0.5, cutout_ratio=0.2):
+        self.p = p
+        self.cutout_ratio = cutout_ratio
+
+    def __call__(self, img):
+        if random.random() > self.p:
+            return img
+
+        img = F.to_tensor(img)
+        h, w = img.shape[-2:]
+        cutout_size = int(min(w, h) * self.cutout_ratio)
+        left = random.randint(0, w - cutout_size)
+        upper = random.randint(0, h - cutout_size)
+        img[:, upper:upper + cutout_size, left:left + cutout_size] = 0.0
+        return F.to_pil_image(img)
+
+
+class MixUp(object):
+    def __init__(self, alpha=1.0):
+        self.alpha = alpha
+
+    def __call__(self, sample):
+        image, label = sample['image'], sample['label']
+        batch_size = image.size(0)
+        indices = torch.randperm(batch_size)
+        image2, label2 = image[indices], label[indices]
+        lam = torch.distributions.beta.Beta(self.alpha, self.alpha).sample((batch_size,)).to(image.device)
+        lam = torch.max(lam, 1 - lam)
+        mixed_image = lam.view(batch_size, 1, 1, 1) * image + (1 - lam).view(batch_size, 1, 1, 1) * image2
+        mixed_label = lam * label + (1 - lam) * label2
+        return {'image': mixed_image, 'label': mixed_label}
 
 
 if __name__ == '__main__':
