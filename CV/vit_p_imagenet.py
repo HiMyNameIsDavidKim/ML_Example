@@ -4,6 +4,7 @@ import torch.utils.data as data
 import torchvision.transforms as transforms
 from torch.optim import Adam
 from torch import nn
+from torch.optim.lr_scheduler import CosineAnnealingLR
 from tqdm import tqdm
 
 from CV.vit_pooling import ViTPooling
@@ -80,6 +81,7 @@ class PreTrainer(object):
         model = self.model
         criterion = nn.CrossEntropyLoss()
         optimizer = Adam(model.parameters(), lr=LEARNING_RATE)
+        scheduler = CosineAnnealingLR(optimizer, T_max=NUM_EPOCHS)
 
         for epoch in range(NUM_EPOCHS):
             running_loss = 0.0
@@ -105,6 +107,7 @@ class PreTrainer(object):
                     self.optimizer = optimizer
                     self.losses.append(saving_loss)
                     self.save_model()
+            scheduler.step()
         print('****** Finished Pre-training ******')
 
     def save_model(self):
