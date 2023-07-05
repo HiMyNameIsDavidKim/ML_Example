@@ -2,7 +2,7 @@ import torch
 import torchvision
 import torch.utils.data as data
 import torchvision.transforms as transforms
-from torch.optim import Adam, SGD
+from torch.optim import AdamW, SGD
 from torch import nn
 from torch.optim.lr_scheduler import CosineAnnealingLR
 from tqdm import tqdm
@@ -80,7 +80,7 @@ class PreTrainer(object):
     def pretrain_model(self):
         model = self.model
         criterion = nn.CrossEntropyLoss()
-        optimizer = Adam(model.parameters(), lr=LEARNING_RATE)
+        optimizer = AdamW(model.parameters(), lr=LEARNING_RATE, weight_decay=0.1)
         scheduler = CosineAnnealingLR(optimizer, T_max=NUM_EPOCHS)
 
         for epoch in range(NUM_EPOCHS):
