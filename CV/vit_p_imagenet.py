@@ -2,7 +2,7 @@ import torch
 import torchvision
 import torch.utils.data as data
 import torchvision.transforms as transforms
-from torch.optim import Adam
+from torch.optim import Adam, SGD
 from torch import nn
 from torch.optim.lr_scheduler import CosineAnnealingLR
 from tqdm import tqdm
@@ -156,7 +156,7 @@ class FineTunner(object):
     def finetune_model(self):
         model = self.model
         criterion = nn.CrossEntropyLoss()
-        optimizer = Adam(model.parameters(), lr=LEARNING_RATE)
+        optimizer = SGD(model.parameters(), lr=LEARNING_RATE, momentum=0.9)
 
         for epoch in range(NUM_EPOCHS):
             running_loss = 0.0
