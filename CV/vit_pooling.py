@@ -98,10 +98,11 @@ class EncoderBlock(nn.Module):
         self.norm2 = nn.LayerNorm(embed_dim)
         self.attn = Attention(embed_dim=embed_dim, num_heads=num_heads, qkv_bias=qkv_bias)
         self.mlp = MLPBody(in_features=embed_dim, hidden_features=int(embed_dim * mlp_ratio), out_features=embed_dim)
+        self.dropout = nn.Dropout(0)
 
     def forward(self, x):
-        x = x + self.attn(self.norm1(x))
-        x = x + self.mlp(self.norm2(x))
+        x = x + self.dropout(self.attn(self.norm1(x)))
+        x = x + self.dropout(self.mlp(self.norm2(x)))
         return x
 
 
@@ -119,8 +120,10 @@ class MLPHead(nn.Module):
     def forward(self, x):
         x = self.fc1(x)
         x = F.gelu(x)
+        x = self.dropout(x)
         x = self.fc2(x)
         x = F.gelu(x)
+        x = self.dropout(x)
         x = self.fc3(x)
         return x
 
