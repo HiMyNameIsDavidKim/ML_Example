@@ -76,11 +76,11 @@ class Attention(nn.Module):
 
 
 class MLPBody(nn.Module):
-    def __init__(self, in_features, hidden_features, out_features, bias=True):
+    def __init__(self, in_features, hidden_features, out_features, bias=True, drop_rate=0):
         super(MLPBody, self).__init__()
         self.fc1 = nn.Linear(in_features, hidden_features, bias=bias)
         self.fc2 = nn.Linear(hidden_features, out_features, bias=bias)
-        self.dropout = nn.Dropout(0)
+        self.dropout = nn.Dropout(drop_rate)
 
     def forward(self, x):
         x = self.fc1(x)
@@ -92,13 +92,14 @@ class MLPBody(nn.Module):
 
 
 class EncoderBlock(nn.Module):
-    def __init__(self, embed_dim, num_heads, mlp_ratio=4.0, qkv_bias=False):
+    def __init__(self, embed_dim, num_heads, mlp_ratio=4.0, qkv_bias=False, drop_rate=0):
         super(EncoderBlock, self).__init__()
         self.norm1 = nn.LayerNorm(embed_dim)
         self.norm2 = nn.LayerNorm(embed_dim)
         self.attn = Attention(embed_dim=embed_dim, num_heads=num_heads, qkv_bias=qkv_bias)
-        self.mlp = MLPBody(in_features=embed_dim, hidden_features=int(embed_dim * mlp_ratio), out_features=embed_dim)
-        self.dropout = nn.Dropout(0)
+        self.mlp = MLPBody(in_features=embed_dim, hidden_features=int(embed_dim * mlp_ratio),
+                           out_features=embed_dim, drop_rate=drop_rate)
+        self.dropout = nn.Dropout(drop_rate)
 
     def forward(self, x):
         x = x + self.dropout(self.attn(self.norm1(x)))
@@ -115,28 +116,25 @@ class MLPHead(nn.Module):
         self.fc1 = nn.Linear(embed_dim, mlp_hidden_dim)
         self.fc2 = nn.Linear(mlp_hidden_dim, mlp_hidden_dim)
         self.fc3 = nn.Linear(mlp_hidden_dim, num_classes)
-        self.dropout = nn.Dropout(0)
 
     def forward(self, x):
         x = self.fc1(x)
         x = F.gelu(x)
-        x = self.dropout(x)
         x = self.fc2(x)
         x = F.gelu(x)
-        x = self.dropout(x)
         x = self.fc3(x)
         return x
 
 
 class ViTPooling(nn.Module):
-    def __init__(self, image_size, patch_size, in_channels, num_classes, embed_dim, depth, num_heads):
+    def __init__(self, image_size, patch_size, in_channels, num_classes, embed_dim, depth, num_heads, drop_rate=0):
         super(ViTPooling, self).__init__()
         self.patch_embed = PatchEmbedding(image_size=image_size, patch_size=patch_size, in_channels=in_channels,
                                           embed_dim=embed_dim)
         self.num_patches = self.patch_embed.num_patches
         self.pos_embed = PositionalEmbedding(num_patches=self.num_patches, embed_dim=embed_dim)
         self.encoder_blocks = nn.ModuleList([
-            EncoderBlock(embed_dim=embed_dim, num_heads=num_heads, qkv_bias=False)
+            EncoderBlock(embed_dim=embed_dim, num_heads=num_heads, qkv_bias=False, drop_rate=drop_rate)
             for _ in range(depth)
         ])
         self.mlp_head = MLPHead(embed_dim=embed_dim, mlp_hidden_dim=embed_dim * 4, num_classes=num_classes)
