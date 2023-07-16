@@ -5,6 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6dc597b5-90f3-42c0-9fbe-571e0fb81339" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/CV/mlp_mixer.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -46,6 +47,7 @@
   &quot;keyToString&quot;: {
     &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
     &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
     &quot;last_opened_file_path&quot;: &quot;/Users/davidkim/PycharmProjects/pythonProject/ML_Example/CV&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
@@ -64,8 +66,8 @@
       <recent name="$PROJECT_DIR$/prediction/data" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/CV/data" />
       <recent name="$PROJECT_DIR$/CV" />
+      <recent name="$PROJECT_DIR$/CV/data" />
       <recent name="$PROJECT_DIR$/prediction" />
       <recent name="$PROJECT_DIR$/prediction/save/lotto" />
     </key>
@@ -195,7 +197,9 @@
       <workItem from="1688968013892" duration="597000" />
       <workItem from="1689043852275" duration="597000" />
       <workItem from="1689128088805" duration="3081000" />
-      <workItem from="1689212914951" duration="1029000" />
+      <workItem from="1689212914951" duration="1701000" />
+      <workItem from="1689298305656" duration="1214000" />
+      <workItem from="1689420552161" duration="1061000" />
     </task>
     <servers />
   </component>
