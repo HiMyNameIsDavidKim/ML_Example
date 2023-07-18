@@ -972,32 +972,31 @@ def RGBToPenTile(img):
 
     return img_rp, img_g, img_bp
 
-
 def PenTiletoRGB(pr, g, pb):
     # container same shape with g
     tr = np.zeros_like(g)
     tb = np.zeros_like(g)
-
+    
     # fill red/blue subpixels, blank from below subpixels
     # if(tr.shape[0] % 2 == 0): # height is even
-    if (tr.shape[1] % 2 == 0):  # width is even
-        tr[::2, ::2] = pr[::2, :]
-        tr[::2, 1::2] = pr[1::2, :]
-        tr[1::2, ::2] = np.pad(pr[2::2, :], ((0, 1), (0, 0)), 'edge')  # pad 0 to the bottom
-        tr[1::2, 1::2] = pr[1::2, :]
-        tb[::2, ::2] = pb[1::2, :]
-        tb[::2, 1::2] = pb[::2, :]
-        tb[1::2, ::2] = pb[1::2, :]
-        tb[1::2, 1::2] = np.pad(pb[2::2, :], ((0, 1), (0, 0)), 'edge')  # pad 0 to the bottom
-    else:  # width is odd
-        tr[::2, ::2] = pr[::2, :]
-        tr[::2, 1::2] = pr[1::2, :-1]
-        tr[1::2, ::2] = np.pad(pr[2::2, :], ((0, 1), (0, 0)), 'edge')  # pad 0 to the bottom
-        tr[1::2, 1::2] = pr[1::2, :-1]
-        tb[::2, ::2] = pb[1::2, :]
-        tb[::2, 1::2] = pb[::2, :-1]
-        tb[1::2, ::2] = pb[1::2, :]
-        tb[1::2, 1::2] = np.pad(pb[2::2, :-1], ((0, 1), (0, 0)), 'edge')  # pad 0 to the bottom
+    if(tr.shape[1] % 2 == 0): # width is even
+        tr[::2,::2] = pr[::2,:]
+        tr[::2,1::2] = pr[1::2,:]
+        tr[1::2,::2] = np.pad(pr[2::2,:], ((0,1),(0,0)), 'edge') # pad 0 to the bottom
+        tr[1::2,1::2] = pr[1::2,:]
+        tb[::2,::2] = pb[1::2,:]
+        tb[::2,1::2] = pb[::2,:]
+        tb[1::2,::2] = pb[1::2,:]
+        tb[1::2,1::2] = np.pad(pb[2::2,:], ((0,1),(0,0)), 'edge') # pad 0 to the bottom
+    else: # width is odd
+        tr[::2,::2] = pr[::2,:]
+        tr[::2,1::2] = pr[1::2,:-1]
+        tr[1::2,::2] = np.pad(pr[2::2,:], ((0,1),(0,0)), 'edge') # pad 0 to the bottom
+        tr[1::2,1::2] = pr[1::2,:-1]
+        tb[::2,::2] = pb[1::2,:]
+        tb[::2,1::2] = pb[::2,:-1]
+        tb[1::2,::2] = pb[1::2,:]
+        tb[1::2,1::2] = np.pad(pb[2::2,:-1], ((0,1),(0,0)), 'edge') # pad 0 to the bottom
     # else: # height is odd
     #     if(tr.shape[1] % 2 == 0):
     #         tr[::2,::2] = pr[::2,:]
