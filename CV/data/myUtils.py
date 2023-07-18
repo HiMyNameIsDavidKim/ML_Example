@@ -450,27 +450,6 @@ def MyInterpBy2(img_s, filter=H_BI_2):
 
     return output.astype(int)
 
-# Diamond Pentile
-def DPD_dp(img):
-    height, width, channel = img.shape
-    
-    tensor_img = torch.tensor(img, device=device)
-
-    # DPD mask
-    R_dpd = torch.zeros(int(height/2), int(width/4), dtype=int, device=device)
-    G_dpd = torch.zeros(int(height/2), int(width/2), dtype=int, device=device)
-    B_dpd = torch.zeros(int(height/2), int(width/4), dtype=int, device=device)
-
-    R_dpd[0::2,:] = tensor_img[0::4,1::4,0]
-    R_dpd[1::2,:] = tensor_img[2::4,3::4,0]
-
-    G_dpd = tensor_img[1::2,1::2,1]
-
-    B_dpd[0::2,:] = tensor_img[0::4,3::4,2]
-    B_dpd[1::2,:] = tensor_img[2::4,1::4,2]
-
-    return R_dpd, G_dpd, B_dpd
-
 def DPD_n(img, rate=3):
     height, width, channel = img.shape
     
@@ -490,26 +469,6 @@ def DPD_n(img, rate=3):
     img_dpd[:, :, 2] = tensor_img[:, :, 2] * B_dpd
     
     return NToOne(img_dpd, rate=rate)
-
-def DSD_dp(img):
-    height, width, channel = img.shape
-    
-    tensor_img = torch.tensor(img, device=device)
-
-    # DPD mask
-    R_dsd = torch.zeros(int(height/2), int(width/4), dtype=int, device=device)
-    G_dsd = torch.zeros(int(height/2), int(width/2), dtype=int, device=device)
-    B_dsd = torch.zeros(int(height/2), int(width/4), dtype=int, device=device)
-
-    R_dsd[0::2,:] = tensor_img[0::4,0::4,0]
-    R_dsd[1::2,:] = tensor_img[2::4,2::4,0]
-
-    G_dsd = tensor_img[1::2,1::2,1]
-
-    B_dsd[0::2,:-1] = tensor_img[0::4,4::4,2]
-    B_dsd[1::2,:] = tensor_img[2::4,2::4,2]
-
-    return R_dsd, G_dsd, B_dsd
 
 def DSD_n(img, rate=3):
     height, width, channel = img.shape
@@ -532,26 +491,6 @@ def DSD_n(img, rate=3):
     img_dsd[:, :, 2] = tensor_img[:, :, 2] * B_dsd
     
     return NToOne(img_dsd, rate=rate)
-
-def DDSD_dp(img):
-    height, width, channel = img.shape
-    
-    tensor_img = torch.tensor(img, device=device)
-
-    # DPD mask
-    R_ddsd = torch.zeros(int(height/2), int(width/4), dtype=int, device=device)
-    G_ddsd = torch.zeros(int(height/2), int(width/2), dtype=int, device=device)
-    B_ddsd = torch.zeros(int(height/2), int(width/4), dtype=int, device=device)
-
-    R_ddsd[2::2,:] = tensor_img[3:-3:4,0::4,0]
-    R_ddsd[1::2,:] = tensor_img[1::4,2::4,0]
-
-    G_ddsd = tensor_img[1::2,1::2,1]
-
-    B_ddsd[0::2,:-1] = tensor_img[1::4,4::4,2]
-    B_ddsd[1::2,:] = tensor_img[3::4,2::4,2]
-
-    return R_ddsd, G_ddsd, B_ddsd
 
 def DDSD_n(img, rate=3):
     height, width, channel = img.shape
@@ -589,7 +528,6 @@ def NToOne(sampled_img, rate=3):
     out[:,:,2] = torch.sum(sampled_img[:,:,2].reshape(sheight,rate, swidth,rate).float(), dim=(1,3))
     
     return out
-
 
 def myPDAF_n(img, rate=3):
     img = np.array(img, dtype=np.float32)
@@ -634,6 +572,103 @@ def myPDAF_n(img, rate=3):
     
     L_pdaf = np.maximum(0, np.minimum(temp, 255))
     S_pdaf_dpd = DPD_n(L_pdaf, rate=rate)
+    
+    return S_pdaf_dpd
+
+# Diamond Pentile
+def DPD_dp(img):
+    height, width, channel = img.shape
+    
+    img = np.array(img, dtype=np.float32)
+
+    # DPD mask
+    R_dpd = np.zeros((int(height/2), int(width/4)), dtype=int)
+    G_dpd = np.zeros((int(height/2), int(width/2)), dtype=int)
+    B_dpd = np.zeros((int(height/2), int(width/4)), dtype=int)
+
+    R_dpd[0::2,:] = img[0::4,1::4,0][:R_dpd[0::2,:].shape[0],:R_dpd[0::2,:].shape[1]]
+    R_dpd[1::2,:] = img[2::4,3::4,0][:R_dpd[1::2,:].shape[0],:R_dpd[1::2,:].shape[1]]
+
+    G_dpd = img[1::2,1::2,1]
+
+    B_dpd[0::2,:] = img[0::4,3::4,2][:B_dpd[0::2,:].shape[0],:B_dpd[0::2,:].shape[1]]
+    B_dpd[1::2,:] = img[2::4,1::4,2][:B_dpd[1::2,:].shape[0],:B_dpd[1::2,:].shape[1]]
+
+    return R_dpd, G_dpd, B_dpd
+
+def DSD_dp(img):
+    height, width, channel = img.shape
+    
+    img = np.array(img, dtype=np.float32)
+
+    # room for DSD dp 
+    R_dsd = np.zeros((int(height/2), int(width/4)), dtype=int)
+    G_dsd = np.zeros((int(height/2), int(width/2)), dtype=int)
+    B_dsd = np.zeros((int(height/2), int(width/4)), dtype=int)
+
+    R_dsd[0::2,:] = img[0::4,0::4,0][:R_dsd[0::2,:].shape[0],:R_dsd[0::2,:].shape[1]]
+    R_dsd[1::2,:] = img[2::4,2::4,0][:R_dsd[1::2,:].shape[0],:R_dsd[1::2,:].shape[1]]
+
+    G_dsd = img[1::2,1::2,1]
+
+    B_dsd[0::2,:-1] = img[0::4,4::4,2][:B_dsd[0::2,:-1].shape[0],:B_dsd[0::2,:-1].shape[1]]
+    B_dsd[1::2,:] = img[2::4,2::4,2][:B_dsd[1::2,:].shape[0],:B_dsd[1::2,:].shape[1]]
+
+    return R_dsd, G_dsd, B_dsd
+
+def DDSD_dp(img):
+    height, width, channel = img.shape
+    
+    img = np.array(img, dtype=np.float32)
+
+    # room for DDSD dp 
+    R_ddsd = np.zeros((int(height/2), int(width/4)), dtype=int)
+    G_ddsd = np.zeros((int(height/2), int(width/2)), dtype=int)
+    B_ddsd = np.zeros((int(height/2), int(width/4)), dtype=int)
+
+    R_ddsd[2::2,:] = img[3:-3:4,0::4,0][:R_ddsd[2::2,:].shape[0],:R_ddsd[2::2,:].shape[1]]
+    R_ddsd[1::2,:] = img[1::4,2::4,0][:R_ddsd[1::2,:].shape[0],:R_ddsd[1::2,:].shape[1]]
+
+    G_ddsd = img[1::2,1::2,1]
+
+    B_ddsd[0::2,:-1] = img[1::4,4::4,2][:B_ddsd[0::2,:-1].shape[0],:B_ddsd[0::2,:-1].shape[1]]
+    B_ddsd[1::2,:] = img[3::4,2::4,2][:B_ddsd[1::2,:].shape[0],:B_ddsd[1::2,:].shape[1]]
+
+    return R_ddsd, G_ddsd, B_ddsd
+
+def PDAF_dp(img):
+    img = np.array(img, dtype=np.float32)
+    if(img.max() > 1):
+        img = (img / 255 - 1/2) * 2
+    else:
+        img = (img - 1/2) * 2
+
+    # anti-aliasing filter 적용 위해 fft
+    L_out, L_shift, L_fft = myfft(img, storeShift=True, storeFft=True)
+
+    height, width, channel = img.shape
+    cheight = (int)(height/2)
+    cwidth = (int)(width/2)
+
+    f_cut_vert = 1/4 * height
+    f_cut_hori = 1/4 * width
+
+    # low-pass mask
+    mask = np.zeros(L_shift[0].shape)
+    mask[cheight-(int)(f_cut_vert):cheight+(int)(f_cut_vert) + 1, cwidth-(int)(f_cut_hori):cwidth+(int)(f_cut_hori) + 1] = 1
+
+    L_shift_pdaf = np.ndarray(shape=channel, dtype=object)
+    for c in range(channel):
+        L_shift_pdaf[c] = L_shift[c] * mask
+
+    L_pdaf = myifft(L_shift_pdaf)
+
+    temp = np.ndarray(shape=img.shape, dtype=float)
+    for c in range (3):
+        temp[:,:,c] = ((L_pdaf[c]/2 + 1/2) * 255)
+    
+    L_pdaf = np.maximum(0, np.minimum(temp, 255))
+    S_pdaf_dpd = DPD_dp(L_pdaf)
     
     return S_pdaf_dpd
 
@@ -733,8 +768,15 @@ def Vimg_PenTile_np(img_r,img_g,img_b, IF_rb=IF_b.cpu().numpy(), IF_g=IF_g.cpu()
     temp_b = np.repeat(img_b,2,axis=0)
     temp_b = np.repeat(temp_b,4,axis=1)
     
-    temp_r1 = temp_r[:temp_g.shape[0],:temp_g.shape[1]]
-    temp_b1 = temp_b[:temp_g.shape[0],:temp_g.shape[1]]
+    try:
+        temp_r1 = np.zeros_like(temp_g)
+        temp_r1[:temp_r.shape[0],:temp_r.shape[1]] = temp_r
+        temp_b1 = np.zeros_like(temp_g)
+        temp_b1[:temp_b.shape[0],:temp_b.shape[1]] = temp_b
+    except:
+        temp_r1 = temp_r[:temp_g.shape[0],:temp_g.shape[1]]
+        temp_b1 = temp_b[:temp_g.shape[0],:temp_g.shape[1]]
+
     
     mask_r = np.zeros_like(temp_r1)
     mask_r[1::4,1::4]=1.
@@ -1165,7 +1207,7 @@ def DSD_DDSD_FA(image, rate=3, showMask=False):
     if(mode_ddsd == 'circ'):
         mask_ddsd = create_circular_mask(h, w, radius=f_c_ddsd)
     else: # if mode_ddsd == 'rect'
-        mask_ddsd[h//2-f_c_ddsd:h//2+f_c_ddsd+1, w//2-f_c_ddsd:w//2+f_c_ddsd+1] = 1
+        mask_ddsd[max(0, h//2-f_c_ddsd):h//2+f_c_ddsd+1, max(0, w//2-f_c_ddsd):w//2+f_c_ddsd+1] = 1
 
     if(showMask):
         print(f'S_DSD: {h//(rate*2)*(2*f_c_dsd)}, \t S_DDSD_rect: {(2*f_c_ddsd)**2}, S_DDSD_circ: {np.pi*(f_c_ddsd**2)}')
@@ -1184,9 +1226,51 @@ def DSD_DDSD_FA(image, rate=3, showMask=False):
     img_dsdFA = DSD_n(img_filtered_dsd, rate)
     img_ddsdFA = DDSD_n(img_filtered_ddsd, rate)
 
-    return img_dsdFA.cpu().numpy() , img_ddsdFA.cpu().numpy()   
+    return img_dsdFA.cpu().numpy(), img_ddsdFA.cpu().numpy()
 
+def DSD_DDSD_FA_dp(image, showMask=False):
+    img = np.array(image, dtype=np.float32)
+    h, w, c = img.shape
 
+    rate = 2
+
+    # channelwise FFT
+    ffts = np.zeros_like(img, dtype=np.complex64)
+    ffts_shift = np.zeros_like(img, dtype=np.complex64)
+    for i in range(c):
+        ffts[:,:,i] = fft2(img[:,:,i])
+        ffts_shift[:,:,i] = fftshift(ffts[:,:,i])
+    f_c_dsd = FA_DSD(ffts, rate=rate, doFFT=False)
+    f_c_ddsd, mode_ddsd = FA_DDSD(ffts, rate=rate, doFFT=False)
+
+    mask_dsd = np.zeros((h, w))
+    mask_ddsd = np.zeros((h, w))
+
+    mask_dsd[h//2-h//(rate*2):h//2+h//(rate*2)+1, w//2-f_c_dsd:w//2+f_c_dsd+1] = 1
+
+    if(mode_ddsd == 'circ'):
+        mask_ddsd = create_circular_mask(h, w, radius=f_c_ddsd)
+    else: # if mode_ddsd == 'rect'
+        mask_ddsd[max(0, h//2-f_c_ddsd):h//2+f_c_ddsd+1, max(0, w//2-f_c_ddsd):w//2+f_c_ddsd+1] = 1
+
+    if(showMask):
+        print(f'S_DSD: {h//(rate*2)*(2*f_c_dsd)}, \t S_DDSD_rect: {(2*f_c_ddsd)**2}, S_DDSD_circ: {np.pi*(f_c_ddsd**2)}')
+        plt.subplot(121)
+        plt.imshow(mask_dsd, cmap='gray')
+        plt.subplot(122)
+        plt.imshow(mask_ddsd, cmap='gray')
+        plt.show()
+
+    img_filtered_dsd = np.zeros_like(img, dtype=np.float32)
+    img_filtered_ddsd = np.zeros_like(img, dtype=np.float32)
+    for i in range(c):
+        img_filtered_dsd[:,:,i] = ifft2(ifftshift(ffts_shift[:,:,i]*mask_dsd)).real
+        img_filtered_ddsd[:,:,i] = ifft2(ifftshift(ffts_shift[:,:,i]*mask_ddsd)).real
+
+    img_dsdFA = DSD_dp(img_filtered_dsd)
+    img_ddsdFA = DDSD_dp(img_filtered_ddsd)
+
+    return img_dsdFA, img_ddsdFA
 
 def LCM_wc(image, blocksize=30):
     img = np.array(image, dtype=np.float32)
