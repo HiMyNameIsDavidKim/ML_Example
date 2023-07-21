@@ -5,11 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6dc597b5-90f3-42c0-9fbe-571e0fb81339" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/CV/timm_ViT_ImageNet.ipynb" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CV/ViT_tester.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/CV/ViT_tester.ipynb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CV/paper_ViT_ImageNet.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/CV/paper_ViT_ImageNet.ipynb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CV/timm_vit_imagenet.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/timm_vit_imagenet.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -207,7 +203,8 @@
       <workItem from="1689509985404" duration="1237000" />
       <workItem from="1689575939251" duration="599000" />
       <workItem from="1689648026974" duration="9384000" />
-      <workItem from="1689732860713" duration="2817000" />
+      <workItem from="1689732860713" duration="3457000" />
+      <workItem from="1689903439861" duration="597000" />
     </task>
     <servers />
   </component>
