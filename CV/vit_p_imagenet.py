@@ -11,12 +11,12 @@ from CV.vit_pooling import ViTPooling
 
 device = 'mps'
 BATCH_SIZE = 64
-NUM_EPOCHS = 300
+NUM_EPOCHS = 50
 NUM_WORKERS = 2
-LEARNING_RATE = 0.00003
-pre_model_path = './save/ViT_i2012_ep300_lr0.00003.pt'
-fine_model_path = './save/ViT_i2012_ep300_lr0.00003_augVanilla_i2012_ep7_lr0.03.pt'
-load_model_path = './save/ViT_i2012_ep300_lr0.00003.pt'
+LEARNING_RATE = 0.0003
+pre_model_path = './save/ViT_i2012_ep300_lr0.0003.pt'
+fine_model_path = './save/ViT_i2012_ep300_lr0.0003_augVanilla_i2012_ep7_lr0.03.pt'
+load_model_path = './save/ViT_i2012_ep300_lr0.0003.pt'
 
 IMAGE_SIZE = 224
 PATCH_SIZE = 16
@@ -25,16 +25,18 @@ NUM_CLASSES = 1000
 EMBED_DIM = 768
 DEPTH = 12
 NUM_HEADS = 12
+WEIGHT_DECAY = 0.3
+DROP_RATE = 0.1
 
 transform_train = transforms.Compose([
     transforms.RandomResizedCrop(224),
     transforms.ToTensor(),
-    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+    transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])
 ])
 transform_test = transforms.Compose([
     transforms.RandomResizedCrop(224),
     transforms.ToTensor(),
-    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+    transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])
 ])
 pre_train_set = torchvision.datasets.ImageFolder('./data/ImageNet-21k', transform=transform_train)
 pre_train_loader = data.DataLoader(pre_train_set, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
@@ -64,6 +66,7 @@ class PreTrainer(object):
                                 embed_dim=EMBED_DIM,
                                 depth=DEPTH,
                                 num_heads=NUM_HEADS,
+                                drop_rate=DROP_RATE,
                                 ).to(device)
         if load:
             checkpoint = torch.load(load_model_path)
@@ -80,7 +83,7 @@ class PreTrainer(object):
     def pretrain_model(self):
         model = self.model
         criterion = nn.CrossEntropyLoss()
-        optimizer = AdamW(model.parameters(), lr=LEARNING_RATE, weight_decay=0.1)
+        optimizer = AdamW(model.parameters(), lr=LEARNING_RATE, weight_decay=WEIGHT_DECAY)
         scheduler = CosineAnnealingLR(optimizer, T_max=NUM_EPOCHS)
 
         for epoch in range(NUM_EPOCHS):
@@ -194,3 +197,8 @@ class FineTunner(object):
         }
         torch.save(checkpoint, fine_model_path)
         print(f"****** Model checkpoint saved at epochs {self.epochs[-1]} ******")
+
+
+if __name__ == '__main__':
+    trainer = PreTrainer()
+    trainer.process(load=False)
