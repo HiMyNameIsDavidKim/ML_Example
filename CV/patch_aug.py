@@ -76,7 +76,6 @@ class NegativePatchShuffle(object):
         if self.turn_on:
             max_ind = torch.tensor([i.argmax() for i in outputs]).to(device)
             loss_neg = criterion(outputs, max_ind)/1000
-            print(loss_ce, loss_neg)
             return loss_ce + (self.coefficient * loss_neg)
         else:
             return loss_ce
@@ -141,6 +140,11 @@ if __name__ == '__main__':
             aug.roll_the_dice()
             inputs = aug.shuffle(inputs)
             inputs, labels = inputs.to(device), labels.to(device)
+
+            # inputs = inputs.cpu().numpy()
+            # inputs = np.transpose(inputs, (0, 2, 3, 1))
+            # plt.imshow(inputs[0])
+            # plt.show()
 
             optimizer.zero_grad()
 

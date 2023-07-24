@@ -8,6 +8,8 @@ from torch import nn
 from tqdm import tqdm
 from torch.optim.lr_scheduler import CosineAnnealingLR
 
+from patch_aug import NegativePatchShuffle
+
 
 device = 'mps'
 # device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
@@ -71,18 +73,21 @@ class FineTunner(object):
         model = self.model
         criterion = nn.CrossEntropyLoss()
         optimizer = SGD(model.parameters(), lr=LEARNING_RATE, momentum=0.9)
+        aug = NegativePatchShuffle(p=0.5)
 
         for epoch in range(NUM_EPOCHS):
             running_loss = 0.0
             saving_loss = 0.0
             for i, data in tqdm(enumerate(train_loader, 0), total=len(train_loader)):
                 inputs, labels = data
+                aug.roll_the_dice()
+                inputs = aug.shuffle(inputs)
                 inputs, labels = inputs.to(device), labels.to(device)
 
                 optimizer.zero_grad()
 
                 outputs = model(inputs)
-                loss = criterion(outputs, labels)
+                loss = aug.cal_loss(outputs, labels, criterion, device)
                 loss.backward()
                 optimizer.step()
                 running_loss += loss.item()
