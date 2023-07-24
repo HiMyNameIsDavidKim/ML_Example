@@ -54,6 +54,7 @@ class FineTunner(object):
 
     def build_model(self, load):
         self.model = timm.create_model('vit_base_patch16_224_in21k', pretrained=True).to(device)
+        self.model.num_classes = NUM_CLASSES
         print(f'Parameter: {sum(p.numel() for p in self.model.parameters() if p.requires_grad)}')
         print(f'Classes: {self.model.num_classes}')
         self.optimizer = SGD(self.model.parameters(), lr=0)

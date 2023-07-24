@@ -10,4 +10,5 @@ from torch.optim.lr_scheduler import CosineAnnealingLR
 
 model = timm.create_model('vit_base_patch16_224_in21k', pretrained=True)
 print(f'Parameter: {sum(p.numel() for p in model.parameters() if p.requires_grad)}')
+print(f'Classes: {model.num_classes}')
 
