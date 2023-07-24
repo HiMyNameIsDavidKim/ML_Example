@@ -8,14 +8,16 @@ from torch import nn
 from tqdm import tqdm
 from torch.optim.lr_scheduler import CosineAnnealingLR
 
+from vit_pooling import ViTPooling
+
 device = 'mps'
 # device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 BATCH_SIZE = 64
-NUM_EPOCHS = 2
+NUM_EPOCHS = 8
 NUM_WORKERS = 2
 LEARNING_RATE = 0.003
-pre_model_path = './save/ViT_timm_vit_base_patch16_224_in21k_augVanilla_i2012_ep8_lr0.003.pt'
-fine_model_path = f'./save/ViT_timm_vit_base_patch16_224_in21k_augVanilla_i2012_ep{8+NUM_EPOCHS}_lr{LEARNING_RATE}.pt'
+pre_model_path = './save/ViT_timm_vit_base_patch16_224_in21k.pt'
+fine_model_path = f'./save/ViT_timm_vit_base_patch16_224_in21k_Negative_i2012_ep{NUM_EPOCHS}_lr{LEARNING_RATE}.pt'
 
 NUM_CLASSES = 1000
 
