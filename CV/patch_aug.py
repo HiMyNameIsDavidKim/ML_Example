@@ -76,7 +76,9 @@ class NegativePatchShuffle(object):
         if self.turn_on:
             max_ind = torch.tensor([i.argmax() for i in outputs]).to(device)
             loss_neg = criterion(outputs, max_ind)/1000
-            return self.coefficient * loss_neg
+            print(loss_ce)
+            print(loss_neg)
+            return loss_ce + (self.coefficient * loss_neg)
         else:
             return loss_ce
 
@@ -124,7 +126,7 @@ class NegativePatchRotate(object):
         if self.turn_on:
             max_ind = torch.tensor([i.argmax() for i in outputs]).to(device)
             loss_neg = criterion(outputs, max_ind)/1000
-            return self.coefficient * loss_neg
+            return loss_ce + (self.coefficient * loss_neg)
         else:
             return loss_ce
 
@@ -165,7 +167,7 @@ class MixUp(object):
 
 if __name__ == '__main__':
     device = 'mps'
-    BATCH_SIZE = 4
+    BATCH_SIZE = 1
     NUM_WORKERS = 2
 
     transform_test = transforms.Compose([
@@ -180,19 +182,19 @@ if __name__ == '__main__':
     model = timm.models.vit_base_patch16_224(pretrained=True).to(device)
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=0.001)
-    aug = NegativePatchRotate(p=1)
+    aug = NegativePatchShuffle(p=1)
 
     for idx, data in enumerate(test_loader):
         if idx == 0:
             inputs, labels = data
             aug.roll_the_dice()
-            inputs = aug.rotate(inputs)
+            inputs = aug.shuffle(inputs)
             inputs, labels = inputs.to(device), labels.to(device)
 
-            inputs = inputs.cpu().numpy()
-            inputs = np.transpose(inputs, (0, 2, 3, 1))
-            plt.imshow(inputs[0])
-            plt.show()
+            # inputs = inputs.cpu().numpy()
+            # inputs = np.transpose(inputs, (0, 2, 3, 1))
+            # plt.imshow(inputs[0])
+            # plt.show()
 
             optimizer.zero_grad()
 
