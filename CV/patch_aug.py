@@ -37,23 +37,24 @@ class NegativePatchShuffle(object):
     def __init__(self, p=0.5, p_size=32):
         self.p = p
         self.p_size = p_size
-        self.turn_on = False
+        self.switches = []
         self.coefficient = 1
 
-    def roll_the_dice(self):
-        if np.random.random() > self.p:
-            self.turn_on = False
-        else:
-            self.turn_on = True
+    def roll_the_dice(self, batch_size):
+        for _ in range(batch_size):
+            if np.random.random() > self.p:
+                self.switches.append(False)
+            else:
+                self.switches.append(True)
 
     def shuffle(self, imgs):
-        if self.turn_on:
-            imgs = imgs.numpy()
-            imgs = np.transpose(imgs, (0, 2, 3, 1))
-            batch_size, height, width, channels = imgs.shape
-            d = int(height / self.p_size)
-            new_imgs = []
-            for img in imgs:
+        imgs = imgs.numpy()
+        imgs = np.transpose(imgs, (0, 2, 3, 1))
+        batch_size, height, width, channels = imgs.shape
+        d = int(height / self.p_size)
+        new_imgs = []
+        for img, switch in zip(imgs, self.switches):
+            if switch:
                 sub_imgs = []
                 for i in range(d):
                     for j in range(d):
@@ -61,47 +62,50 @@ class NegativePatchShuffle(object):
                         sub_imgs.append(sub_img)
                 np.random.shuffle(sub_imgs)
                 new_img = np.vstack([np.hstack([sub_imgs[i] for i in range(d * j, d * (j + 1))]) for j in range(d)])
+                # sample = F.to_pil_image(new_imgs[0])
+                # plt.imshow(sample)
+                # plt.show()
                 new_imgs.append(new_img)
-            new_imgs = np.stack(new_imgs)
-            new_imgs = torch.from_numpy(new_imgs.transpose((0, 3, 1, 2))).float()
-            # sample = F.to_pil_image(new_imgs[0])
-            # plt.imshow(sample)
-            # plt.show()
-            return new_imgs
-        else:
-            return imgs
+            else:
+                new_imgs.append(img)
+        new_imgs = np.stack(new_imgs)
+        new_imgs = torch.from_numpy(new_imgs.transpose((0, 3, 1, 2))).float()
+        return new_imgs
 
     def cal_loss(self, outputs, labels, criterion, device):
-        loss_ce = criterion(outputs, labels)
-        if self.turn_on:
-            max_ind = torch.tensor([i.argmax() for i in outputs]).to(device)
-            loss_neg = criterion(outputs, max_ind)/1000
-            return self.coefficient * loss_neg
-        else:
-            return loss_ce
+        loss_total = 0
+        for output, label, switch in zip(outputs, labels, self.switches):
+            if switch:
+                max_ind = torch.tensor(output.argmax()).to(device)
+                loss_neg = criterion(output, max_ind) / 1000
+                loss_total += self.coefficient * loss_neg
+            else:
+                loss_total += criterion(output, label)
+        return loss_total
 
 
 class NegativePatchRotate(object):
     def __init__(self, p=0.5, p_size=32):
         self.p = p
         self.p_size = p_size
-        self.turn_on = False
+        self.switches = []
         self.coefficient = 1
 
-    def roll_the_dice(self):
-        if np.random.random() > self.p:
-            self.turn_on = False
-        else:
-            self.turn_on = True
+    def roll_the_dice(self, batch_size):
+        for _ in range(batch_size):
+            if np.random.random() > self.p:
+                self.switches.append(False)
+            else:
+                self.switches.append(True)
 
     def rotate(self, imgs):
-        if self.turn_on:
-            imgs = imgs.numpy()
-            imgs = np.transpose(imgs, (0, 2, 3, 1))
-            batch_size, height, width, channels = imgs.shape
-            d = int(height / self.p_size)
-            new_imgs = []
-            for img in imgs:
+        imgs = imgs.numpy()
+        imgs = np.transpose(imgs, (0, 2, 3, 1))
+        batch_size, height, width, channels = imgs.shape
+        d = int(height / self.p_size)
+        new_imgs = []
+        for img, switch in zip(imgs, self.switches):
+            if switch:
                 sub_imgs = []
                 for i in range(d):
                     for j in range(d):
@@ -109,24 +113,26 @@ class NegativePatchRotate(object):
                         sub_imgs.append(sub_img)
                 sub_imgs = [np.rot90(sub_img) for sub_img in sub_imgs]
                 new_img = np.vstack([np.hstack([sub_imgs[i] for i in range(d * j, d * (j + 1))]) for j in range(d)])
+                # sample = F.to_pil_image(new_imgs[0])
+                # plt.imshow(sample)
+                # plt.show()
                 new_imgs.append(new_img)
-            new_imgs = np.stack(new_imgs)
-            new_imgs = torch.from_numpy(new_imgs.transpose((0, 3, 1, 2))).float()
-            # sample = F.to_pil_image(new_imgs[0])
-            # plt.imshow(sample)
-            # plt.show()
-            return new_imgs
-        else:
-            return imgs
+            else:
+                new_imgs.append(img)
+        new_imgs = np.stack(new_imgs)
+        new_imgs = torch.from_numpy(new_imgs.transpose((0, 3, 1, 2))).float()
+        return new_imgs
 
     def cal_loss(self, outputs, labels, criterion, device):
-        loss_ce = criterion(outputs, labels)
-        if self.turn_on:
-            max_ind = torch.tensor([i.argmax() for i in outputs]).to(device)
-            loss_neg = criterion(outputs, max_ind)/1000
-            return self.coefficient * loss_neg
-        else:
-            return loss_ce
+        loss_total = 0
+        for output, label, switch in zip(outputs, labels, self.switches):
+            if switch:
+                max_ind = torch.tensor(output.argmax()).to(device)
+                loss_neg = criterion(output, max_ind)/1000
+                loss_total += self.coefficient * loss_neg
+            else:
+                loss_total += criterion(output, label)
+        return loss_total
 
 
 class Cutout(object):
@@ -165,7 +171,7 @@ class MixUp(object):
 
 if __name__ == '__main__':
     device = 'mps'
-    BATCH_SIZE = 1
+    BATCH_SIZE = 4
     NUM_WORKERS = 2
 
     transform_test = transforms.Compose([
@@ -185,7 +191,7 @@ if __name__ == '__main__':
     for idx, data in enumerate(test_loader):
         if idx == 0:
             inputs, labels = data
-            aug.roll_the_dice()
+            aug.roll_the_dice(len(inputs))
             inputs = aug.rotate(inputs)
             inputs, labels = inputs.to(device), labels.to(device)
 
