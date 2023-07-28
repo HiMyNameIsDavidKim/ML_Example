@@ -72,6 +72,8 @@ class NegativePatchShuffle(object):
     def cal_loss(self, outputs, labels, criterion, device):
         loss_total = 0
         for output, label, switch in zip(outputs, labels, self.switches):
+            output = output.unsqueeze(0)
+            label = label.unsqueeze(0)
             if switch:
                 loss_neg = criterion(output, label)/1000
                 loss_total += self.coefficient * loss_neg
@@ -119,6 +121,8 @@ class NegativePatchRotate(object):
     def cal_loss(self, outputs, labels, criterion, device):
         loss_total = 0
         for output, label, switch in zip(outputs, labels, self.switches):
+            output = output.unsqueeze(0)
+            label = label.unsqueeze(0)
             if switch:
                 loss_neg = criterion(output, label)/1000
                 loss_total += self.coefficient * loss_neg
