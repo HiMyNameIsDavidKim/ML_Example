@@ -62,9 +62,6 @@ class NegativePatchShuffle(object):
                         sub_imgs.append(sub_img)
                 np.random.shuffle(sub_imgs)
                 new_img = np.vstack([np.hstack([sub_imgs[i] for i in range(d * j, d * (j + 1))]) for j in range(d)])
-                # sample = F.to_pil_image(new_imgs[0])
-                # plt.imshow(sample)
-                # plt.show()
                 new_imgs.append(new_img)
             else:
                 new_imgs.append(img)
@@ -76,8 +73,7 @@ class NegativePatchShuffle(object):
         loss_total = 0
         for output, label, switch in zip(outputs, labels, self.switches):
             if switch:
-                max_ind = torch.tensor(output.argmax()).to(device)
-                loss_neg = criterion(output, max_ind) / 1000
+                loss_neg = criterion(output, label)/1000
                 loss_total += self.coefficient * loss_neg
             else:
                 loss_total += criterion(output, label)
@@ -113,9 +109,6 @@ class NegativePatchRotate(object):
                         sub_imgs.append(sub_img)
                 sub_imgs = [np.rot90(sub_img) for sub_img in sub_imgs]
                 new_img = np.vstack([np.hstack([sub_imgs[i] for i in range(d * j, d * (j + 1))]) for j in range(d)])
-                # sample = F.to_pil_image(new_imgs[0])
-                # plt.imshow(sample)
-                # plt.show()
                 new_imgs.append(new_img)
             else:
                 new_imgs.append(img)
@@ -127,8 +120,7 @@ class NegativePatchRotate(object):
         loss_total = 0
         for output, label, switch in zip(outputs, labels, self.switches):
             if switch:
-                max_ind = torch.tensor(output.argmax()).to(device)
-                loss_neg = criterion(output, max_ind)/1000
+                loss_neg = criterion(output, label)/1000
                 loss_total += self.coefficient * loss_neg
             else:
                 loss_total += criterion(output, label)
@@ -171,7 +163,7 @@ class MixUp(object):
 
 if __name__ == '__main__':
     device = 'mps'
-    BATCH_SIZE = 4
+    BATCH_SIZE = 2
     NUM_WORKERS = 2
 
     transform_test = transforms.Compose([
@@ -183,10 +175,10 @@ if __name__ == '__main__':
     test_set = datasets.ImageFolder('./data/ImageNet/val', transform=transform_test)
     test_loader = DataLoader(test_set, batch_size=BATCH_SIZE, shuffle=False, num_workers=NUM_WORKERS)
 
-    model = timm.models.vit_base_patch16_224(pretrained=True).to(device)
+    model = timm.create_model('vit_base_patch16_224_in21k', pretrained=True).to(device)
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=0.001)
-    aug = NegativePatchRotate(p=1)
+    aug = NegativePatchRotate(p=0.5)
 
     for idx, data in enumerate(test_loader):
         if idx == 0:
