@@ -71,15 +71,16 @@ class NegativePatchShuffle(object):
 
     def cal_loss(self, outputs, labels, criterion, device):
         loss_total = 0
+        batch_size = len(self.switches)
         for output, label, switch in zip(outputs, labels, self.switches):
             output = output.unsqueeze(0)
             label = label.unsqueeze(0)
             if switch:
-                loss_neg = criterion(output, label)/1000
+                loss_neg = criterion(output, label) / 1000
                 loss_total += self.coefficient * loss_neg
             else:
                 loss_total += criterion(output, label)
-        return loss_total
+        return loss_total / batch_size
 
 
 class NegativePatchRotate(object):
@@ -120,6 +121,7 @@ class NegativePatchRotate(object):
 
     def cal_loss(self, outputs, labels, criterion, device):
         loss_total = 0
+        batch_size = len(self.switches)
         for output, label, switch in zip(outputs, labels, self.switches):
             output = output.unsqueeze(0)
             label = label.unsqueeze(0)
@@ -128,7 +130,7 @@ class NegativePatchRotate(object):
                 loss_total += self.coefficient * loss_neg
             else:
                 loss_total += criterion(output, label)
-        return loss_total
+        return loss_total/batch_size
 
 
 class Cutout(object):
@@ -182,7 +184,7 @@ if __name__ == '__main__':
     model = timm.create_model('vit_base_patch16_224_in21k', pretrained=True).to(device)
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=0.001)
-    aug = NegativePatchRotate(p=0.5)
+    aug = NegativePatchRotate(p=1)
 
     for idx, data in enumerate(test_loader):
         if idx == 0:
