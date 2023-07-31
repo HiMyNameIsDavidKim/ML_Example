@@ -5,8 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6dc597b5-90f3-42c0-9fbe-571e0fb81339" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/CV/data/SPRnet/GS-14_K3C256L32_delMask.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CV/data/SPRnet/GS-14_K3C256L32_seperateWeight.ipynb" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CV/patch_aug.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/patch_aug.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CV/data/myUtils.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/data/SPRnet/myUtils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CV/data/myUtils_backup.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/data/SPRnet/myUtils_backup.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -67,8 +70,9 @@
       <recent name="$PROJECT_DIR$/prediction/data" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/CV" />
+      <recent name="$PROJECT_DIR$/CV/data/SPRnet" />
       <recent name="$PROJECT_DIR$/CV/data" />
+      <recent name="$PROJECT_DIR$/CV" />
       <recent name="$PROJECT_DIR$/prediction" />
       <recent name="$PROJECT_DIR$/prediction/save/lotto" />
     </key>
@@ -210,7 +214,8 @@
       <workItem from="1690346156284" duration="6747000" />
       <workItem from="1690418691260" duration="8961000" />
       <workItem from="1690517249993" duration="9654000" />
-      <workItem from="1690598858719" duration="976000" />
+      <workItem from="1690598858719" duration="1254000" />
+      <workItem from="1690768348825" duration="3953000" />
     </task>
     <servers />
   </component>
