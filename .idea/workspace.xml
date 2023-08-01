@@ -6,8 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="6dc597b5-90f3-42c0-9fbe-571e0fb81339" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CV/data/SPRnet/GS-14_K3C256L32_delMask.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/CV/data/SPRnet/GS-14_K3C256L32_delMask.ipynb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CV/data/SPRnet/GS-14_K3C256L32_seperateWeight.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/CV/data/SPRnet/GS-14_K3C256L32_separateWeight.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CV/patch_aug.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/patch_aug.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -213,7 +212,8 @@
       <workItem from="1690418691260" duration="8961000" />
       <workItem from="1690517249993" duration="9654000" />
       <workItem from="1690598858719" duration="1254000" />
-      <workItem from="1690768348825" duration="8361000" />
+      <workItem from="1690768348825" duration="9232000" />
+      <workItem from="1690858227538" duration="56000" />
     </task>
     <servers />
   </component>
