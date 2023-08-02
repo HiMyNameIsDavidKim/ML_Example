@@ -8,8 +8,7 @@ from torch import nn
 from tqdm import tqdm
 from torch.optim.lr_scheduler import CosineAnnealingLR
 
-from patch_aug import NegativePatchShuffle
-
+from patch_aug import NegativePatchShuffle, NegativePatchRotate
 
 device = 'mps'
 # device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
@@ -49,7 +48,7 @@ class FineTunner(object):
 
     def process(self, load=False):
         self.build_model(load)
-        self.finetune_model()
+        self.finetune_model(load)
         self.save_model()
 
     def build_model(self, load):
@@ -63,6 +62,7 @@ class FineTunner(object):
             self.epochs = checkpoint['epochs']
             self.model.load_state_dict(checkpoint['model'])
             self.losses = checkpoint['losses']
+            self.optimizer = checkpoint['optimizer']
             print(f'Parameter: {sum(p.numel() for p in self.model.parameters() if p.requires_grad)}')
             print(f'Classes: {self.model.num_classes}')
             print(f'Epoch: {self.epochs[-1]}')
@@ -70,19 +70,22 @@ class FineTunner(object):
             self.epochs = []
             self.losses = []
 
-    def finetune_model(self):
+    def finetune_model(self, load):
         model = self.model
         criterion = nn.CrossEntropyLoss()
         optimizer = SGD(model.parameters(), lr=LEARNING_RATE, momentum=0.9)
-        aug = NegativePatchShuffle(p=0.5)
+        if load:
+            optimizer = self.optimizer
+        scheduler = CosineAnnealingLR(optimizer, T_max=NUM_EPOCHS)
+        aug = NegativePatchRotate(p=0.5)
 
         for epoch in range(NUM_EPOCHS):
             running_loss = 0.0
             saving_loss = 0.0
             for i, data in tqdm(enumerate(train_loader, 0), total=len(train_loader)):
                 inputs, labels = data
-                aug.roll_the_dice()
-                inputs = aug.shuffle(inputs)
+                aug.roll_the_dice(len(inputs))
+                inputs = aug.rotate(inputs)
                 inputs, labels = inputs.to(device), labels.to(device)
 
                 optimizer.zero_grad()
@@ -92,7 +95,7 @@ class FineTunner(object):
                 loss.backward()
                 optimizer.step()
                 running_loss += loss.item()
-                saving_loss = loss.item()
+                saving_loss += loss.item()
                 if i % 100 == 99:
                     print(f'[Epoch {epoch}, Batch {i + 1:5d}] loss: {running_loss / 100:.3f}')
                     running_loss = 0.0
@@ -100,8 +103,10 @@ class FineTunner(object):
                     self.epochs.append(epoch + 1)
                     self.model = model
                     self.optimizer = optimizer
-                    self.losses.append(saving_loss)
+                    self.losses.append(saving_loss/1000)
                     self.save_model()
+                    saving_loss = 0.0
+            scheduler.step()
         print('****** Finished Fine-tuning ******')
         self.model = model
 

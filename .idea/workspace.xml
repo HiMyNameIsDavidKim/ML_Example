@@ -5,8 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6dc597b5-90f3-42c0-9fbe-571e0fb81339" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/CV/timm_ViT_ImageNet_augneg.ipynb" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CV/patch_aug.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/patch_aug.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CV/timm_vit_imagenet_AugNeg.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/timm_vit_imagenet_augneg.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -67,9 +68,9 @@
       <recent name="$PROJECT_DIR$/prediction/data" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/CV" />
       <recent name="$PROJECT_DIR$/CV/data/SPRnet" />
       <recent name="$PROJECT_DIR$/CV/data" />
-      <recent name="$PROJECT_DIR$/CV" />
       <recent name="$PROJECT_DIR$/prediction" />
       <recent name="$PROJECT_DIR$/prediction/save/lotto" />
     </key>
@@ -213,7 +214,8 @@
       <workItem from="1690517249993" duration="9654000" />
       <workItem from="1690598858719" duration="1254000" />
       <workItem from="1690768348825" duration="9232000" />
-      <workItem from="1690858227538" duration="56000" />
+      <workItem from="1690858227538" duration="1988000" />
+      <workItem from="1690951774052" duration="2561000" />
     </task>
     <servers />
   </component>
