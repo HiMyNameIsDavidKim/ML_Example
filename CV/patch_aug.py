@@ -33,6 +33,28 @@ class PositivePatchShuffle(object):
         return F.to_pil_image(new_img)
 
 
+class PositivePatchRotate(object):
+    def __init__(self, p=0.5, p_size=32):
+        self.p = p
+        self.p_size = p_size
+
+    def __call__(self, img):
+        if np.random.random() > self.p:
+            return img
+
+        img = np.array(img)
+        i_size = img.shape[0]
+        d = int(i_size/self.p_size)
+        sub_imgs = []
+        for i in range(d):
+            for j in range(d):
+                sub_img = img[i * 224 // d:(i + 1) * 224 // d, j * 224 // d:(j + 1) * 224 // d]
+                sub_imgs.append(sub_img)
+        sub_imgs = [np.rot90(sub_img) for sub_img in sub_imgs]
+        new_img = np.vstack([np.hstack([sub_imgs[i] for i in range(d * j, d * (j + 1))]) for j in range(d)])
+        return F.to_pil_image(new_img)
+
+
 class NegativePatchShuffle(object):
     def __init__(self, p=0.5, p_size=32):
         self.p = p
