@@ -62,7 +62,6 @@ class FineTunner(object):
             self.epochs = checkpoint['epochs']
             self.model.load_state_dict(checkpoint['model'])
             self.losses = checkpoint['losses']
-            self.optimizer.load_state_dict(checkpoint['optimizer'])
             print(f'Parameter: {sum(p.numel() for p in self.model.parameters() if p.requires_grad)}')
             print(f'Classes: {self.model.num_classes}')
             print(f'Epoch: {self.epochs[-1]}')
@@ -74,10 +73,6 @@ class FineTunner(object):
         model = self.model
         criterion = nn.CrossEntropyLoss()
         optimizer = SGD(model.parameters(), lr=LEARNING_RATE, momentum=0.9)
-        if load:
-            optimizer = self.optimizer
-            for param_group in optimizer.param_groups:
-                param_group['lr'] = LEARNING_RATE
         scheduler = CosineAnnealingLR(optimizer, T_max=NUM_EPOCHS)
         aug = NegativePatchRotate(p=0.5)
 

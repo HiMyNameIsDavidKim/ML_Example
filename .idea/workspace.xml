@@ -5,8 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6dc597b5-90f3-42c0-9fbe-571e0fb81339" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/CV/timm_ViT_ImageNet_augpos.ipynb" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CV/patch_aug.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/patch_aug.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CV/ViT_tester.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/CV/ViT_tester.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CV/timm_ViT_ImageNet.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/CV/timm_ViT_ImageNet.ipynb" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/CV/timm_ViT_ImageNet_augneg.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/CV/timm_ViT_ImageNet_augneg.ipynb" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/CV/timm_vit_imagenet_augneg.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/timm_vit_imagenet_augneg.py" afterDir="false" />
     </list>
@@ -219,7 +221,8 @@
       <workItem from="1690951774052" duration="5240000" />
       <workItem from="1690964791712" duration="278000" />
       <workItem from="1690965178040" duration="25000" />
-      <workItem from="1691029539466" duration="976000" />
+      <workItem from="1691029539466" duration="2791000" />
+      <workItem from="1691135910773" duration="298000" />
     </task>
     <servers />
   </component>
