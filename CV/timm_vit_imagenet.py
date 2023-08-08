@@ -72,6 +72,7 @@ class FineTunner(object):
         model = self.model
         criterion = nn.CrossEntropyLoss()
         optimizer = SGD(model.parameters(), lr=LEARNING_RATE, momentum=0.9)
+        scheduler = CosineAnnealingLR(optimizer, T_max=NUM_EPOCHS)
 
         for epoch in range(NUM_EPOCHS):
             running_loss = 0.0
@@ -87,16 +88,18 @@ class FineTunner(object):
                 loss.backward()
                 optimizer.step()
                 running_loss += loss.item()
-                saving_loss = loss.item()
+                saving_loss += loss.item()
                 if i % 100 == 99:
                     print(f'[Epoch {epoch}, Batch {i + 1:5d}] loss: {running_loss / 100:.3f}')
                     running_loss = 0.0
                 if i % 1000 == 999:
-                    self.epochs.append(epoch + 1)
+                    self.epochs.append(epoch+1)
                     self.model = model
                     self.optimizer = optimizer
-                    self.losses.append(saving_loss)
+                    self.losses.append(saving_loss/1000)
                     self.save_model()
+                    saving_loss = 0.0
+            scheduler.step()
         print('****** Finished Fine-tuning ******')
         self.model = model
 

@@ -1,22 +1,15 @@
 import timm
 import torch
-import torchvision
-import torch.utils.data as data
-import torchvision.transforms as transforms
-from torch.optim import AdamW, SGD
 from torch import nn
-from tqdm import tqdm
-from torch.optim.lr_scheduler import CosineAnnealingLR
-from torchsummary import summary
 import torchvision.models as models
 
 
 class PositionalEnhanceViT(nn.Module):
     def __init__(self, num_classes):
         super(PositionalEnhanceViT, self).__init__()
-
+        self.num_classes = num_classes
         self.vit_origin = timm.create_model('vit_base_patch16_224_in21k', pretrained=True)
-        self.vit_origin.num_classes = num_classes
+        self.vit_origin.num_classes = self.num_classes
 
         # patch > position embedding > concatenate > norm > MLP > norm > input
         self.patch_embed = PatchEmbed()
@@ -29,10 +22,13 @@ class PositionalEnhanceViT(nn.Module):
 
     def forward(self, x):
         x = self.patch_embed(x)
-        x = torch.cat([x, self.pos_embed], dim=2)
+        B, P, C = x.shape
+        pos_embeds = torch.cat([self.pos_embed] * B, dim=0)
+        x = torch.cat([x, pos_embeds], dim=2)
         x = self.norm1(x)
         x = self.fc2(self.act(self.fc1(x)))
         x = self.norm2(x)
+        x = x.view(B, 3, 224, 224)
         x = self.vit_origin(x)
         return x
 
