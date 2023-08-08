@@ -73,7 +73,6 @@ class PatchEmbed(nn.Module):
         return x
 
 
-
 class ModifiedResNet50(nn.Module):
     def __init__(self):
         super(ModifiedResNet50, self).__init__()
