@@ -10,13 +10,6 @@ from torch.optim.lr_scheduler import CosineAnnealingLR
 from torchsummary import summary
 import torchvision.models as models
 
-# model = timm.create_model('vit_base_patch16_224_in21k', pretrained=True)
-# print(f'Parameter: {sum(p.numel() for p in model.parameters() if p.requires_grad)}')
-# print(f'Classes: {model.num_classes}')
-# summary(model, input_size=(3, 224, 224))
-# dir(model)
-# help(model)
-
 
 class PositionalEnhanceViT(nn.Module):
     def __init__(self, num_classes):
@@ -29,8 +22,8 @@ class PositionalEnhanceViT(nn.Module):
         self.patch_embed = PatchEmbed()
         self.pos_embed = nn.Parameter(torch.randn(1, 196, 768) * .02)
         self.norm1 = nn.LayerNorm(1536)
-        self.fc1 = nn.Linear(1536, 2048)
-        self.fc2 = nn.Linear(2048, 768)
+        self.fc1 = nn.Linear(1536, 768)
+        self.fc2 = nn.Linear(768, 768)
         self.act = nn.GELU()
         self.norm2 = nn.LayerNorm(768)
 
@@ -86,6 +79,13 @@ class ModifiedResNet50(nn.Module):
 
 
 if __name__ == '__main__':
+    # model = timm.create_model('vit_base_patch16_224_in21k', pretrained=True)
+    # print(f'Parameter: {sum(p.numel() for p in model.parameters() if p.requires_grad)}')
+    # print(f'Classes: {model.num_classes}')
+    # summary(model, input_size=(3, 224, 224))
+    # dir(model)
+    # help(model)
+
     # modified_resnet = ModifiedResNet50()
     # input_data = torch.randn(1, 3, 224, 224)
     # output = modified_resnet(input_data)
