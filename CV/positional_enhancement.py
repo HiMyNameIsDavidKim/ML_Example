@@ -33,6 +33,49 @@ class PositionalEnhanceViT(nn.Module):
         return x
 
 
+class PositionalEnhanceViTv2(nn.Module):
+    def __init__(self, num_classes):
+        super(PositionalEnhanceViTv2, self).__init__()
+        self.num_classes = num_classes
+        self.vit_origin = timm.create_model('vit_base_patch16_224_in21k', pretrained=True)
+        self.vit_origin.num_classes = self.num_classes
+        self.features_vit = nn.Sequential(*list(self.vit_origin.children())[:-1])
+        self.head_vit = nn.Sequential(*list(self.vit_origin.children())[-1:])
+
+        self.patch_embed = PatchEmbed()
+        self.pos_embed = nn.Parameter(torch.randn(1, 196, 768) * .02)
+        self.norm1 = nn.LayerNorm(1536)
+        self.fc1 = nn.Linear(1536, 768)
+        self.act1 = nn.GELU()
+        self.fc2 = nn.Linear(768, 768)
+        self.norm2 = nn.LayerNorm(768)
+
+        self.norm3 = nn.LayerNorm(1536)
+        self.fc3 = nn.Linear(1536, 768)
+        self.act2 = nn.GELU()
+        self.fc4 = nn.Linear(768, 768)
+        self.norm4 = nn.LayerNorm(768)
+
+        self.fc5 = nn.Linear(768, num_classes)
+
+    def forward(self, x):
+        x_vit = self.features_vit(x)
+        x = self.patch_embed(x)
+        B, P, C = x.shape
+        pos_embeds = torch.cat([self.pos_embed] * B, dim=0)
+        x = torch.cat([x, pos_embeds], dim=2)
+        x = self.norm1(x)
+        x = self.fc2(self.act1(self.fc1(x)))
+        x = self.norm2(x)
+        x = torch.cat([x, x_vit], dim=2)
+        x = self.norm3(x)
+        x = self.fc4(self.act2(self.fc3(x)))
+        x = x[:, 0]
+        x = self.norm4(x)
+        x = self.fc5(x)
+        return x
+
+
 class PatchEmbed(nn.Module):
     def __init__(
             self,
