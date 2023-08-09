@@ -40,7 +40,6 @@ class PositionalEnhanceViTv2(nn.Module):
         self.vit_origin = timm.create_model('vit_base_patch16_224_in21k', pretrained=True)
         self.vit_origin.num_classes = self.num_classes
         self.features_vit = nn.Sequential(*list(self.vit_origin.children())[:-1])
-        self.head_vit = nn.Sequential(*list(self.vit_origin.children())[-1:])
 
         self.patch_embed = PatchEmbed()
         self.pos_embed = nn.Parameter(torch.randn(1, 196, 768) * .02)
