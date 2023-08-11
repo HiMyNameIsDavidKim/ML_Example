@@ -11,7 +11,7 @@ class PositionalEnhanceViT(nn.Module):
         self.num_classes = num_classes
         self.vit_origin = timm.create_model('vit_base_patch16_224_in21k', pretrained=True)
         self.vit_origin.num_classes = self.num_classes
-        self.forward_vit = nn.Sequential(*list(self.vit_origin.children())[3:])
+        self.forward_vit = nn.Sequential(*list(self.vit_origin.children())[3:-1])
 
         # patch > position embedding > concatenate > norm > MLP > norm > input
         self.patch_embed = PatchEmbed()
@@ -21,6 +21,9 @@ class PositionalEnhanceViT(nn.Module):
         self.fc2 = nn.Linear(768, 768)
         self.act = nn.GELU()
         self.norm2 = nn.LayerNorm(768)
+        self.fc3 = nn.Linear(768, num_classes)
+        self.fc4 = nn.Linear(num_classes, num_classes)
+        self.fc5 = nn.Linear(num_classes, num_classes)
 
     def forward(self, x):
         x = self.patch_embed(x)
@@ -31,6 +34,9 @@ class PositionalEnhanceViT(nn.Module):
         x = self.fc2(self.act(self.fc1(x)))
         x = self.norm2(x)
         x = self.forward_vit(x)
+        x = self.fc4(self.fc3(x))
+        x = x[:, 0]
+        x = self.fc5(x)
         return x
 
 
@@ -132,6 +138,6 @@ if __name__ == '__main__':
 
     num_classes = 1000
     pe_vit = PositionalEnhanceViT(num_classes)
-    # summary(pe_vit, input_size=(3, 224, 224))
-    input_data = torch.randn(1, 3, 224, 224)
-    output = pe_vit(input_data)
+    summary(pe_vit, input_size=(3, 224, 224))
+    # input_data = torch.randn(1, 3, 224, 224)
+    # output = pe_vit(input_data)
