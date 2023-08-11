@@ -222,7 +222,9 @@
       <workItem from="1691374448725" duration="9809000" />
       <workItem from="1691459415675" duration="8162000" />
       <workItem from="1691481040774" duration="13000" />
-      <workItem from="1691551860368" duration="7670000" />
+      <workItem from="1691551860368" duration="7982000" />
+      <workItem from="1691635176723" duration="597000" />
+      <workItem from="1691717514952" duration="2921000" />
     </task>
     <servers />
   </component>
@@ -241,7 +243,7 @@
     <SUITE FILE_PATH="coverage/ML_Example$vit_cifar10.coverage" NAME="vit_cifar10 Coverage Results" MODIFIED="1679971290257" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
     <SUITE FILE_PATH="coverage/ML_Example$lotto_1hot.coverage" NAME="lotto_1hot Coverage Results" MODIFIED="1680855895432" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/prediction" />
     <SUITE FILE_PATH="coverage/ML_Example$shape_learning.coverage" NAME="shape_learning Coverage Results" MODIFIED="1685585368212" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
-    <SUITE FILE_PATH="coverage/ML_Example$positional_enhancement.coverage" NAME="positional_enhancement Coverage Results" MODIFIED="1691560354955" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
+    <SUITE FILE_PATH="coverage/ML_Example$positional_enhancement.coverage" NAME="positional_enhancement Coverage Results" MODIFIED="1691723639434" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
     <SUITE FILE_PATH="coverage/ML_Example$lotto_1by1.coverage" NAME="lotto_1by1 Coverage Results" MODIFIED="1679238804794" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/prediction" />
     <SUITE FILE_PATH="coverage/ML_Example$timm_vit_imagenet.coverage" NAME="timm_vit_imagenet Coverage Results" MODIFIED="1681781387094" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
     <SUITE FILE_PATH="coverage/ML_Example$patch_aug.coverage" NAME="patch_aug Coverage Results" MODIFIED="1690598945511" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />

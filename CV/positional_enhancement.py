@@ -2,6 +2,7 @@ import timm
 import torch
 from torch import nn
 import torchvision.models as models
+from torchsummary import summary
 
 
 class PositionalEnhanceViT(nn.Module):
@@ -10,6 +11,7 @@ class PositionalEnhanceViT(nn.Module):
         self.num_classes = num_classes
         self.vit_origin = timm.create_model('vit_base_patch16_224_in21k', pretrained=True)
         self.vit_origin.num_classes = self.num_classes
+        self.forward_vit = nn.Sequential(*list(self.vit_origin.children())[3:])
 
         # patch > position embedding > concatenate > norm > MLP > norm > input
         self.patch_embed = PatchEmbed()
@@ -28,8 +30,7 @@ class PositionalEnhanceViT(nn.Module):
         x = self.norm1(x)
         x = self.fc2(self.act(self.fc1(x)))
         x = self.norm2(x)
-        x = x.view(B, 3, 224, 224)
-        x = self.vit_origin(x)
+        x = self.forward_vit(x)
         return x
 
 
@@ -131,5 +132,6 @@ if __name__ == '__main__':
 
     num_classes = 1000
     pe_vit = PositionalEnhanceViT(num_classes)
+    # summary(pe_vit, input_size=(3, 224, 224))
     input_data = torch.randn(1, 3, 224, 224)
     output = pe_vit(input_data)
