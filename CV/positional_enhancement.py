@@ -12,6 +12,8 @@ class PositionalEnhanceViT(nn.Module):
         self.vit_origin = timm.create_model('vit_base_patch16_224_in21k', pretrained=True)
         self.vit_origin.num_classes = self.num_classes
         self.forward_vit = nn.Sequential(*list(self.vit_origin.children())[3:-1])
+        for param in self.forward_vit.parameters():
+            param.requires_grad = False
 
         # patch > position embedding > concatenate > norm > MLP > norm > input
         self.patch_embed = PatchEmbed()
