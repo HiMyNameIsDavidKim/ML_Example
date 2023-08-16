@@ -97,8 +97,9 @@ class NegativePatchShuffle(object):
         for output, label, switch in zip(outputs, labels, self.switches):
             output = output.unsqueeze(0)
             label = label.unsqueeze(0)
+            dist_label = torch.full_like(output, fill_value=1 / 1000)
             if switch:
-                loss_neg.append(self.coefficient * criterion(output, label) / 1000)
+                loss_neg.append(self.coefficient * cross_entropy_loss(output, dist_label))
             else:
                 loss_ce.append(criterion(output, label))
         loss_total = sum(loss_neg) / len(loss_neg) + sum(loss_ce) / len(loss_ce)
@@ -160,6 +161,7 @@ def cross_entropy_loss(predictions, targets):
     assert predictions.shape == targets.shape, "Predictions and targets must have the same shape"
     epsilon = 1e-10
     predictions = torch.clamp(predictions, epsilon, 1.0 - epsilon)
+    predictions = predictions.clone().detach().requires_grad_(True)
     loss = -torch.sum(targets * torch.log(predictions))
     return loss
 
