@@ -6,7 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="6dc597b5-90f3-42c0-9fbe-571e0fb81339" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CV/positional_enhancement.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/positional_enhancement.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CV/patch_aug.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/patch_aug.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -225,7 +225,8 @@
       <workItem from="1691551860368" duration="7982000" />
       <workItem from="1691635176723" duration="597000" />
       <workItem from="1691717514952" duration="7503000" />
-      <workItem from="1691980391982" duration="1020000" />
+      <workItem from="1691980391982" duration="1897000" />
+      <workItem from="1692149896252" duration="4243000" />
     </task>
     <servers />
   </component>
@@ -247,7 +248,7 @@
     <SUITE FILE_PATH="coverage/ML_Example$positional_enhancement.coverage" NAME="positional_enhancement Coverage Results" MODIFIED="1691730760677" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
     <SUITE FILE_PATH="coverage/ML_Example$lotto_1by1.coverage" NAME="lotto_1by1 Coverage Results" MODIFIED="1679238804794" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/prediction" />
     <SUITE FILE_PATH="coverage/ML_Example$timm_vit_imagenet.coverage" NAME="timm_vit_imagenet Coverage Results" MODIFIED="1681781387094" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
-    <SUITE FILE_PATH="coverage/ML_Example$patch_aug.coverage" NAME="patch_aug Coverage Results" MODIFIED="1690598945511" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
+    <SUITE FILE_PATH="coverage/ML_Example$patch_aug.coverage" NAME="patch_aug Coverage Results" MODIFIED="1692160921027" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
     <SUITE FILE_PATH="coverage/ML_Example$lenna.coverage" NAME="lenna Coverage Results" MODIFIED="1685415742720" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
     <SUITE FILE_PATH="coverage/ML_Example$vit_concate.coverage" NAME="vit_concate Coverage Results" MODIFIED="1685687180934" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
   </component>

@@ -147,12 +147,21 @@ class NegativePatchRotate(object):
         for output, label, switch in zip(outputs, labels, self.switches):
             output = output.unsqueeze(0)
             label = label.unsqueeze(0)
+            dist_label = torch.full_like(output, fill_value=1/1000)
             if switch:
-                loss_neg.append(self.coefficient * criterion(output, label) / 1000)
+                loss_neg.append(self.coefficient * cross_entropy_loss(output, dist_label))
             else:
                 loss_ce.append(criterion(output, label))
         loss_total = sum(loss_neg) / len(loss_neg) + sum(loss_ce) / len(loss_ce)
         return loss_total
+
+
+def cross_entropy_loss(predictions, targets):
+    assert predictions.shape == targets.shape, "Predictions and targets must have the same shape"
+    epsilon = 1e-10
+    predictions = torch.clamp(predictions, epsilon, 1.0 - epsilon)
+    loss = -torch.sum(targets * torch.log(predictions))
+    return loss
 
 
 class Cutout(object):
@@ -206,7 +215,7 @@ if __name__ == '__main__':
     model = timm.create_model('vit_base_patch16_224_in21k', pretrained=True).to(device)
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=0.001)
-    aug = NegativePatchRotate(p=1)
+    aug = NegativePatchRotate(p=0)
 
     for idx, data in enumerate(test_loader):
         if idx == 0:
