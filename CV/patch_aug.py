@@ -153,9 +153,9 @@ class NegativePatchRotate(object):
         for output, label, switch in zip(outputs, labels, self.switches):
             output = output.unsqueeze(0)
             label = label.unsqueeze(0)
-            dist_label = torch.full_like(output, fill_value=1/1000)
+            uniform_label = torch.full_like(output, fill_value=1/1000)
             if switch:
-                loss_neg.append(self.coefficient * ce_loss_neg(output, dist_label))
+                loss_neg.append(self.coefficient * ce_loss_neg(output, uniform_label))
             else:
                 loss_ce.append(criterion(output, label))
         loss_total = sum(loss_neg) / len(loss_neg) + sum(loss_ce) / len(loss_ce)
