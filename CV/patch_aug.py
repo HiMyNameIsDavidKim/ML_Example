@@ -136,8 +136,8 @@ class NegativePatchRotate(object):
                 angles = [random.randint(0, 3) for _ in range(len(sub_imgs))]
                 sub_imgs = [sub_img if angle == 0 else
                             np.rot90(sub_img) if angle == 1 else
-                            np.rot180(sub_img) if angle == 2 else
-                            np.rot270(sub_img)
+                            np.rot90(np.rot90(sub_img)) if angle == 2 else
+                            np.rot90(np.rot90(np.rot90(sub_img)))
                             for angle, sub_img in zip(angles, sub_imgs)]
                 new_img = np.vstack([np.hstack([sub_imgs[i] for i in range(d * j, d * (j + 1))]) for j in range(d)])
                 new_imgs.append(new_img)
