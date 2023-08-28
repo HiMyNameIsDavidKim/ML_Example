@@ -12,7 +12,7 @@ from torchvision import datasets
 
 
 class PositivePatchShuffle(object):
-    def __init__(self, p=0.5, p_size=32):
+    def __init__(self, p=0.5, p_size=16):
         self.p = p
         self.p_size = p_size
 
@@ -34,7 +34,7 @@ class PositivePatchShuffle(object):
 
 
 class PositivePatchRotate(object):
-    def __init__(self, p=0.5, p_size=32):
+    def __init__(self, p=0.5, p_size=16):
         self.p = p
         self.p_size = p_size
 
@@ -50,13 +50,18 @@ class PositivePatchRotate(object):
             for j in range(d):
                 sub_img = img[i * 224 // d:(i + 1) * 224 // d, j * 224 // d:(j + 1) * 224 // d]
                 sub_imgs.append(sub_img)
-        sub_imgs = [np.rot90(sub_img) for sub_img in sub_imgs]
+        angles = [random.randint(0, 3) for _ in range(len(sub_imgs))]
+        sub_imgs = [sub_img if angle == 0 else
+                    np.rot90(sub_img) if angle == 1 else
+                    np.rot90(np.rot90(sub_img)) if angle == 2 else
+                    np.rot90(np.rot90(np.rot90(sub_img)))
+                    for angle, sub_img in zip(angles, sub_imgs)]
         new_img = np.vstack([np.hstack([sub_imgs[i] for i in range(d * j, d * (j + 1))]) for j in range(d)])
         return F.to_pil_image(new_img)
 
 
 class NegativePatchShuffle(object):
-    def __init__(self, p=0.5, p_size=32):
+    def __init__(self, p=0.5, p_size=16):
         self.p = p
         self.p_size = p_size
         self.switches = []
@@ -107,7 +112,7 @@ class NegativePatchShuffle(object):
 
 
 class NegativePatchRotate(object):
-    def __init__(self, p=0.5, p_size=32):
+    def __init__(self, p=0.5, p_size=16):
         self.p = p
         self.p_size = p_size
         self.switches = []
