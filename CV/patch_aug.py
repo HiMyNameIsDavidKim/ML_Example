@@ -12,7 +12,7 @@ from torchvision import datasets
 
 
 class PositivePatchShuffle(object):
-    def __init__(self, p=0.5, p_size=16):
+    def __init__(self, p=0.5, p_size=32):
         self.p = p
         self.p_size = p_size
 
@@ -26,7 +26,7 @@ class PositivePatchShuffle(object):
         sub_imgs = []
         for i in range(d):
             for j in range(d):
-                sub_img = img[i * 224 // d:(i + 1) * 224 // d, j * 224 // d:(j + 1) * 224 // d]
+                sub_img = img[i * i_size // d:(i + 1) * i_size // d, j * i_size // d:(j + 1) * i_size // d]
                 sub_imgs.append(sub_img)
         np.random.shuffle(sub_imgs)
         new_img = np.vstack([np.hstack([sub_imgs[i] for i in range(d * j, d * (j + 1))]) for j in range(d)])
@@ -34,7 +34,7 @@ class PositivePatchShuffle(object):
 
 
 class PositivePatchRotate(object):
-    def __init__(self, p=0.5, p_size=16):
+    def __init__(self, p=0.5, p_size=32):
         self.p = p
         self.p_size = p_size
 
@@ -48,7 +48,7 @@ class PositivePatchRotate(object):
         sub_imgs = []
         for i in range(d):
             for j in range(d):
-                sub_img = img[i * 224 // d:(i + 1) * 224 // d, j * 224 // d:(j + 1) * 224 // d]
+                sub_img = img[i * i_size // d:(i + 1) * i_size // d, j * i_size // d:(j + 1) * i_size // d]
                 sub_imgs.append(sub_img)
         angles = [random.randint(0, 3) for _ in range(len(sub_imgs))]
         sub_imgs = [sub_img if angle == 0 else
@@ -61,11 +61,11 @@ class PositivePatchRotate(object):
 
 
 class NegativePatchShuffle(object):
-    def __init__(self, p=0.5, p_size=16):
+    def __init__(self, p=0.5, p_size=32):
         self.p = p
         self.p_size = p_size
         self.switches = []
-        self.coefficient = 1
+        self.coefficient = 1.5
 
     def roll_the_dice(self, batch_size):
         for _ in range(batch_size):
@@ -85,7 +85,7 @@ class NegativePatchShuffle(object):
                 sub_imgs = []
                 for i in range(d):
                     for j in range(d):
-                        sub_img = img[i * 224 // d:(i + 1) * 224 // d, j * 224 // d:(j + 1) * 224 // d]
+                        sub_img = img[i * height // d:(i + 1) * height // d, j * height // d:(j + 1) * height // d]
                         sub_imgs.append(sub_img)
                 np.random.shuffle(sub_imgs)
                 new_img = np.vstack([np.hstack([sub_imgs[i] for i in range(d * j, d * (j + 1))]) for j in range(d)])
@@ -112,11 +112,11 @@ class NegativePatchShuffle(object):
 
 
 class NegativePatchRotate(object):
-    def __init__(self, p=0.5, p_size=16):
+    def __init__(self, p=0.5, p_size=32):
         self.p = p
         self.p_size = p_size
         self.switches = []
-        self.coefficient = 1
+        self.coefficient = 1.5
 
     def roll_the_dice(self, batch_size):
         for _ in range(batch_size):
@@ -136,7 +136,7 @@ class NegativePatchRotate(object):
                 sub_imgs = []
                 for i in range(d):
                     for j in range(d):
-                        sub_img = img[i * 224 // d:(i + 1) * 224 // d, j * 224 // d:(j + 1) * 224 // d]
+                        sub_img = img[i * height // d:(i + 1) * height // d, j * height // d:(j + 1) * height // d]
                         sub_imgs.append(sub_img)
                 angles = [random.randint(0, 3) for _ in range(len(sub_imgs))]
                 sub_imgs = [sub_img if angle == 0 else
