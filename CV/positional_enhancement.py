@@ -15,7 +15,7 @@ class PositionalEnhanceViT(nn.Module):
         for param in self.forward_vit.parameters():
             param.requires_grad = False
 
-        # patch > position embedding > concatenate > norm > MLP > norm > input
+        # Enhancement Module Details
         self.patch_embed = PatchEmbed()
         self.pos_embed = nn.Parameter(torch.randn(1, 196, 768) * .02)
         self.norm1 = nn.LayerNorm(1536)
@@ -23,11 +23,14 @@ class PositionalEnhanceViT(nn.Module):
         self.fc2 = nn.Linear(768, 768)
         self.act = nn.GELU()
         self.norm2 = nn.LayerNorm(768)
+
+        # Classification Head Details
         self.fc3 = nn.Linear(768, num_classes)
         self.fc4 = nn.Linear(num_classes, num_classes)
         self.fc5 = nn.Linear(num_classes, num_classes)
 
     def forward(self, x):
+        # Enhancement Module
         x = self.patch_embed(x)
         B, P, C = x.shape
         pos_embeds = torch.cat([self.pos_embed] * B, dim=0)
@@ -35,7 +38,11 @@ class PositionalEnhanceViT(nn.Module):
         x = self.norm1(x)
         x = self.fc2(self.act(self.fc1(x)))
         x = self.norm2(x)
+
+        # Original ViT Forward
         x = self.forward_vit(x)
+
+        # Classification Head
         x = self.fc4(self.fc3(x))
         x = x[:, 0]
         x = self.fc5(x)
