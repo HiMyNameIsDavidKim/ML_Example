@@ -6,7 +6,11 @@
   <component name="ChangeListManager">
     <list default="true" id="6dc597b5-90f3-42c0-9fbe-571e0fb81339" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CV/positional_enhancement.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/positional_enhancement.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CV/ViT_tester.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/CV/ViT_tester.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CV/positional_enhancement_ViT_ImageNet.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/CV/positional_enhancement_ViT_ImageNet.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CV/timm_ViT_ImageNet.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/CV/timm_ViT_ImageNet.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CV/timm_ViT_ImageNet_augneg.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/CV/timm_ViT_ImageNet_augneg.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CV/timm_ViT_ImageNet_augpos.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/CV/timm_ViT_ImageNet_augpos.ipynb" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -233,7 +237,9 @@
       <workItem from="1693275205835" duration="3403000" />
       <workItem from="1693359507576" duration="3539000" />
       <workItem from="1693444329586" duration="1362000" />
-      <workItem from="1693527939915" duration="1349000" />
+      <workItem from="1693527939915" duration="1366000" />
+      <workItem from="1693794284754" duration="2516000" />
+      <workItem from="1693901021307" duration="360000" />
     </task>
     <servers />
   </component>
