@@ -36,24 +36,25 @@ def dim3(image):
 
 if __name__ == '__main__':
     # level = 46
-    # gray46 = gray(level)
-    # save_img(gray46, f'./save/gray{level}_full.png')
+    # gray_ptn = gray(level)
+    # save_img(gray_ptn, f'./save/gray{level}_full.png')
 
     # level = 186
-    # gray186 = gray(level)
-    # gray186_dim2 = dim2(gray186)
-    # save_img(gray186_dim2, f'./save/gray{level}_dim2.png')
+    # gray_ptn = gray(level)
+    # gray_ptn_dim2 = dim2(gray186)
+    # save_img(gray_ptn_dim2, f'./save/gray{level}_dim2.png')
 
     # level = 186
-    # gray186 = gray(level)
-    # gray186_dim3 = dim3(gray186)
-    # save_img(gray186_dim3, f'./save/gray{level}_dim3.png')
+    # gray_ptn = gray(level)
+    # gray_ptn_dim3 = dim3(gray186)
+    # save_img(gray_ptn_dim3, f'./save/gray{level}_dim3.png')
 
-    # level = 16
-    # green16 = green(level)
-    # save_img(green16, f'./save/green{level}_full.png')
+    for i in [8, 4, 2, 1, 0.5, 0.3]:
+        level = i
+        green_ptn = green(level)
+        save_img(green_ptn, f'./save/green{level}_full.png')
 
-    level = 30
-    green255 = green(level)
-    green255_dim = dim2(green255)
-    save_img(green255_dim, f'./save/green{level}_dim2.png')
+    # level = 30
+    # green_ptn = green(level)
+    # green_ptn_dim = dim2(green255)
+    # save_img(green_ptn_dim, f'./save/green{level}_dim2.png')
