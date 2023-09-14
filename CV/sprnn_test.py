@@ -2,7 +2,8 @@ import cv2
 from PIL import Image
 import numpy as np
 
-width, height = 1179, 2556
+# width, height = 1179, 2556
+width, height = 512, 260
 
 def gray(level):
     color = (level, level, level)
@@ -35,9 +36,10 @@ def dim3(image):
 
 
 if __name__ == '__main__':
-    # level = 46
-    # gray_ptn = gray(level)
-    # save_img(gray_ptn, f'./save/gray{level}_full.png')
+    for i in [4, 8, 16, 30, 46, 64]:
+        level = i
+        gray_ptn = gray(level)
+        save_img(gray_ptn, f'./save/gray{level}_full.png')
 
     # level = 186
     # gray_ptn = gray(level)
@@ -49,7 +51,7 @@ if __name__ == '__main__':
     # gray_ptn_dim3 = dim3(gray186)
     # save_img(gray_ptn_dim3, f'./save/gray{level}_dim3.png')
 
-    for i in [8, 4, 2, 1, 0.5, 0.3]:
+    for i in [4, 8, 16, 30, 46, 64]:
         level = i
         green_ptn = green(level)
         save_img(green_ptn, f'./save/green{level}_full.png')
