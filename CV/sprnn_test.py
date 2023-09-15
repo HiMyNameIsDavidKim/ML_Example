@@ -41,22 +41,22 @@ if __name__ == '__main__':
         gray_ptn = gray(level)
         save_img(gray_ptn, f'./save/gray{level}_full.png')
 
-    # level = 186
-    # gray_ptn = gray(level)
-    # gray_ptn_dim2 = dim2(gray186)
-    # save_img(gray_ptn_dim2, f'./save/gray{level}_dim2.png')
+    level = 186
+    gray_ptn = gray(level)
+    gray_ptn_dim2 = dim2(gray_ptn)
+    save_img(gray_ptn_dim2, f'./save/gray{level}_dim2.png')
 
-    # level = 186
-    # gray_ptn = gray(level)
-    # gray_ptn_dim3 = dim3(gray186)
-    # save_img(gray_ptn_dim3, f'./save/gray{level}_dim3.png')
+    level = 186
+    gray_ptn = gray(level)
+    gray_ptn_dim3 = dim3(gray_ptn)
+    save_img(gray_ptn_dim3, f'./save/gray{level}_dim3.png')
 
     for i in [4, 8, 16, 30, 46, 64]:
         level = i
         green_ptn = green(level)
         save_img(green_ptn, f'./save/green{level}_full.png')
 
-    # level = 30
-    # green_ptn = green(level)
-    # green_ptn_dim = dim2(green255)
-    # save_img(green_ptn_dim, f'./save/green{level}_dim2.png')
+    level = 30
+    green_ptn = green(level)
+    green_ptn_dim = dim2(green_ptn)
+    save_img(green_ptn_dim, f'./save/green{level}_dim2.png')

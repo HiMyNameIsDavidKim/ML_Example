@@ -4,21 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6dc597b5-90f3-42c0-9fbe-571e0fb81339" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CV/save/gray186_dim2.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/CV/save/gray186_dim3.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/CV/save/gray46_full.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/CV/save/green0.3_full.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/CV/save/green0.5_full.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/CV/save/green16_full.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/CV/save/green1_full.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/CV/save/green2_full.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/CV/save/green30_dim2.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/CV/save/green4_full.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/CV/save/green8_full.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/CV/sprnn_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/sprnn_test.py" afterDir="false" />
-    </list>
+    <list default="true" id="6dc597b5-90f3-42c0-9fbe-571e0fb81339" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -254,6 +240,7 @@
       <workItem from="1694483997646" duration="1883000" />
       <workItem from="1694582480274" duration="4428000" />
       <workItem from="1694655267340" duration="1638000" />
+      <workItem from="1694680064752" duration="17000" />
     </task>
     <servers />
   </component>
