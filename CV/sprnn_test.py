@@ -3,8 +3,10 @@ from PIL import Image
 import numpy as np
 import random
 
-width, height = 1179, 2556
+width, height = 1179, 2556  # 30 and 59
 # width, height = 512, 260
+# width, height = 1080, 2340  # 30 and 65
+
 
 def gray(level):
     color = (level, level, level)
@@ -43,27 +45,23 @@ def apply_noise(image, intensity, green=False):
     image = image - noise
     return image
 
+def half_half(image_1, image_2):
+    image_1 = image_1[:int(height/2),:,:]
+    image_2 = image_2[int(height/2):,:,:]
+    new_image = np.concatenate((image_1, image_2), axis=0)
+    return new_image
+
 
 if __name__ == '__main__':
     # for i in [30]:
     #     level = i
     #     gray_ptn = gray(level)
     #     save_img(gray_ptn, f'./save/gray{level}_full.png')
-    #
+
     # level = 186
     # gray_ptn = gray(level)
     # gray_ptn_dim2 = dim2(gray_ptn)
     # save_img(gray_ptn_dim2, f'./save/gray{level}_dim2.png')\
-    #
-    for i in [30]:
-        level = i
-        green_ptn = green(level)
-        save_img(green_ptn, f'./save/green{level}_full.png')
-    #
-    # level = 30
-    # green_ptn = green(level)
-    # green_ptn_dim = dim2(green_ptn)
-    # save_img(green_ptn_dim, f'./save/green{level}_dim2.png')
 
     # for i in [30]:
     #     level = i
@@ -75,6 +73,34 @@ if __name__ == '__main__':
     for i in [30]:
         level = i
         green_ptn = green(level)
-        intensity = 4
-        green_ptn = apply_noise(green_ptn, intensity, green=True)
-        save_img(green_ptn, f'./save/green{level}_full_noise{intensity}.png')
+        save_img(green_ptn, f'./save/green{level}_full.png')
+
+    for i in [59]:
+        level = i
+        green_ptn = green(level)
+        green_ptn_dim = dim2(green_ptn)
+        save_img(green_ptn_dim, f'./save/green{level}_dim2.png')
+
+    # for i in [65]:
+    #     level = i
+    #     green_ptn = green(level)
+    #     green_ptn_dim = dim2(green_ptn)
+    #     intensity = 4
+    #     green_ptn_noise = apply_noise(green_ptn_dim, intensity, green=True)
+    #     save_img(green_ptn_noise, f'./save/green{level}_dim2_noise{intensity}.png')
+
+    # # 1 is noise, 2 is good
+
+    level_1 = 30
+    level_2 = 60
+    green_ptn = green(level_1)
+    green_ptn_dim = dim2(green(level_2))
+    half_half_ptn = half_half(green_ptn, green_ptn_dim)
+    save_img(half_half_ptn, f'./save/green{level_1}_full_and_green{level_2}_dim2.png')
+
+    # level_1 = 65
+    # level_2 = 65
+    # green_ptn_noise_dim = dim2(apply_noise(green(level_1), 4, green=True))
+    # green_ptn_dim = dim2(green(level_2))
+    # half_half_ptn = half_half(green_ptn_noise_dim, green_ptn_dim)
+    # save_img(half_half_ptn, f'./save/green{level_1}_noise4_dim2_and_green{level_2}_dim2.png')
