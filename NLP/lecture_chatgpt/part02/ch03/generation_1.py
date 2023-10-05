@@ -1,14 +1,14 @@
-import os
-
 import openai
-from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-load_dotenv()
+file = open(r"/Users/davidkim/security/openai.txt", "r", encoding='UTF8')
+data = file.read()
+KEY_NLP = str(data)
+file.close()
 
-openai.api_key = os.getenv("OPENAI_API_KEY")
+openai.api_key = KEY_NLP
 
 app = FastAPI(debug=True)
 app.add_middleware(
@@ -27,6 +27,9 @@ class ChatRequest(BaseModel):
 
 SYSTEM_MSG = "You are a helpful travel assistant, Your name is Jini, 27 years old"
 
+@app.get("/")
+async def root():
+    return {"message": "Hello FastAPI!"}
 
 @app.post("/chat")
 def chat(req: ChatRequest):

@@ -1,14 +1,14 @@
-import os
-
 import openai
-from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-load_dotenv()
+file = open(r"/Users/davidkim/security/openai.txt", "r", encoding='UTF8')
+data = file.read()
+KEY_NLP = str(data)
+file.close()
 
-openai.api_key = os.getenv("OPENAI_API_KEY")
+openai.api_key = KEY_NLP
 
 app = FastAPI(debug=True)
 app.add_middleware(
@@ -40,7 +40,7 @@ def classify_intent(msg):
     Intent:
     """
     response = openai.ChatCompletion.create(
-        model="gpt-4",
+        model="gpt-3.5-turbo",
         messages=[
             {"role": "user", "content": prompt},
         ],
