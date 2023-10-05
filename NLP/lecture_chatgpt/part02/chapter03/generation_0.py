@@ -1,16 +1,11 @@
-import os
-
 import openai
-from dotenv import load_dotenv
 
 file = open(r"/Users/davidkim/security/openai.txt", "r", encoding='UTF8')
 data = file.read()
 KEY_NLP = str(data)
 file.close()
 
-load_dotenv()
-
-openai.api_key = os.getenv(KEY_NLP)
+openai.api_key = KEY_NLP
 
 response = openai.ChatCompletion.create(
     model="gpt-3.5-turbo",
@@ -20,6 +15,8 @@ response = openai.ChatCompletion.create(
     ],
     temperature=1,
     n=4,
+    # stop = [',', '.'],
+    # max_tokens=1,
 )
 
 for res in response.choices:
