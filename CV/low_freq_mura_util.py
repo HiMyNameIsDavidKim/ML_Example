@@ -6,6 +6,7 @@ import random
 # width, height = 1179, 2556  # 30 and 59
 # width, height = 512, 260
 width, height = 1080, 2340  # 30 and 65
+# width, height = 2,2
 
 
 def gray(level, greenish=False):
@@ -36,6 +37,31 @@ def dim2(image):
     image[1::2, ::] = 0
     image[::, 1::2] = 0
     return image
+
+def dim_left_top(image_origin):
+    image = np.copy(image_origin)
+    image[1::2, ::] = 0
+    image[::, 1::2] = 0
+    return image
+
+def dim_right_top(image_origin):
+    image = np.copy(image_origin)
+    image[::2, ::] = 0
+    image[::, 1::2] = 0
+    return image
+
+def dim_right_bottom(image_origin):
+    image = np.copy(image_origin)
+    image[::2, ::] = 0
+    image[::, ::2] = 0
+    return image
+
+def dim_left_bottom(image_origin):
+    image = np.copy(image_origin)
+    image[1::2, ::] = 0
+    image[::, ::2] = 0
+    return image
+
 
 def dim3(image):
     image[1::3, ::] = 0
