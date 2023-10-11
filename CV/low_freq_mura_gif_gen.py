@@ -14,7 +14,7 @@ if __name__ == '__main__':
     # images = [single(level+1, 'blue') for level in levels]
     # [frames.extend([image] * cnt_frame) for image in images]
 
-    for cnt_frame in [1, 2, 4, 8, 16, 32]:
+    for cnt_frame in [1, 2, 3, 4]:
         # dithering
         single_ptn = single(level, 'blue')
         images = [dim_left_top(single_ptn),
