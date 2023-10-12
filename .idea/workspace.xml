@@ -6,7 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="6dc597b5-90f3-42c0-9fbe-571e0fb81339" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CV/low_freq_mura_gif_gen.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/low_freq_mura_gif_gen.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CV/low_freq_mura_image_gen.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/low_freq_mura_image_gen.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/CV/low_freq_mura_util.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/low_freq_mura_util.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -263,7 +263,8 @@
       <workItem from="1696498621768" duration="7772000" />
       <workItem from="1696549673866" duration="9387000" />
       <workItem from="1696912935969" duration="1610000" />
-      <workItem from="1696987383403" duration="3999000" />
+      <workItem from="1696987383403" duration="5868000" />
+      <workItem from="1697073660627" duration="2790000" />
     </task>
     <servers />
   </component>
@@ -283,7 +284,7 @@
     <SUITE FILE_PATH="coverage/ML_Example$low_freq_mura_gif_gen.coverage" NAME="low_freq_mura_gif_gen Coverage Results" MODIFIED="1697002166565" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
     <SUITE FILE_PATH="coverage/ML_Example$timm_vit.coverage" NAME="timm_vit Coverage Results" MODIFIED="1679979340677" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
     <SUITE FILE_PATH="coverage/ML_Example$vit_cifar10.coverage" NAME="vit_cifar10 Coverage Results" MODIFIED="1679971290257" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
-    <SUITE FILE_PATH="coverage/ML_Example$low_freq_mura_image_gen.coverage" NAME="low_freq_mura_image_gen Coverage Results" MODIFIED="1696559168688" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
+    <SUITE FILE_PATH="coverage/ML_Example$low_freq_mura_image_gen.coverage" NAME="low_freq_mura_image_gen Coverage Results" MODIFIED="1697090718638" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
     <SUITE FILE_PATH="coverage/ML_Example$lotto_1hot.coverage" NAME="lotto_1hot Coverage Results" MODIFIED="1680855895432" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/prediction" />
     <SUITE FILE_PATH="coverage/ML_Example$shape_learning.coverage" NAME="shape_learning Coverage Results" MODIFIED="1685585368212" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
     <SUITE FILE_PATH="coverage/ML_Example$generation_0.coverage" NAME="generation_0 Coverage Results" MODIFIED="1696500261061" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/NLP/lecture_chatgpt/part02/chapter03" />

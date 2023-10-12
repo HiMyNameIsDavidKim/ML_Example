@@ -1,3 +1,5 @@
+import math
+
 import cv2
 from PIL import Image
 import numpy as np
@@ -38,6 +40,13 @@ def dim2(image):
     image[::, 1::2] = 0
     return image
 
+def dimRoot2(image):
+    distance = math.sqrt(2)
+    image[1::2, ::] = 0
+    image[::, 1::2] = 0
+    return image
+
+
 def dim_left_top(image_origin):
     image = np.copy(image_origin)
     image[1::2, ::] = 0
@@ -73,7 +82,7 @@ def dim3(image):
 def apply_noise(image, intensity, single=False):
     noise = np.random.uniform(-intensity, intensity, size=image.shape)
     if single:
-        noise[:,:,:1] = 0
+        noise[:, :, :1] = 0
         noise[:, :, -1:] = 0
     image = image - noise
     return image
