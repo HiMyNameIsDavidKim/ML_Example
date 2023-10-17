@@ -40,7 +40,7 @@ if __name__ == '__main__':
         save_img(single_ptn, f'./save/{str_color}{level}_full.png')
 
     # 싱글 1/4 패턴
-    for i in [59]:
+    for i in [65]:
         level = i
         single_ptn = single(level, str_color)
         single_ptn_dim = dim3(single_ptn)
@@ -57,7 +57,7 @@ if __name__ == '__main__':
 
     # 싱글 반반 패턴 (1 is full, 2 is 1/4)
     level_1 = 30
-    level_2 = 59
+    level_2 = 65
     single_ptn = single(level_1, str_color)
     single_ptn_dim = dim3(single(level_2, str_color))
     half_half_ptn = half_half(single_ptn, single_ptn_dim)

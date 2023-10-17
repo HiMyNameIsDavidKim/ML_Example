@@ -5,9 +5,9 @@ from PIL import Image
 import numpy as np
 import random
 
-width, height = 1179, 2556  # 30 and 59
+# width, height = 1179, 2556  # 30 and 59
 # width, height = 512, 260
-# width, height = 1080, 2340  # 30 and 65
+width, height = 1080, 2340  # 30 and 65
 # width, height = 2,2
 
 
