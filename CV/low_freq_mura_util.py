@@ -80,6 +80,9 @@ def dim3(image):
     return image
 
 def apply_noise(image, intensity, single=False):
+    level = [i for i in image[0][0].flatten() if i != 0][0]
+    print(level)
+    intensity = level * (intensity/100)
     noise = np.random.uniform(-intensity, intensity, size=image.shape)
     if single:
         noise[:, :, :1] = 0
