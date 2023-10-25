@@ -8,3 +8,4 @@ cifar-10-batches-py/
 *.pt
 ImageNet/
 cifar-100-python/
+mae_checkpoint/
