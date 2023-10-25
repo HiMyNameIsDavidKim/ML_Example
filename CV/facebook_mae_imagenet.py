@@ -47,11 +47,7 @@ transform_test = transforms.Compose([
     transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])
 ])
 train_set = torchvision.datasets.ImageFolder('./data/ImageNet/val', transform=transform_train)
-train_size = int(0.8 * len(train_set))
-val_size = len(train_set) - train_size
-train_set, val_set = random_split(train_set, [train_size, val_size])
 train_loader = data.DataLoader(train_set, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
-val_loader = torch.utils.data.DataLoader(val_set, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
 test_set = torchvision.datasets.ImageFolder('./data/ImageNet/val', transform=transform_test)
 test_loader = data.DataLoader(test_set, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
 
@@ -62,6 +58,7 @@ class FineTunner(object):
         self.optimizer = None
         self.epochs = [0]
         self.losses = [0]
+        self.accuracies = [0]
 
     def process(self, load=False):
         self.build_model(load)
@@ -86,11 +83,13 @@ class FineTunner(object):
             self.model.load_state_dict(checkpoint['model'])
             # self.epochs = checkpoint['epochs']
             # self.losses = checkpoint['losses']
+            # self.losses = checkpoint['accuracies']
             print(f'Parameter: {sum(p.numel() for p in self.model.parameters() if p.requires_grad)}')
             print(f'Epoch: {self.epochs[-1]}')
             print(f'****** Reset epochs and losses ******')
             self.epochs = []
             self.losses = []
+            self.accuracies = []
 
     def finetune_model(self):
         model = self.model
@@ -101,6 +100,8 @@ class FineTunner(object):
         for epoch in range(NUM_EPOCHS):
             running_loss = 0.0
             saving_loss = 0.0
+            correct = 0
+            total = 0
             for i, data in tqdm_notebook(enumerate(train_loader, 0), total=len(train_loader)):
                 inputs, labels = data
                 inputs, labels = inputs.to(device), labels.to(device)
@@ -111,28 +112,37 @@ class FineTunner(object):
                 loss = criterion(outputs, labels)
                 loss.backward()
                 optimizer.step()
+
                 running_loss += loss.item()
                 saving_loss += loss.item()
+                _, predicted = torch.max(outputs.data, 1)
+                total += labels.size(0)
+                correct += (predicted == labels).sum().item()
+
                 if i % 100 == 99:
                     print(f'[Epoch {epoch}, Batch {i + 1:5d}] loss: {running_loss / 100:.3f}')
                     running_loss = 0.0
                 if i % 1000 == 999:
-                    self.epochs.append(epoch + 1)
                     self.model = model
                     self.optimizer = optimizer
+                    self.epochs.append(epoch + 1)
                     self.losses.append(saving_loss/1000)
+                    self.accuracies.append()
                     self.save_model()
                     saving_loss = 0.0
+                    correct = 0
+                    total = 0
             scheduler.step()
         print('****** Finished Fine-tuning ******')
         self.model = model
 
     def save_model(self):
         checkpoint = {
-            'epochs': self.epochs,
             'model': self.model.state_dict(),
             'optimizer': self.optimizer.state_dict(),
+            'epochs': self.epochs,
             'losses': self.losses,
+            'accuracies': self.accuracies,
         }
         torch.save(checkpoint, fine_model_path)
 #         torch.save(checkpoint, dynamic_model_path+str(self.epochs[-1])+f'_lr{LEARNING_RATE}.pt')

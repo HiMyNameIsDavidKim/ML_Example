@@ -5,6 +5,7 @@ from torch.optim import Adam, SGD
 from torch.optim.lr_scheduler import CosineAnnealingLR
 import torch.utils.data as data
 import torchvision
+from torch.utils.data import random_split
 from tqdm import tqdm, tqdm_notebook
 import torch.nn.functional as F
 import math
@@ -46,7 +47,11 @@ transform_test = transforms.Compose([
     transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])
 ])
 train_set = torchvision.datasets.ImageFolder('./data/ImageNet/val', transform=transform_train)
+train_size = int(0.8 * len(train_set))
+val_size = len(train_set) - train_size
+train_set, val_set = random_split(train_set, [train_size, val_size])
 train_loader = data.DataLoader(train_set, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
+val_loader = torch.utils.data.DataLoader(val_set, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
 test_set = torchvision.datasets.ImageFolder('./data/ImageNet/val', transform=transform_test)
 test_loader = data.DataLoader(test_set, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
 
@@ -77,7 +82,7 @@ class TesterTimm(object):
         checkpoint = torch.load(model_path)
         print(checkpoint.keys())
         # self.epochs = checkpoint['epochs']
-        # self.model.load_state_dict(checkpoint['model'])
+        self.model.load_state_dict(checkpoint['model'])
         # self.losses = checkpoint['losses']
         # print(f'Parameter: {sum(p.numel() for p in self.model.parameters() if p.requires_grad)}')
         # print(f'Classes: {self.model.num_classes}')
