@@ -35,9 +35,9 @@ NUM_EPOCHS = 100  # 100
 WARMUP_EPOCHS = 5  # 5
 NUM_WORKERS = 2
 LEARNING_RATE = 6.25e-05  # 1e-03
-pre_model_path = './data/mae_checkpoint/mae_finetuned_vit_base_given.pth'
-fine_model_path = f'./save/mae_vit_base_patch16_i2012_ep{NUM_EPOCHS}_lr{LEARNING_RATE}.pt'
-dynamic_model_path = f'./save/mae_vit_base_patch16_i2012_ep'
+pre_model_path = './save/MAE/mae_finetuned_vit_base_given.pth'
+fine_model_path = f'./save/mae_vit_base_i2012_ep{NUM_EPOCHS}_lr{LEARNING_RATE}.pt'
+dynamic_model_path = f'./save/mae_vit_base_i2012_ep'
 
 
 transform_train = transforms.Compose([
@@ -50,9 +50,9 @@ transform_test = transforms.Compose([
     transforms.ToTensor(),
     transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])
 ])
-train_set = torchvision.datasets.ImageFolder('./data/ImageNet/val', transform=transform_train)
+train_set = torchvision.datasets.ImageFolder('../../YJ/ILSVRC2012/train', transform=transform_train)
 train_loader = data.DataLoader(train_set, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
-test_set = torchvision.datasets.ImageFolder('./data/ImageNet/val', transform=transform_test)
+test_set = torchvision.datasets.ImageFolder('../../YJ/ILSVRC2012/val', transform=transform_test)
 test_loader = data.DataLoader(test_set, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
 
 
@@ -66,8 +66,8 @@ class FineTunner(object):
 
     def process(self, load=False):
         self.build_model(load)
-        # self.finetune_model()
-        # self.save_model()
+        self.finetune_model()
+        self.save_model()
 
     def build_model(self, load):
         self.model = facebook_vit.__dict__['vit_base_patch16'](
@@ -143,7 +143,7 @@ class FineTunner(object):
                     self.optimizer = optimizer
                     self.epochs.append(epoch + 1)
                     self.losses.append(saving_loss/1000)
-                    self.accuracies.append()
+                    self.accuracies.append(correct/total*100)
                     self.save_model()
                     saving_loss = 0.0
                     correct = 0
