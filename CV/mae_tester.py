@@ -29,7 +29,7 @@ else:
 
 
 device = gpu
-model_path = './data/mae_checkpoint/mae_finetuned_vit_base.pth'
+model_path = 'data/mae_checkpoint/mae_finetuned_vit_base_given.pth'
 BATCH_SIZE = 512
 NUM_EPOCHS = 8
 NUM_WORKERS = 2
