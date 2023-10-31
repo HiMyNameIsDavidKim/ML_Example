@@ -73,7 +73,6 @@ class FineTunner(object):
         self.model = facebook_vit.__dict__['vit_base_patch16'](
             num_classes=1000,
             drop_path_rate=0.1,
-            global_pool=True,
             )
         print(f'Parameter: {sum(p.numel() for p in self.model.parameters() if p.requires_grad)}')
         self.optimizer = SGD(self.model.parameters(), lr=0)
@@ -136,7 +135,7 @@ class FineTunner(object):
                 correct += (predicted == labels).sum().item()
 
                 if i % 100 == 99:
-                    print(f'[Epoch {epoch}, Batch {i + 1:5d}] loss: {running_loss / 100:.3f}')
+                    print(f'[Epoch {epoch}, Batch {i + 1:5d}] loss: {running_loss / 100:.3f}, acc: {correct/total*100:.2f}%')
                     running_loss = 0.0
                 if i % 1000 == 999:
                     self.model = model
