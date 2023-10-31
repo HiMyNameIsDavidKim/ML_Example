@@ -94,7 +94,7 @@ class FineTunner(object):
             if 'given' not in str(pre_model_path):
                 self.epochs = checkpoint['epochs']
                 self.losses = checkpoint['losses']
-                self.losses = checkpoint['accuracies']
+                self.accuracies = checkpoint['accuracies']
             print(f'Parameter: {sum(p.numel() for p in self.model.parameters() if p.requires_grad)}')
             print(f'Epoch: {self.epochs[-1]}')
             print(f'****** Reset epochs and losses ******')
@@ -135,7 +135,7 @@ class FineTunner(object):
                 correct += (predicted == labels).sum().item()
 
                 if i % 100 == 99:
-                    print(f'[Epoch {epoch}, Batch {i + 1:5d}] loss: {running_loss / 100:.3f}, acc: {correct/total*100:.2f}%')
+                    print(f'[Epoch {epoch}, Batch {i + 1:5d}] loss: {running_loss / 100:.3f}, acc: {correct/total*100:.2f} %')
                     running_loss = 0.0
                 if i % 1000 == 999:
                     self.model = model
