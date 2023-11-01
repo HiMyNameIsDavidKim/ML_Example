@@ -63,7 +63,6 @@ test_loader = data.DataLoader(test_set, batch_size=BATCH_SIZE, shuffle=True, num
 class TesterFacebook(object):
     def __init__(self):
         self.model = None
-        self.optimizer = None
         self.epochs = [0]
         self.losses = [0]
         self.accuracies = [0]

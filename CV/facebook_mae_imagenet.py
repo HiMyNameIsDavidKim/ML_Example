@@ -34,8 +34,8 @@ BATCH_SIZE = 64  # 1024
 NUM_EPOCHS = 100  # 100
 WARMUP_EPOCHS = 5  # 5
 NUM_WORKERS = 2
-LEARNING_RATE = 6.25e-05  # 1e-03
-pre_model_path = './save/MAE/mae_finetuned_vit_base_given.pth'
+LEARNING_RATE = 3.125e-05  # paper: 1e-03 -> implementation: 5e-04
+pre_model_path = './data/mae_checkpoint/mae_finetuned_vit_base_given.pth'
 fine_model_path = f'./save/mae_vit_base_i2012_ep{NUM_EPOCHS}_lr{LEARNING_RATE}.pt'
 dynamic_model_path = f'./save/mae_vit_base_i2012_ep'
 
@@ -50,9 +50,9 @@ transform_test = transforms.Compose([
     transforms.ToTensor(),
     transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])
 ])
-train_set = torchvision.datasets.ImageFolder('../../YJ/ILSVRC2012/train', transform=transform_train)
+train_set = torchvision.datasets.ImageFolder('./data/ImageNet/val', transform=transform_train)
 train_loader = data.DataLoader(train_set, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
-test_set = torchvision.datasets.ImageFolder('../../YJ/ILSVRC2012/val', transform=transform_test)
+test_set = torchvision.datasets.ImageFolder('./data/ImageNet/val', transform=transform_test)
 test_loader = data.DataLoader(test_set, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
 
 
@@ -60,6 +60,7 @@ class FineTunner(object):
     def __init__(self):
         self.model = None
         self.optimizer = None
+        self.scheduler = None
         self.epochs = [0]
         self.losses = [0]
         self.accuracies = [0]
@@ -76,6 +77,7 @@ class FineTunner(object):
             )
         print(f'Parameter: {sum(p.numel() for p in self.model.parameters() if p.requires_grad)}')
         self.optimizer = SGD(self.model.parameters(), lr=0)
+        self.scheduler = CosineAnnealingLR(self.optimizer, T_max=NUM_EPOCHS)
 
         if load:
             checkpoint = torch.load(pre_model_path)
@@ -113,6 +115,7 @@ class FineTunner(object):
                 lr_warmup = ((epoch + 1) / WARMUP_EPOCHS) * LEARNING_RATE
                 for param_group in optimizer.param_groups:
                     param_group['lr'] = lr_warmup
+                scheduler = CosineAnnealingLR(optimizer, T_max=NUM_EPOCHS)
             running_loss = 0.0
             saving_loss = 0.0
             correct = 0
@@ -138,23 +141,24 @@ class FineTunner(object):
                     print(f'[Epoch {epoch}, Batch {i + 1:5d}] loss: {running_loss / 100:.3f}, acc: {correct/total*100:.2f} %')
                     running_loss = 0.0
                 if i % 1000 == 999:
-                    self.model = model
-                    self.optimizer = optimizer
                     self.epochs.append(epoch + 1)
                     self.losses.append(saving_loss/1000)
                     self.accuracies.append(correct/total*100)
-                    self.save_model()
                     saving_loss = 0.0
                     correct = 0
                     total = 0
+            self.model = model
+            self.optimizer = optimizer
+            self.scheduler = scheduler
+            self.save_model()
             scheduler.step()
         print('****** Finished Fine-tuning ******')
-        self.model = model
 
     def save_model(self):
         checkpoint = {
             'model': self.model.state_dict(),
             'optimizer': self.optimizer.state_dict(),
+            'scheduler': self.scheduler.state_dict(),
             'epochs': self.epochs,
             'losses': self.losses,
             'accuracies': self.accuracies,
