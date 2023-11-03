@@ -111,11 +111,13 @@ class FineTunner(object):
         scheduler = CosineAnnealingLR(optimizer, T_max=NUM_EPOCHS)
 
         for epoch in range(NUM_EPOCHS):
-            if epoch in range(WARMUP_EPOCHS):
+            if epoch < WARMUP_EPOCHS:
                 lr_warmup = ((epoch + 1) / WARMUP_EPOCHS) * LEARNING_RATE
                 for param_group in optimizer.param_groups:
                     param_group['lr'] = lr_warmup
-                scheduler = CosineAnnealingLR(optimizer, T_max=NUM_EPOCHS)
+                if epoch + 1 == WARMUP_EPOCHS:
+                    scheduler = CosineAnnealingLR(optimizer, T_max=NUM_EPOCHS)
+            print(f"epoch {epoch + 1} learning rate : {optimizer.param_groups[0]['lr']}")
             running_loss = 0.0
             saving_loss = 0.0
             correct = 0
