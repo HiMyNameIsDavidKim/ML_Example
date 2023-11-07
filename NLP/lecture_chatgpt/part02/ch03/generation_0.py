@@ -16,7 +16,7 @@ response = openai.ChatCompletion.create(
     temperature=1,
     n=1,
     # stop = [',', '.'],
-    max_tokens=1,
+    max_tokens=10,
 )
 
 for res in response.choices:

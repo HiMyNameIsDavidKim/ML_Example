@@ -231,13 +231,14 @@ class PreTrainer(object):
                 optimizer.zero_grad()
 
                 loss, _, _ = model(samples, mask_ratio=.75)
-                loss_scaler(loss, optimizer, parameters=model.parameters(), update_grad=True)  # include backward()
+                loss_scaler(loss, optimizer, parameters=model.parameters(), update_grad=True)
+                # Scaler include loss.backward() and optimizer.step()
 
                 running_loss += loss.item()
                 saving_loss += loss.item()
 
                 if i % 100 == 99:
-                    print(f'[Epoch {epoch}, Batch {i + 1:5d}] loss: {running_loss / 100:.3f}, acc: {correct/total*100:.2f} %')
+                    print(f'[Epoch {epoch}, Batch {i + 1:5d}] loss: {running_loss / 100:.3f}')
                     running_loss = 0.0
                 if i % 1000 == 999:
                     self.epochs.append(epoch + 1)
@@ -258,7 +259,7 @@ class PreTrainer(object):
             'epochs': self.epochs,
             'losses': self.losses,
         }
-        torch.save(checkpoint, fine_model_path)
+        torch.save(checkpoint, pre_model_path)
 #         torch.save(checkpoint, dynamic_model_path+str(self.epochs[-1])+f'_lr{LEARNING_RATE}.pt')
         print(f"****** Model checkpoint saved at epochs {self.epochs[-1]} ******")
 
