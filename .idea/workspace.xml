@@ -5,10 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6dc597b5-90f3-42c0-9fbe-571e0fb81339" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CV/facebook_mae_imagenet.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/facebook_mae_imagenet.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CV/laboratory.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/laboratory.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -287,7 +284,11 @@
       <workItem from="1699340977380" duration="663000" />
       <workItem from="1699341852405" duration="1125000" />
       <workItem from="1699363334059" duration="1249000" />
-      <workItem from="1699401703568" duration="5381000" />
+      <workItem from="1699401703568" duration="7767000" />
+      <workItem from="1699495069468" duration="1196000" />
+      <workItem from="1699517558718" duration="79000" />
+      <workItem from="1699572869866" duration="778000" />
+      <workItem from="1699590717566" duration="619000" />
     </task>
     <servers />
   </component>
