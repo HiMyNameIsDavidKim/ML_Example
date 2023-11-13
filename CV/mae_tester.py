@@ -16,6 +16,11 @@ from mae_util import interpolate_pos_embed
 from timm.models.layers import trunc_normal_
 from CV.facebook_mae import MaskedAutoencoderViT
 
+import facebook_mae
+import mae_misc as misc
+from mae_misc import NativeScalerWithGradNormCount as NativeScaler
+
+
 gpu_ids = []
 device_names = []
 if torch.cuda.is_available():
@@ -95,6 +100,65 @@ class TesterFacebook(object):
                 images, labels = data
                 images, labels = images.to(device), labels.to(device)
                 outputs = self.model(images)
+                _, predicted = torch.max(outputs.data, 1)
+                total += labels.size(0)
+                correct += (predicted == labels).sum().item()
+        acc_test = 100 * correct / total
+        print(f'Accuracy of {len(test_set)} test images: {acc_test:.2f} %')
+
+        correct = 0
+        total = 0
+        with torch.no_grad():
+            for i, data in tqdm_notebook(enumerate(val_loader, 0), total=len(val_loader)):
+                images, labels = data
+                images, labels = images.to(device), labels.to(device)
+                outputs = self.model(images)
+                _, predicted = torch.max(outputs.data, 1)
+                total += labels.size(0)
+                correct += (predicted == labels).sum().item()
+        acc_val = 100 * correct / total
+        print(f'Accuracy of {len(val_set)} val images: {acc_val:.2f} %')
+
+        print(f'Accuracy of test: {acc_test:.2f} %, Accuracy of val: {acc_val:.2f} %')
+
+
+class TesterPixelRecon(object):
+    def __init__(self):
+        self.model = None
+        self.epochs = [0]
+        self.losses = [0]
+        self.accuracies = [0]
+
+    def process(self):
+        self.build_model()
+        self.eval_model()
+
+    def build_model(self):
+        self.model = facebook_mae.__dict__['mae_vit_base_patch16_dec512d8b'](norm_pix_loss=True).to(device)
+        checkpoint = torch.load(model_path)
+        self.model.load_state_dict(checkpoint['model'])
+        self.model.to(device)
+        self.epochs = checkpoint['epochs']
+        self.losses = checkpoint['losses']
+        self.accuracies = checkpoint['accuracies']
+        print(f'Parameter: {sum(p.numel() for p in self.model.parameters() if p.requires_grad)}')
+        print(f'Epochs: {self.epochs[-1]}')
+
+    def eval_model(self):
+        self.model.eval()
+
+        running_loss = 0.0
+        with torch.no_grad():
+            for i, data in tqdm_notebook(enumerate(test_loader, 0), total=len(test_loader)):
+                samples, _ = data
+                samples = samples.to(device, non_blocking=True)
+                loss, pred, mask = self.model(samples, mask_ratio=.75)
+
+                print(pred, mask)
+
+                # 저장 된거 로드해서 (masked img, original img, recon img) 뽑아보기
+
+
                 _, predicted = torch.max(outputs.data, 1)
                 total += labels.size(0)
                 correct += (predicted == labels).sum().item()

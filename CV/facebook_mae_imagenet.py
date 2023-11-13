@@ -36,13 +36,13 @@ else:
 
 
 device = gpu
-BATCH_SIZE = 64  # 1024
-NUM_EPOCHS = 100  # 100
-WARMUP_EPOCHS = 5  # 5
+BATCH_SIZE = 64  # 1024 // 64
+NUM_EPOCHS = 100  # 100 // 800
+WARMUP_EPOCHS = 5  # 5 // 40
 NUM_WORKERS = 2
-LEARNING_RATE = 3.125e-05  # paper: 1e-03 -> implementation: 5e-04
+LEARNING_RATE = 3.125e-05  # paper: 1e-03 // 1.5e-04 -> implementation: 5e-04 // 1.5e-04
 pre_model_path = f'./save/mae_base_i2012_ep{NUM_EPOCHS}_lr{LEARNING_RATE}.pt'
-load_model_path = './data/mae_checkpoint/mae_finetuned_vit_base_given.pth'
+load_model_path = './save/MAE/mae_finetuned_vit_base_given.pth'
 fine_model_path = f'./save/mae_vit_base_i2012_ep{NUM_EPOCHS}_lr{LEARNING_RATE}.pt'
 dynamic_model_path = f'./save/mae_vit_base_i2012_ep'
 
@@ -189,7 +189,7 @@ class PreTrainer(object):
         self.save_model()
 
     def build_model(self, load):
-        self.model = facebook_mae.__dict__['mae_vit_base_patch16_dec512d8b'](norm_pix_loss=False).to(device)
+        self.model = facebook_mae.__dict__['mae_vit_base_patch16_dec512d8b'](norm_pix_loss=True).to(device)
         print(f'Parameter: {sum(p.numel() for p in self.model.parameters() if p.requires_grad)}')
         self.optimizer = SGD(self.model.parameters(), lr=0)
         self.scheduler = CosineAnnealingLR(self.optimizer, T_max=NUM_EPOCHS)
@@ -210,7 +210,7 @@ class PreTrainer(object):
 
     def pretrain_model(self):
         model = self.model.train()
-        optimizer = AdamW(model.parameters(), lr=LEARNING_RATE, betas=(0.9, 0.95))
+        optimizer = AdamW(model.parameters(), lr=LEARNING_RATE, betas=(0.9, 0.95), weight_decay=0.05)
         scheduler = CosineAnnealingLR(optimizer, T_max=NUM_EPOCHS)
         loss_scaler = NativeScaler()
 
