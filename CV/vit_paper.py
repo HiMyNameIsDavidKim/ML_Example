@@ -11,7 +11,8 @@ num_classes: 분류해야 하는 클래스 수 (1000)
 embed_dim: 패치 임베딩의 차원 (768)
 depth: 인코더 블록의 수 (12)
 num_heads: 멀티 헤드 어텐션의 헤드 수 (12)
-qkv_bias: 어텐션의 행렬 연산에서 Q, K, V 행렬에 대한 바이어스 사용 여부 (기본값은 False)
+drop_rate: 포지션 임베딩과 인코더 블럭의 드롭 아웃 비율 설정 (0.1)
+qkv_bias: 어텐션의 행렬 연산에서 Q, K, V 행렬에 대한 바이어스 사용 여부 (기본값은 True)
 '''
 
 
@@ -39,7 +40,7 @@ class PatchEmbedding(nn.Module):
 
 
 class PositionalEmbedding(nn.Module):
-    def __init__(self, num_patches, embed_dim):
+    def __init__(self, num_patches, embed_dim, drop_rate):
         super(PositionalEmbedding, self).__init__()
         position = torch.arange(0, num_patches, dtype=torch.float32)
         div_term = torch.exp(torch.arange(0, embed_dim, 2).float() * (-math.log(10000.0) / embed_dim))
@@ -47,7 +48,7 @@ class PositionalEmbedding(nn.Module):
         pos_embedding[0, :, 0::2] = torch.sin(position[:, None] * div_term[None, :embed_dim // 2])
         pos_embedding[0, :, 1::2] = torch.cos(position[:, None] * div_term[None, :embed_dim // 2])
         self.register_buffer('pos_embedding', pos_embedding)
-        self.dropout = nn.Dropout(0.1)
+        self.dropout = nn.Dropout(drop_rate)
 
     def forward(self, x):
         x = x + self.pos_embedding
@@ -56,7 +57,7 @@ class PositionalEmbedding(nn.Module):
 
 
 class Attention(nn.Module):
-    def __init__(self, embed_dim, num_heads, qkv_bias=False):
+    def __init__(self, embed_dim, num_heads, qkv_bias=True):
         super(Attention, self).__init__()
         self.num_heads = num_heads
         head_dim = embed_dim // num_heads
@@ -76,11 +77,11 @@ class Attention(nn.Module):
 
 
 class MLPBody(nn.Module):
-    def __init__(self, in_features, hidden_features, out_features, bias=True):
+    def __init__(self, in_features, hidden_features, out_features, bias=True, drop_rate=0.):
         super(MLPBody, self).__init__()
         self.fc1 = nn.Linear(in_features, hidden_features, bias=bias)
         self.fc2 = nn.Linear(hidden_features, out_features, bias=bias)
-        self.dropout = nn.Dropout(0)
+        self.dropout = nn.Dropout(drop_rate)
 
     def forward(self, x):
         x = self.fc1(x)
@@ -92,16 +93,18 @@ class MLPBody(nn.Module):
 
 
 class EncoderBlock(nn.Module):
-    def __init__(self, embed_dim, num_heads, mlp_ratio=4.0, qkv_bias=False):
+    def __init__(self, embed_dim, num_heads, mlp_ratio=4.0, qkv_bias=True, drop_rate=0.):
         super(EncoderBlock, self).__init__()
         self.norm1 = nn.LayerNorm(embed_dim)
         self.norm2 = nn.LayerNorm(embed_dim)
         self.attn = Attention(embed_dim=embed_dim, num_heads=num_heads, qkv_bias=qkv_bias)
-        self.mlp = MLPBody(in_features=embed_dim, hidden_features=int(embed_dim * mlp_ratio), out_features=embed_dim)
+        self.mlp = MLPBody(in_features=embed_dim, hidden_features=int(embed_dim * mlp_ratio),
+                           out_features=embed_dim, drop_rate=drop_rate)
+        self.dropout = nn.Dropout(drop_rate)
 
     def forward(self, x):
-        x = x + self.attn(self.norm1(x))
-        x = x + self.mlp(self.norm2(x))
+        x = x + self.dropout(self.attn(self.norm1(x)))
+        x = x + self.dropout(self.mlp(self.norm2(x)))
         return x
 
 
@@ -126,16 +129,16 @@ class MLPHead(nn.Module):
 
 
 class ViT(nn.Module):
-    def __init__(self, image_size, patch_size, in_channels, num_classes, embed_dim, depth, num_heads, cls_token=None):
+    def __init__(self, image_size, patch_size, in_channels, num_classes, embed_dim, depth, num_heads, drop_rate=0., cls_token=None):
         super(ViT, self).__init__()
         self.patch_embed = PatchEmbedding(image_size=image_size, patch_size=patch_size, in_channels=in_channels,
                                           embed_dim=embed_dim)
         self.num_patches = self.patch_embed.num_patches
         self.cls_token = cls_token
         self.cls_token = nn.Parameter(torch.randn(1, 1, embed_dim)) if cls_token is None else None
-        self.pos_embed = PositionalEmbedding(num_patches=self.num_patches + 1, embed_dim=embed_dim)
+        self.pos_embed = PositionalEmbedding(num_patches=self.num_patches + 1, embed_dim=embed_dim, drop_rate=drop_rate)
         self.encoder_blocks = nn.ModuleList([
-            EncoderBlock(embed_dim=embed_dim, num_heads=num_heads, qkv_bias=False)
+            EncoderBlock(embed_dim=embed_dim, num_heads=num_heads, qkv_bias=True, drop_rate=drop_rate)
             for _ in range(depth)
         ])
         self.mlp_head = MLPHead(embed_dim=embed_dim, mlp_hidden_dim=embed_dim * 4, num_classes=num_classes)
@@ -149,3 +152,25 @@ class ViT(nn.Module):
         x = x[:, 0]
         x = self.mlp_head(x)
         return x
+
+
+if __name__ == '__main__':
+    # Parameters
+    IMAGE_SIZE = 224
+    PATCH_SIZE = 16
+    IN_CHANNELS = 3
+    NUM_CLASSES = 1000
+    EMBED_DIM = 768
+    DEPTH = 12
+    NUM_HEADS = 12
+    DROP_RATE = 0.1
+
+    model = ViT(image_size=IMAGE_SIZE,
+                patch_size=PATCH_SIZE,
+                in_channels=IN_CHANNELS,
+                num_classes=NUM_CLASSES,
+                embed_dim=EMBED_DIM,
+                depth=DEPTH,
+                num_heads=NUM_HEADS,
+                drop_rate=DROP_RATE,
+                )
