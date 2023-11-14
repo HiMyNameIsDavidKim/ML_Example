@@ -1,10 +1,8 @@
-import math
-import sys
-
 import torch
 import torchvision
 import torch.utils.data as data
 import torchvision.transforms as transforms
+import PIL
 from torch.optim import AdamW, SGD
 from torch import nn
 from torch.utils.data import random_split
@@ -48,14 +46,16 @@ dynamic_model_path = f'./save/mae_vit_base_i2012_ep'
 
 
 transform_train = transforms.Compose([
-    transforms.RandomResizedCrop(224),
+    transforms.Resize(256, interpolation=PIL.Image.BICUBIC),
+    transforms.CenterCrop(224),
     transforms.ToTensor(),
-    transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])
+    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 ])
 transform_test = transforms.Compose([
-    transforms.RandomResizedCrop(224),
+    transforms.Resize(256, interpolation=PIL.Image.BICUBIC),
+    transforms.CenterCrop(224),
     transforms.ToTensor(),
-    transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])
+    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 ])
 train_set = torchvision.datasets.ImageFolder('./data/ImageNet/val', transform=transform_train)
 train_loader = data.DataLoader(train_set, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
@@ -78,7 +78,11 @@ class FineTuner(object):
         self.save_model()
 
     def build_model(self, load):
-        self.model = facebook_vit.__dict__['vit_base_patch16'](num_classes=1000, drop_path_rate=0.1)
+        self.model = facebook_vit.__dict__['vit_base_patch16'](
+            num_classes=1000,
+            drop_path_rate=0.1,
+            global_pool=True,
+            )
         print(f'Parameter: {sum(p.numel() for p in self.model.parameters() if p.requires_grad)}')
         self.optimizer = SGD(self.model.parameters(), lr=0)
         self.scheduler = CosineAnnealingLR(self.optimizer, T_max=NUM_EPOCHS)
