@@ -2,10 +2,8 @@ import torch
 from matplotlib import pyplot as plt
 
 
-def visualLossAcc(losses, accuracies):
+def visualLossAcc(losses, accuracies, lim_loss=(0.5, 7), lim_acc=(0, 90)):
     fig, ax1 = plt.subplots()
-    lim_loss = (0.5, 7)
-    lim_acc = (0, 90)
 
     ax1.plot(losses, 'b', label='Loss')
     ax1.set_xlabel('Epochs')

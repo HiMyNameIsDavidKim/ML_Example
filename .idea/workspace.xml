@@ -6,10 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="6dc597b5-90f3-42c0-9fbe-571e0fb81339" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CV/low_freq_mura_gif_gen.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/low_freq_mura_gif_gen.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CV/low_freq_mura_image_gen.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/low_freq_mura_image_gen.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CV/low_freq_mura_util.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/low_freq_mura_util.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CV/save/gray30_full_noise10.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/CV/laboratory.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/zJustTest.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CV/util/tester.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/util/tester.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -296,6 +294,7 @@
       <workItem from="1699851800178" duration="7105000" />
       <workItem from="1699924448911" duration="12662000" />
       <workItem from="1700041668713" duration="1173000" />
+      <workItem from="1700100444299" duration="7038000" />
     </task>
     <servers />
   </component>
