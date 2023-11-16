@@ -8,33 +8,38 @@ from CV.low_freq_mura_util import single, dim2, dim3, save_img, half_half, \
 
 
 if __name__ == '__main__':
+    height, width = 2556, 1179  # 30 and 59
+    # height, width = 260, 512
+    # height, width = 2340, 1080  # 30 and 65
+    # height, width = 2,2
+
     frames = []
     cnt_frame = 1
     level = 65
 
     # test
     # levels = list(range(90, 210, 4))
-    # images = [single(level+1, 'blue') for level in levels]
+    # images = [single(height, width, level+1, 'blue') for level in levels]
     # [frames.extend([image] * cnt_frame) for image in images]
 
-    dim_images = [dim_left_top(single(i, 'green')) for i in np.arange(65.0, -0.1, -6.5)]
+    dim_images = [dim_left_top(single(height, width, i, 'green')) for i in np.arange(65.0, -0.1, -6.5)]
 
 
     # values = np.arange(0.0, 20.1, 2.0)
     # sin = [math.sin(2 * math.pi * i / (len(values) - 1)) for i in range(len(values))]
     # weight = 0.6
     # corr_values = [i + (j * weight) for i, j in zip(values, sin)]
-    full_images = [single(i, 'green') for i in range(0, 31, 3)]
+    full_images = [single(height, width, i, 'green') for i in range(0, 31, 3)]
 
     added_images = [i+j for i, j in zip(dim_images, full_images)]
 
     for cnt_frame in [1]:
         # dithering
         # images = [
-        #     dim_left_top(single(level, 'green')),
-        #     dim_right_top(single(level, 'green')),
-        #     dim_right_bottom(single(level, 'green')),
-        #     dim_left_bottom(single(level, 'green')),
+        #     dim_left_top(single(height, width, level, 'green')),
+        #     dim_right_top(single(height, width, level, 'green')),
+        #     dim_right_bottom(single(height, width, level, 'green')),
+        #     dim_left_bottom(single(height, width, level, 'green')),
         #           ]
         images = added_images
         [frames.extend([image] * cnt_frame) for image in images]

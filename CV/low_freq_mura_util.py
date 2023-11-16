@@ -5,20 +5,15 @@ from PIL import Image
 import numpy as np
 import random
 
-# width, height = 1179, 2556  # 30 and 59
-# width, height = 512, 260
-width, height = 1080, 2340  # 30 and 65
-# width, height = 2,2
 
-
-def gray(level, greenish=False):
+def gray(height, width, level, greenish=False):
     color = (level, level, level)
     if greenish:
         color = (level, level*1.1, level)
     image = np.full((height, width, 3), color, dtype=np.uint8)
     return image
 
-def single(level, str_color):
+def single(height, width, level, str_color):
     if str_color =='green':
         color = (0, level, 0)
     elif str_color =='blue':
@@ -86,7 +81,7 @@ def apply_noise(image, intensity):
     image = image - noise
     return image
 
-def half_half(image_1, image_2):
+def half_half(height, width, image_1, image_2):
     image_1 = image_1[:int(height/2),:,:]
     image_2 = image_2[int(height/2):,:,:]
     new_image = np.concatenate((image_1, image_2), axis=0)
