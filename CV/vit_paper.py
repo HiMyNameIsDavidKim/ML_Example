@@ -156,13 +156,13 @@ class ViT(nn.Module):
 
 if __name__ == '__main__':
     # Parameters
-    IMAGE_SIZE = 224
-    PATCH_SIZE = 16
-    IN_CHANNELS = 3
+    IMAGE_SIZE = 27
+    PATCH_SIZE = 3
+    IN_CHANNELS = 13
     NUM_CLASSES = 1000
-    EMBED_DIM = 768
-    DEPTH = 12
-    NUM_HEADS = 12
+    EMBED_DIM = 117
+    DEPTH = 9
+    NUM_HEADS = 9
     DROP_RATE = 0.1
 
     model = ViT(image_size=IMAGE_SIZE,
