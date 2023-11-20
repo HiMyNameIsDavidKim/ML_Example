@@ -130,7 +130,7 @@ class MLPHead(nn.Module):
 
 class ViT(nn.Module):
     def __init__(self, image_size, patch_size, in_channels, num_classes, embed_dim, depth, num_heads, drop_rate=0.,
-                 cls_token=None):
+                 cls_token=None, same_shape=False):
         super(ViT, self).__init__()
         self.patch_embed = PatchEmbedding(image_size=image_size, patch_size=patch_size, in_channels=in_channels,
                                           embed_dim=embed_dim)
@@ -143,6 +143,9 @@ class ViT(nn.Module):
             for _ in range(depth)
         ])
         self.mlp_head = MLPHead(embed_dim=embed_dim, mlp_hidden_dim=embed_dim * 4, num_classes=num_classes)
+        self.same_shape = same_shape
+        self.image_size = image_size
+        self.in_channels = in_channels
 
     def forward(self, x):
         x = self.patch_embed(x)
@@ -150,21 +153,27 @@ class ViT(nn.Module):
         x = self.pos_embed(x)
         for encoder_block in self.encoder_blocks:
             x = encoder_block(x)
-        x = x[:, 0]
-        x = self.mlp_head(x)
-        return x
+        if self.same_shape:
+            x = x[:, 1:]
+            x = x.view((x.shape[0], self.in_channels, self.image_size, self.image_size))
+            return x
+        else:
+            x = x[:, 0]
+            x = self.mlp_head(x)
+            return x
 
 
 if __name__ == '__main__':
     # Parameters
-    IMAGE_SIZE = 224
-    PATCH_SIZE = 16
-    IN_CHANNELS = 3
+    IMAGE_SIZE = 27
+    PATCH_SIZE = 3
+    IN_CHANNELS = 14
     NUM_CLASSES = 1000
-    EMBED_DIM = 768
-    DEPTH = 12
-    NUM_HEADS = 12
+    EMBED_DIM = 126
+    DEPTH = 9
+    NUM_HEADS = 9
     DROP_RATE = 0.1
+    SAME_SHAPE = True
 
     model = ViT(image_size=IMAGE_SIZE,
                 patch_size=PATCH_SIZE,
@@ -174,11 +183,10 @@ if __name__ == '__main__':
                 depth=DEPTH,
                 num_heads=NUM_HEADS,
                 drop_rate=DROP_RATE,
+                same_shape=SAME_SHAPE,
                 )
 
-    tensor_in = torch.rand(2, 3, 224, 224)
-
+    tensor_in = torch.rand(2, 14, 27, 27)
     tensor_out = model(tensor_in)
-
     print(tensor_in.shape)
     print(tensor_out.shape)
