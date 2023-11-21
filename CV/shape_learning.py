@@ -1,20 +1,10 @@
 import numpy as np
-import timm
-import torch
-import torchvision
-import torch.nn as nn
 import torchvision.transforms as transforms
 from matplotlib import pyplot as plt
-from torch.optim import Adam
-from torch.optim.lr_scheduler import CosineAnnealingLR
 from torch.utils.data import DataLoader
 from torchvision import datasets
-from tqdm import tqdm
-import seaborn as sns
 import cv2
 from PIL import Image
-
-from CV.util import imagenet_ind2str
 
 device = 'mps'
 BATCH_SIZE = 1
