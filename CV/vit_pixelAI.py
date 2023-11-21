@@ -128,10 +128,10 @@ class MLPHead(nn.Module):
         return x
 
 
-class ViT(nn.Module):
+class ViTPixelAI(nn.Module):
     def __init__(self, image_size, patch_size, in_channels, num_classes, embed_dim, depth, num_heads, drop_rate=0.,
                  cls_token=None, same_shape=False):
-        super(ViT, self).__init__()
+        super(ViTPixelAI, self).__init__()
         self.patch_embed = PatchEmbedding(image_size=image_size, patch_size=patch_size, in_channels=in_channels,
                                           embed_dim=embed_dim)
         self.num_patches = self.patch_embed.num_patches
@@ -175,18 +175,18 @@ if __name__ == '__main__':
     DROP_RATE = 0.1
     SAME_SHAPE = True
 
-    model = ViT(image_size=IMAGE_SIZE,
-                patch_size=PATCH_SIZE,
-                in_channels=IN_CHANNELS,
-                num_classes=NUM_CLASSES,
-                embed_dim=EMBED_DIM,
-                depth=DEPTH,
-                num_heads=NUM_HEADS,
-                drop_rate=DROP_RATE,
-                same_shape=SAME_SHAPE,
-                )
+    model = ViTPixelAI(image_size=IMAGE_SIZE,
+                       patch_size=PATCH_SIZE,
+                       in_channels=IN_CHANNELS,
+                       num_classes=NUM_CLASSES,
+                       embed_dim=EMBED_DIM,
+                       depth=DEPTH,
+                       num_heads=NUM_HEADS,
+                       drop_rate=DROP_RATE,
+                       same_shape=SAME_SHAPE,
+                       )
 
     tensor_in = torch.rand(2, 14, 27, 27)
     tensor_out = model(tensor_in)
-    print(tensor_in.shape)
-    print(tensor_out.shape)
+    print(f'input shape : {tensor_in.shape}')
+    print(f'output shape : {tensor_out.shape}')
