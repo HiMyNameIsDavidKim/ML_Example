@@ -5,12 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6dc597b5-90f3-42c0-9fbe-571e0fb81339" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/CV/util/custom_activation.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CV/patch_trans.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/patch_trans.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CV/shape_learning.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/shape_learning.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CV/util.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/util/classname_imagenet.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CV/zJustTest.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/zJustTest.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CV/util/custom_activation.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/util/custom_activation.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -300,7 +296,7 @@
       <workItem from="1700100444299" duration="7315000" />
       <workItem from="1700183037536" duration="1735000" />
       <workItem from="1700461998997" duration="6098000" />
-      <workItem from="1700528853380" duration="9453000" />
+      <workItem from="1700528853380" duration="10765000" />
     </task>
     <servers />
   </component>
