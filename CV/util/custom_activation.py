@@ -8,9 +8,9 @@ class MaskingLayer(nn.Module):
         return torch.where((x < masking_low) | (masking_high < x), x, torch.tensor(0, dtype=x.dtype).to(x.device))
 
 
-class CustomModel(nn.Module):
+class TestModel(nn.Module):
     def __init__(self):
-        super(CustomModel, self).__init__()
+        super(TestModel, self).__init__()
         self.masking_layer = MaskingLayer()
 
     def forward(self, x):
@@ -19,7 +19,7 @@ class CustomModel(nn.Module):
 
 
 if __name__ == '__main__':
-    model = CustomModel()
+    model = TestModel()
     input_data = torch.randn(1, 256)
     output_data = model(input_data)
 
