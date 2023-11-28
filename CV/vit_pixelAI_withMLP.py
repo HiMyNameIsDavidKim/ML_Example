@@ -130,7 +130,7 @@ class MLPHead(nn.Module):
 
 class ViTPixelAI(nn.Module):
     def __init__(self, image_size, patch_size, in_channels, num_classes, embed_dim, depth, num_heads, drop_rate=0.,
-                 cls_token=None, same_shape=False):
+                 cls_token=None, change_mlp=False):
         super(ViTPixelAI, self).__init__()
         self.patch_embed = PatchEmbedding(image_size=image_size, patch_size=patch_size, in_channels=in_channels,
                                           embed_dim=embed_dim)
@@ -143,9 +143,18 @@ class ViTPixelAI(nn.Module):
             for _ in range(depth)
         ])
         self.mlp_head = MLPHead(embed_dim=embed_dim, mlp_hidden_dim=embed_dim * 4, num_classes=num_classes)
-        self.same_shape = same_shape
-        self.image_size = image_size
-        self.in_channels = in_channels
+        self.change_mlp = change_mlp
+        self.fc_1 = nn.Linear(embed_dim, 1000)
+        self.fc_2 = nn.Linear(1000, 1000)
+        self.fc_3 = nn.Linear(1000, 100)
+
+    def forward_mlp(self, x):
+        x = self.fc_1(x)
+        x = F.relu(x)
+        x = self.fc_2(x)
+        x = F.relu(x)
+        x = self.fc_3(x)
+        return x
 
     def forward(self, x):
         x = self.patch_embed(x)
@@ -153,12 +162,11 @@ class ViTPixelAI(nn.Module):
         x = self.pos_embed(x)
         for encoder_block in self.encoder_blocks:
             x = encoder_block(x)
-        if self.same_shape:
-            x = x[:, 1:]
-            x = x.view((x.shape[0], self.in_channels, self.image_size, self.image_size))
+        x = x[:, 0]
+        if self.change_mlp:
+            x = self.forward_mlp(x)
             return x
         else:
-            x = x[:, 0]
             x = self.mlp_head(x)
             return x
 
@@ -173,7 +181,7 @@ if __name__ == '__main__':
     DEPTH = 9
     NUM_HEADS = 9
     DROP_RATE = 0.1
-    SAME_SHAPE = True
+    CHANGE_MLP = True  # True 이면 MLP 변경
 
     model = ViTPixelAI(image_size=IMAGE_SIZE,
                        patch_size=PATCH_SIZE,
@@ -183,7 +191,7 @@ if __name__ == '__main__':
                        depth=DEPTH,
                        num_heads=NUM_HEADS,
                        drop_rate=DROP_RATE,
-                       same_shape=SAME_SHAPE,
+                       change_mlp=CHANGE_MLP,
                        )
 
     tensor_in = torch.rand(2, 14, 27, 27)
