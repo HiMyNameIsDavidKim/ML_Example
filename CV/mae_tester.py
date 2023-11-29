@@ -1,3 +1,4 @@
+import PIL
 import torch
 import torch.nn as nn
 import torchvision.transforms as transforms
@@ -46,14 +47,16 @@ model_path = './save/mae_vit_base_i2012_ep100_lr6.25e-05.pt'
 
 
 transform_train = transforms.Compose([
-    transforms.RandomResizedCrop(224),
+    transforms.Resize(256, interpolation=PIL.Image.BICUBIC),
+    transforms.CenterCrop(224),
     transforms.ToTensor(),
-    transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])
+    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 ])
 transform_test = transforms.Compose([
-    transforms.RandomResizedCrop(224),
+    transforms.Resize(256, interpolation=PIL.Image.BICUBIC),
+    transforms.CenterCrop(224),
     transforms.ToTensor(),
-    transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])
+    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 ])
 train_set = torchvision.datasets.ImageFolder('../../YJ/ILSVRC2012/train', transform=transform_train)
 train_size = int(0.8 * len(train_set))
