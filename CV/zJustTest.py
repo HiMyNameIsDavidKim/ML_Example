@@ -3,7 +3,6 @@ from torchvision import transforms
 from torchvision.models.detection import fasterrcnn_resnet50_fpn
 from torchvision.datasets import CocoDetection
 from torch.utils.data import DataLoader
-from torchvision.transforms import functional as F
 from torch.optim import Adam
 
 data_dir = 'path/to/coco/data'
