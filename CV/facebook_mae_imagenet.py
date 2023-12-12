@@ -17,6 +17,8 @@ from timm.models.layers import trunc_normal_
 import facebook_mae
 import mae_misc as misc
 from mae_misc import NativeScalerWithGradNormCount as NativeScaler
+from CV.util.visualization import inverse_transform, inout_images_plot
+
 
 gpu_ids = []
 device_names = []
@@ -193,14 +195,16 @@ class PreTrainer(object):
         self.save_model()
 
     def build_model(self, load):
-        self.model = facebook_mae.__dict__['mae_vit_base_patch16_dec512d8b'](norm_pix_loss=True).to(device)
+        self.model = facebook_mae.__dict__['mae_vit_large_patch16_dec512d8b'](norm_pix_loss=True).to(device)
         print(f'Parameter: {sum(p.numel() for p in self.model.parameters() if p.requires_grad)}')
         self.optimizer = SGD(self.model.parameters(), lr=0)
         self.scheduler = CosineAnnealingLR(self.optimizer, T_max=NUM_EPOCHS)
 
         if load:
             checkpoint = torch.load(load_model_path)
-            self.model.load_state_dict(checkpoint['model'])
+            checkpoint_model = checkpoint['model']
+            msg = self.model.load_state_dict(checkpoint_model, strict=False)
+            print(msg)
             if 'given' not in str(load_model_path):
                 self.epochs = checkpoint['epochs']
                 self.losses = checkpoint['losses']
@@ -234,7 +238,7 @@ class PreTrainer(object):
 
                 optimizer.zero_grad()
 
-                loss, _, _ = model(samples, mask_ratio=.75)
+                loss, pred, mask = model(samples, mask_ratio=.75)
                 loss_scaler(loss, optimizer, parameters=model.parameters(), update_grad=True)
                 # Scaler include loss.backward() and optimizer.step()
 
@@ -244,9 +248,23 @@ class PreTrainer(object):
                 if i % 100 == 99:
                     print(f'[Epoch {epoch}, Batch {i + 1:5d}] loss: {running_loss / 100:.3f}')
                     running_loss = 0.0
+
+                    pred = model.unpatchify(pred)
+                    pred = torch.einsum('nchw->nhwc', pred).detach().cpu()
+
+                    mask = mask.detach()
+                    mask = mask.unsqueeze(-1).repeat(1, 1, model.patch_embed.patch_size[0] ** 2 * 3)
+                    mask = model.unpatchify(mask)
+                    mask = torch.einsum('nchw->nhwc', mask).detach().cpu()
+
+                    samples = torch.einsum('nchw->nhwc', samples).cpu()
+
+                    im_paste = samples[0] * (1 - mask[0]) + pred[0] * mask[0]
+                    inout_images_plot(samples[0], im_paste)
+
                 if i % 1000 == 999:
                     self.epochs.append(epoch + 1)
-                    self.losses.append(saving_loss/1000)
+                    self.losses.append(saving_loss / 1000)
                     saving_loss = 0.0
             self.model = model
             self.optimizer = optimizer
@@ -264,7 +282,8 @@ class PreTrainer(object):
             'losses': self.losses,
         }
         torch.save(checkpoint, pre_model_path)
-#         torch.save(checkpoint, dynamic_model_path+str(self.epochs[-1])+f'_lr{LEARNING_RATE}.pt')
+        #         if int(self.epochs[-1]) % 10 == 9:
+        #             torch.save(checkpoint, dynamic_model_path+str(self.epochs[-1])+f'_lr{LEARNING_RATE}.pt')
         print(f"****** Model checkpoint saved at epochs {self.epochs[-1]} ******")
 
 
