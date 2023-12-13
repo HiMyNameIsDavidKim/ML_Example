@@ -14,7 +14,7 @@ import facebook_vit
 from mae_util import interpolate_pos_embed
 from timm.models.layers import trunc_normal_
 
-import facebook_mae
+import shuffled_mae
 import mae_misc as misc
 from mae_misc import NativeScalerWithGradNormCount as NativeScaler
 from CV.util.visualization import inverse_transform, inout_images_plot
@@ -195,7 +195,7 @@ class PreTrainer(object):
         self.save_model()
 
     def build_model(self, load):
-        self.model = facebook_mae.__dict__['mae_vit_large_patch16_dec512d8b'](norm_pix_loss=True).to(device)
+        self.model = shuffled_mae.__dict__['mae_vit_large_patch16_dec512d8b'](norm_pix_loss=True).to(device)
         print(f'Parameter: {sum(p.numel() for p in self.model.parameters() if p.requires_grad)}')
         self.optimizer = SGD(self.model.parameters(), lr=0)
         self.scheduler = CosineAnnealingLR(self.optimizer, T_max=NUM_EPOCHS)

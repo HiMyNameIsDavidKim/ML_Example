@@ -51,6 +51,16 @@ class MaskedAutoencoderViT(nn.Module):
         self.decoder_pred = nn.Linear(decoder_embed_dim, patch_size ** 2 * in_chans, bias=True)  # decoder to patch
         # --------------------------------------------------------------------------
 
+        # --------------------------------------------------------------------------
+        # Jigsaw decoder specifics
+        self.num_patches = num_patches
+        self.decoder_jigsaw = torch.nn.Sequential(*[torch.nn.Linear(decoder_embed_dim, decoder_embed_dim),
+                                                    torch.nn.ReLU(),
+                                                    torch.nn.Linear(decoder_embed_dim, decoder_embed_dim),
+                                                    torch.nn.ReLU(),
+                                                    torch.nn.Linear(decoder_embed_dim, self.num_patches)])
+        # --------------------------------------------------------------------------
+
         self.norm_pix_loss = norm_pix_loss
 
         self.initialize_weights()
@@ -139,8 +149,9 @@ class MaskedAutoencoderViT(nn.Module):
         mask[:, :len_keep] = 0
         # unshuffle to get the binary mask
         mask = torch.gather(mask, dim=1, index=ids_restore)
+        target_masked = ids_keep
 
-        return x_masked, mask, ids_restore
+        return x_masked, mask, ids_restore, target_masked
 
     def forward_encoder(self, x, mask_ratio):
         # embed patches
@@ -150,7 +161,7 @@ class MaskedAutoencoderViT(nn.Module):
         x = x + self.pos_embed[:, 1:, :]
 
         # masking: length -> length * mask_ratio
-        x, mask, ids_restore = self.random_masking(x, mask_ratio)
+        x, mask, ids_restore, target_masked = self.random_masking(x, mask_ratio)
 
         # append cls token
         cls_token = self.cls_token + self.pos_embed[:, :1, :]
@@ -162,9 +173,9 @@ class MaskedAutoencoderViT(nn.Module):
             x = blk(x)
         x = self.norm(x)
 
-        return x, mask, ids_restore
+        return x, mask, ids_restore, target_masked
 
-    def forward_decoder(self, x, ids_restore):
+    def forward_reconstruction(self, x, ids_restore):
         # embed tokens
         x = self.decoder_embed(x)
 
@@ -187,8 +198,18 @@ class MaskedAutoencoderViT(nn.Module):
 
         # remove cls token
         x = x[:, 1:, :]
-
         return x
+
+    def forward_jigsaw(self, x, target_masked):
+        # embed tokens
+        x = self.decoder_embed(x)
+
+        # jigsaw
+        x = self.decoder_jigsaw(x[:, 1:])
+
+        # reshape
+        target_jigsaw = target_masked
+        return x, target_jigsaw
 
     def forward_loss(self, imgs, pred, mask):
         """
@@ -209,10 +230,23 @@ class MaskedAutoencoderViT(nn.Module):
         return loss
 
     def forward(self, imgs, mask_ratio=0.75):
-        latent, mask, ids_restore = self.forward_encoder(imgs, mask_ratio)
-        pred = self.forward_decoder(latent, ids_restore)  # [N, L, p*p*3]
-        loss = self.forward_loss(imgs, pred, mask)
-        return loss, pred, mask
+        latent, mask, ids_restore, target_masked = self.forward_encoder(imgs, mask_ratio)
+        pred_recon = self.forward_reconstruction(latent, ids_restore)  # [N, L, p*p*3]
+        pred_jigsaw, target_jigsaw = self.forward_jigsaw(latent, target_masked)
+        loss = self.forward_loss(imgs, pred_recon, mask)
+
+        print(pred_jigsaw.shape, target_jigsaw.shape)
+        print(pred_jigsaw)
+        print(target_jigsaw)
+        # loss 수정하기
+
+        # data type
+        # imgs = [n, 3, 224, 224], 원본 이미지
+        # pred = [n, 196, 768], 이미 재구조화 된 이미지
+        # mask = [n, 196], (0=언마스킹 49개, 1=마스킹 147개)
+        # latent = [n, 50, 1024], 언마스킹인 애들에 대한 레이턴트 매트릭스, CLS 토큰 포함, 디멘션은 케바케
+
+        return loss, pred_recon, mask
 
 
 def mae_vit_base_patch16_dec512d8b(**kwargs):
