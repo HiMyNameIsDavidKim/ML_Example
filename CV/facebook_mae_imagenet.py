@@ -202,8 +202,7 @@ class PreTrainer(object):
 
         if load:
             checkpoint = torch.load(load_model_path)
-            checkpoint_model = checkpoint['model']
-            msg = self.model.load_state_dict(checkpoint_model, strict=False)
+            msg = self.model.load_state_dict(checkpoint['model'], strict=False)
             print(msg)
             if 'given' not in str(load_model_path):
                 self.epochs = checkpoint['epochs']
@@ -248,20 +247,7 @@ class PreTrainer(object):
                 if i % 100 == 99:
                     print(f'[Epoch {epoch}, Batch {i + 1:5d}] loss: {running_loss / 100:.3f}')
                     running_loss = 0.0
-
-                    pred = model.unpatchify(pred)
-                    pred = torch.einsum('nchw->nhwc', pred).detach().cpu()
-
-                    mask = mask.detach()
-                    mask = mask.unsqueeze(-1).repeat(1, 1, model.patch_embed.patch_size[0] ** 2 * 3)
-                    mask = model.unpatchify(mask)
-                    mask = torch.einsum('nchw->nhwc', mask).detach().cpu()
-
-                    samples = torch.einsum('nchw->nhwc', samples).cpu()
-
-                    im_paste = samples[0] * (1 - mask[0]) + pred[0] * mask[0]
-                    inout_images_plot(samples[0], im_paste)
-
+                    inout_images_plot(samples=samples, mask=mask, pred=pred, model=model)
                 if i % 1000 == 999:
                     self.epochs.append(epoch + 1)
                     self.losses.append(saving_loss / 1000)

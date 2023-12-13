@@ -5,10 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6dc597b5-90f3-42c0-9fbe-571e0fb81339" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/CV/shuffled_mae.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/CV/util/visualization.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/CV/facebook_mae_imagenet.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/facebook_mae_imagenet.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CV/util/visualization.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/util/visualization.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -70,9 +69,9 @@
       <recent name="$PROJECT_DIR$/prediction/data" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/CV/data/mae_checkpoint" />
       <recent name="$PROJECT_DIR$/CV/util" />
       <recent name="$PROJECT_DIR$/CV" />
-      <recent name="$PROJECT_DIR$/CV/data/mae_checkpoint" />
       <recent name="$PROJECT_DIR$/CV/data/SPRnet" />
       <recent name="$PROJECT_DIR$/CV/data" />
     </key>
@@ -310,7 +309,8 @@
       <workItem from="1701658023583" duration="1505000" />
       <workItem from="1701740473531" duration="598000" />
       <workItem from="1702280077259" duration="34000" />
-      <workItem from="1702347799471" duration="12374000" />
+      <workItem from="1702347799471" duration="15088000" />
+      <workItem from="1702431437672" duration="911000" />
     </task>
     <servers />
   </component>
