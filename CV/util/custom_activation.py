@@ -1,3 +1,4 @@
+import numpy as np
 import torch
 import torch.nn as nn
 import matplotlib.pyplot as plt
@@ -14,14 +15,16 @@ class TestModel(nn.Module):
         self.masking_layer = MaskingLayer()
 
     def forward(self, x):
-        x = self.masking_layer(x, masking=(0, 1))
+        x = self.masking_layer(x, masking=(10, 30))
         return x
 
 
 if __name__ == '__main__':
     model = TestModel()
-    input_data = torch.randn(1, 256)
+    input_data = torch.tensor(np.array([i for i in range(100)]))
     output_data = model(input_data)
+
+    print(output_data)
 
     plt.figure(figsize=(12, 6))
     plt.subplot(1, 2, 1)
