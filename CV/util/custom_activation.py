@@ -1,11 +1,22 @@
 import numpy as np
 import torch
 import torch.nn as nn
+from torchvision import transforms
 import matplotlib.pyplot as plt
+from PIL import Image
 
 class MaskingLayer(nn.Module):
+    def __init__(self):
+        super(MaskingLayer, self).__init__()
+        scale_array = np.array(range(256), dtype=np.uint8)
+        scale_image = Image.fromarray(scale_array)
+        scale_tensor = transforms.ToTensor()(scale_image)
+        self.scale_tensor_array = scale_tensor.numpy().flatten()
+
     def forward(self, x, masking=(10, 30)):
         (masking_low, masking_high) = masking
+        masking_low = self.scale_tensor_array[masking_low]
+        masking_high = self.scale_tensor_array[masking_high]
         return torch.where((x < masking_low) | (masking_high < x), x, torch.tensor(0, dtype=x.dtype).to(x.device))
 
 
@@ -21,7 +32,7 @@ class TestModel(nn.Module):
 
 if __name__ == '__main__':
     model = TestModel()
-    input_data = torch.tensor(np.array([i for i in range(100)]))
+    input_data = torch.rand(size=(1, 100))
     output_data = model(input_data)
 
     print(output_data)
