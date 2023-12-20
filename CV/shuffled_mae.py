@@ -2,6 +2,7 @@ from functools import partial
 
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 
 from timm.models.vision_transformer import PatchEmbed, Block
 from torchsummary import summary
@@ -211,7 +212,7 @@ class MaskedAutoencoderViT(nn.Module):
         target_jigsaw = target_masked
         return x, target_jigsaw
 
-    def forward_loss(self, imgs, pred, mask):
+    def forward_loss(self, imgs, pred, mask, pred_jigsaw, target_jigsaw, weight_ratio):
         """
         imgs: [N, 3, H, W]
         pred: [N, L, p*p*3]
@@ -223,22 +224,25 @@ class MaskedAutoencoderViT(nn.Module):
             var = target.var(dim=-1, keepdim=True)
             target = (target - mean) / (var + 1.e-6) ** .5
 
-        loss = (pred - target) ** 2
-        loss = loss.mean(dim=-1)  # [N, L], mean loss per patch
+        loss_recon = (pred - target) ** 2
+        loss_recon = loss_recon.mean(dim=-1)  # [N, L], mean loss per patch
+        loss_recon = (loss_recon * mask).sum() / mask.sum()  # mean loss on removed patches
 
-        loss = (loss * mask).sum() / mask.sum()  # mean loss on removed patches
+        loss_jigsaw = F.cross_entropy(pred_jigsaw, target_jigsaw) * weight_ratio
+
+        print(f'loss reconstruction : {loss_recon}')
+        print(f'loss jigsaw : {loss_jigsaw}')
+
+        loss = loss_recon + loss_jigsaw
         return loss
 
-    def forward(self, imgs, mask_ratio=0.75):
+    def forward(self, imgs, mask_ratio=0.75, weight_ratio=0.001):
         latent, mask, ids_restore, target_masked = self.forward_encoder(imgs, mask_ratio)
         pred_recon = self.forward_reconstruction(latent, ids_restore)  # [N, L, p*p*3]
         pred_jigsaw, target_jigsaw = self.forward_jigsaw(latent, target_masked)
-        loss = self.forward_loss(imgs, pred_recon, mask)
+        loss = self.forward_loss(imgs, pred_recon, mask, pred_jigsaw, target_jigsaw, weight_ratio)
 
-        print(pred_jigsaw.shape, target_jigsaw.shape)
-        print(pred_jigsaw)
-        print(target_jigsaw)
-        # loss 수정하기
+        # loss까지 수정 완료함.
 
         # data type
         # imgs = [n, 3, 224, 224], 원본 이미지
