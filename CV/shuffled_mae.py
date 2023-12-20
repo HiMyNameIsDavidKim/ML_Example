@@ -228,10 +228,8 @@ class MaskedAutoencoderViT(nn.Module):
         loss_recon = loss_recon.mean(dim=-1)  # [N, L], mean loss per patch
         loss_recon = (loss_recon * mask).sum() / mask.sum()  # mean loss on removed patches
 
-        loss_jigsaw = F.cross_entropy(pred_jigsaw, target_jigsaw) * weight_ratio
-
-        print(f'loss reconstruction : {loss_recon}')
-        print(f'loss jigsaw : {loss_jigsaw}')
+        _, _, L = pred_jigsaw.shape
+        loss_jigsaw = F.cross_entropy(pred_jigsaw.reshape(-1, L), target_jigsaw.reshape(-1)) * weight_ratio
 
         loss = loss_recon + loss_jigsaw
         return loss
@@ -240,15 +238,20 @@ class MaskedAutoencoderViT(nn.Module):
         latent, mask, ids_restore, target_masked = self.forward_encoder(imgs, mask_ratio)
         pred_recon = self.forward_reconstruction(latent, ids_restore)  # [N, L, p*p*3]
         pred_jigsaw, target_jigsaw = self.forward_jigsaw(latent, target_masked)
-        loss = self.forward_loss(imgs, pred_recon, mask, pred_jigsaw, target_jigsaw, weight_ratio)
 
-        # loss까지 수정 완료함.
+        print(f'pred jigsaw : {pred_jigsaw.shape}')
+        print(f'target jigsaw : {target_jigsaw.shape}')
+        print(f'target_jigsaw : \n {target_jigsaw}')
+
+        loss = self.forward_loss(imgs, pred_recon, mask, pred_jigsaw, target_jigsaw, weight_ratio)
 
         # data type
         # imgs = [n, 3, 224, 224], 원본 이미지
         # pred = [n, 196, 768], 이미 재구조화 된 이미지
         # mask = [n, 196], (0=언마스킹 49개, 1=마스킹 147개)
         # latent = [n, 50, 1024], 언마스킹인 애들에 대한 레이턴트 매트릭스, CLS 토큰 포함, 디멘션은 케바케
+        # pred_jigsaw = [n, 49, 196], 크로스 엔트로피 넣기 위해서 reshape로 펼칠 예정 (n * 49, 196)
+        # target_jigsaw = [n, 49], 크로스 엔트로피 넣기 위해서 reshape로 펼칠 예정 (n * 49, )
 
         return loss, pred_recon, mask
 
