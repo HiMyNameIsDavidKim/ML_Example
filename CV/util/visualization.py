@@ -38,5 +38,6 @@ def inout_images_plot(samples, mask, pred, model):
     axes[2].set_title("Output")
     [ax.axis('off') for ax in axes]
 
+    plt.tight_layout()
     plt.show()
 
