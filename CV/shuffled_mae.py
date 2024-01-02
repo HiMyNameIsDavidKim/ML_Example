@@ -239,10 +239,6 @@ class MaskedAutoencoderViT(nn.Module):
         pred_recon = self.forward_reconstruction(latent, ids_restore)  # [N, L, p*p*3]
         pred_jigsaw, target_jigsaw = self.forward_jigsaw(latent, target_masked)
 
-        print(f'pred jigsaw : {pred_jigsaw.shape}')
-        print(f'target jigsaw : {target_jigsaw.shape}')
-        print(f'target_jigsaw : \n {target_jigsaw}')
-
         loss = self.forward_loss(imgs, pred_recon, mask, pred_jigsaw, target_jigsaw, weight_ratio)
 
         # data type

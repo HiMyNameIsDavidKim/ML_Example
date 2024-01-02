@@ -1,7 +1,7 @@
-import PIL
 import torch
 import torch.nn as nn
 import torchvision.transforms as transforms
+import PIL
 from torch.optim import Adam, SGD
 from torch.optim.lr_scheduler import CosineAnnealingLR
 import torch.utils.data as data
@@ -11,15 +11,17 @@ from tqdm import tqdm, tqdm_notebook
 import torch.nn.functional as F
 import math
 from functools import partial
+import matplotlib.pyplot as plt
 
 import facebook_vit
+import facebook_mae
+import shuffled_mae
 from mae_util import interpolate_pos_embed
 from timm.models.layers import trunc_normal_
-from CV.facebook_mae import MaskedAutoencoderViT
+from facebook_mae import MaskedAutoencoderViT
 
-import facebook_mae
-import mae_misc as misc
-from mae_misc import NativeScalerWithGradNormCount as NativeScaler
+from util.tester import visualLossAcc, visualMultiLoss
+from util.visualization import inout_images_plot
 
 
 gpu_ids = []
@@ -38,12 +40,13 @@ else:
 
 
 device = gpu
-BATCH_SIZE = 512  # 1024
-NUM_EPOCHS = 100  # 100
-WARMUP_EPOCHS = 5  # 5
+BATCH_SIZE = 64  # 1024 // 64
+NUM_EPOCHS = 800  # 100 // 800
+WARMUP_EPOCHS = 40  # 5 // 40
 NUM_WORKERS = 2
-LEARNING_RATE = 6.25e-05  # 1e-03
-model_path = './save/mae_vit_base_i2012_ep100_lr6.25e-05.pt'
+LEARNING_RATE = 1.5e-04  # paper: 1e-03 // 1.5e-04 -> implementation: 5e-04 // 1.5e-04
+model_path = './save/mae_vit_base_i2012_ep100_lr4e-06.pt'
+given_model_path = './save/MAE/mae_visualize_vit_large_given.pth'
 
 
 transform_train = transforms.Compose([
@@ -58,13 +61,13 @@ transform_test = transforms.Compose([
     transforms.ToTensor(),
     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 ])
-train_set = torchvision.datasets.ImageFolder('../../YJ/ILSVRC2012/train', transform=transform_train)
+train_set = torchvision.datasets.ImageFolder('../datasets/ImageNet/train', transform=transform_train)
 train_size = int(0.8 * len(train_set))
 val_size = len(train_set) - train_size
 train_set, val_set = random_split(train_set, [train_size, val_size])
 train_loader = data.DataLoader(train_set, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
 val_loader = torch.utils.data.DataLoader(val_set, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
-test_set = torchvision.datasets.ImageFolder('../../YJ/ILSVRC2012/val', transform=transform_test)
+test_set = torchvision.datasets.ImageFolder('../datasets/ImageNet/val', transform=transform_test)
 test_loader = data.DataLoader(test_set, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
 
 
@@ -83,13 +86,16 @@ class TesterFacebook(object):
         self.model = facebook_vit.__dict__['vit_base_patch16'](
             num_classes=1000,
             drop_path_rate=0.1,
+            global_pool=True,
         )
         checkpoint = torch.load(model_path)
-        self.model.load_state_dict(checkpoint['model'])
+        checkpoint_model = checkpoint['model']
+        self.model.load_state_dict(checkpoint_model)
         self.model.to(device)
-        self.epochs = checkpoint['epochs']
-        self.losses = checkpoint['losses']
-        self.accuracies = checkpoint['accuracies']
+        if 'given' not in str(model_path):
+            self.epochs = checkpoint['epochs']
+            self.losses = checkpoint['losses']
+            self.accuracies = checkpoint['accuracies']
         print(f'Parameter: {sum(p.numel() for p in self.model.parameters() if p.requires_grad)}')
         print(f'Epochs: {self.epochs[-1]}')
 
@@ -123,6 +129,24 @@ class TesterFacebook(object):
         print(f'Accuracy of {len(val_set)} val images: {acc_val:.2f} %')
 
         print(f'Accuracy of test: {acc_test:.2f} %, Accuracy of val: {acc_val:.2f} %')
+
+    def lr_checker(self):
+        self.build_model()
+        model = self.model
+        criterion = nn.CrossEntropyLoss()
+        optimizer = SGD(model.parameters(), lr=LEARNING_RATE, momentum=0.9)
+        scheduler = CosineAnnealingLR(optimizer, T_max=NUM_EPOCHS)
+
+        for epoch in range(NUM_EPOCHS):
+            if epoch < WARMUP_EPOCHS:
+                lr_warmup = ((epoch + 1) / WARMUP_EPOCHS) * LEARNING_RATE
+                for param_group in optimizer.param_groups:
+                    param_group['lr'] = lr_warmup
+                if epoch + 1 == WARMUP_EPOCHS:
+                    scheduler = CosineAnnealingLR(optimizer, T_max=NUM_EPOCHS)
+            lr_now = optimizer.param_groups[0]['lr']
+            print(f'epoch {epoch + 1} learning rate(={round(lr_now / LEARNING_RATE * 100)}%) : {lr_now} ')
+            scheduler.step()
 
 
 class TesterPixelRecon(object):
@@ -130,58 +154,103 @@ class TesterPixelRecon(object):
         self.model = None
         self.epochs = [0]
         self.losses = [0]
-        self.accuracies = [0]
+        self.model_given = None
 
     def process(self):
         self.build_model()
         self.eval_model()
 
     def build_model(self):
-        self.model = facebook_mae.__dict__['mae_vit_base_patch16_dec512d8b'](norm_pix_loss=True).to(device)
+        self.model = shuffled_mae.__dict__['mae_vit_large_patch16_dec512d8b'](norm_pix_loss=True).to(device)
         checkpoint = torch.load(model_path)
-        self.model.load_state_dict(checkpoint['model'])
-        self.model.to(device)
-        self.epochs = checkpoint['epochs']
-        self.losses = checkpoint['losses']
-        self.accuracies = checkpoint['accuracies']
+        msg = self.model.load_state_dict(checkpoint['model'], strict=False)
+        print(msg)
+        if 'given' not in str(model_path):
+            self.epochs = checkpoint['epochs']
+            self.losses = checkpoint['losses']
         print(f'Parameter: {sum(p.numel() for p in self.model.parameters() if p.requires_grad)}')
         print(f'Epochs: {self.epochs[-1]}')
 
-    def eval_model(self):
-        self.model.eval()
+        self.model_given = facebook_mae.__dict__['mae_vit_large_patch16_dec512d8b'](norm_pix_loss=True).to(device)
+        checkpoint = torch.load(given_model_path)
+        msg = self.model_given.load_state_dict(checkpoint['model'], strict=False)
+        print(msg)
 
-        running_loss = 0.0
+    def eval_model(self):
+        model = self.model.eval()
+        model_given = self.model_given.eval()
+
+        this_loss = 0
+        total_loss = 0
+        cnt = 10
         with torch.no_grad():
             for i, data in tqdm_notebook(enumerate(test_loader, 0), total=len(test_loader)):
                 samples, _ = data
                 samples = samples.to(device, non_blocking=True)
-                loss, pred, mask = self.model(samples, mask_ratio=.75)
+                loss, pred, mask = model(samples, mask_ratio=.75)
 
-                print(pred, mask)
+                this_loss = loss
+                total_loss += this_loss
 
-                # 저장 된거 로드해서 (masked img, original img, recon img) 뽑아보기
+                print(f'(Eval Model) Loss of this images: {this_loss:.4f}')
+                inout_images_plot(samples=samples, mask=mask, pred=pred, model=model)
 
+                loss, pred, mask = model_given(samples, mask_ratio=.75)
+                this_loss = loss
+                print(f'(Given Model) Loss of this images: {this_loss:.4f}')
+                inout_images_plot(samples=samples, mask=mask, pred=pred, model=model)
 
-                _, predicted = torch.max(outputs.data, 1)
-                total += labels.size(0)
-                correct += (predicted == labels).sum().item()
-        acc_test = 100 * correct / total
-        print(f'Accuracy of {len(test_set)} test images: {acc_test:.2f} %')
+                if i == cnt-1:
+                    break
 
-        correct = 0
-        total = 0
+        loss_test = total_loss / cnt
+        print(f'Avg loss of {cnt} test images: {loss_test:.4f}')
+
+        this_loss = 0
+        total_loss = 0
+        cnt = 10
         with torch.no_grad():
             for i, data in tqdm_notebook(enumerate(val_loader, 0), total=len(val_loader)):
-                images, labels = data
-                images, labels = images.to(device), labels.to(device)
-                outputs = self.model(images)
-                _, predicted = torch.max(outputs.data, 1)
-                total += labels.size(0)
-                correct += (predicted == labels).sum().item()
-        acc_val = 100 * correct / total
-        print(f'Accuracy of {len(val_set)} val images: {acc_val:.2f} %')
+                samples, _ = data
+                samples = samples.to(device, non_blocking=True)
+                loss, pred, mask = model(samples, mask_ratio=.75)
 
-        print(f'Accuracy of test: {acc_test:.2f} %, Accuracy of val: {acc_val:.2f} %')
+                this_loss = loss
+                total_loss += this_loss
+
+                print(f'(Eval Model) Loss of this images: {this_loss:.4f}')
+                inout_images_plot(samples=samples, mask=mask, pred=pred, model=model)
+
+                loss, pred, mask = model_given(samples, mask_ratio=.75)
+                this_loss = loss
+                print(f'(Given Model) Loss of this images: {this_loss:.4f}')
+                inout_images_plot(samples=samples, mask=mask, pred=pred, model=model)
+
+                if i == cnt-1:
+                    break
+
+            loss_val = total_loss / cnt
+        print(f'Avg loss of {cnt} val images: {loss_val:.4f}')
+
+        print(f'Avg loss of test: {loss_test:.4f}, Avg loss of val: {loss_val:.4f}')
+
+    def lr_checker(self):
+        self.build_model()
+        model = self.model
+        criterion = nn.CrossEntropyLoss()
+        optimizer = SGD(model.parameters(), lr=LEARNING_RATE, momentum=0.9)
+        scheduler = CosineAnnealingLR(optimizer, T_max=NUM_EPOCHS)
+
+        for epoch in range(NUM_EPOCHS):
+            if epoch < WARMUP_EPOCHS:
+                lr_warmup = ((epoch + 1) / WARMUP_EPOCHS) * LEARNING_RATE
+                for param_group in optimizer.param_groups:
+                    param_group['lr'] = lr_warmup
+                if epoch + 1 == WARMUP_EPOCHS:
+                    scheduler = CosineAnnealingLR(optimizer, T_max=NUM_EPOCHS)
+            lr_now = optimizer.param_groups[0]['lr']
+            print(f'epoch {epoch + 1} learning rate(={round(lr_now / LEARNING_RATE * 100)}%) : {lr_now} ')
+            scheduler.step()
 
 
 if __name__ == '__main__':
