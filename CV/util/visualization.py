@@ -41,3 +41,9 @@ def inout_images_plot(samples, mask, pred, model):
     plt.tight_layout()
     plt.show()
 
+def acc_jigsaw(pred_jigsaw, target_jigsaw):
+    _, pred_jigsaw = torch.max(pred_jigsaw[0], 1)
+    target_jigsaw = target_jigsaw[0]
+    total = target_jigsaw.size(0)
+    correct = (pred_jigsaw == target_jigsaw).sum().item()
+    return correct, total

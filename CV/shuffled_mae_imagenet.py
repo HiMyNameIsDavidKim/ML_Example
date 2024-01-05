@@ -17,8 +17,7 @@ from timm.models.layers import trunc_normal_
 import shuffled_mae
 import mae_misc as misc
 from mae_misc import NativeScalerWithGradNormCount as NativeScaler
-from CV.util.visualization import inverse_transform, inout_images_plot
-
+from CV.util.visualization import inverse_transform, inout_images_plot, acc_jigsaw
 
 gpu_ids = []
 device_names = []
@@ -237,7 +236,7 @@ class PreTrainer(object):
 
                 optimizer.zero_grad()
 
-                loss, pred, mask = model(samples, mask_ratio=.75)
+                loss, pred, mask, pred_jigsaw, target_jigsaw = model(samples, mask_ratio=.75)
                 loss_scaler(loss, optimizer, parameters=model.parameters(), update_grad=True)
                 # Scaler include loss.backward() and optimizer.step()
 
@@ -247,6 +246,8 @@ class PreTrainer(object):
                 if i % 100 == 99:
                     print(f'[Epoch {epoch}, Batch {i + 1:5d}] loss: {running_loss / 100:.3f}')
                     running_loss = 0.0
+                    correct, total = acc_jigsaw(pred_jigsaw, target_jigsaw)
+                    print(f'acc of jigsaw: {correct / total * 100:.2f}%')
                     inout_images_plot(samples=samples, mask=mask, pred=pred, model=model)
                 if i % 1000 == 999:
                     self.epochs.append(epoch + 1)
