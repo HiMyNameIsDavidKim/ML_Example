@@ -21,8 +21,7 @@ from timm.models.layers import trunc_normal_
 from facebook_mae import MaskedAutoencoderViT
 
 from util.tester import visualLossAcc, visualMultiLoss
-from util.visualization import inout_images_plot
-
+from util.visualization import inout_images_plot, acc_jigsaw
 
 gpu_ids = []
 device_names = []
@@ -83,7 +82,7 @@ class TesterFacebook(object):
         self.eval_model()
 
     def build_model(self):
-        self.model = facebook_vit.__dict__['vit_base_patch16'](
+        self.model = facebook_vit.__dict__['vit_large_patch16'](
             num_classes=1000,
             drop_path_rate=0.1,
             global_pool=True,
@@ -187,12 +186,14 @@ class TesterPixelRecon(object):
             for i, data in tqdm_notebook(enumerate(test_loader, 0), total=len(test_loader)):
                 samples, _ = data
                 samples = samples.to(device, non_blocking=True)
-                loss, pred, mask = model(samples, mask_ratio=.75)
+                loss, pred, mask, pred_jigsaw, target_jigsaw = model(samples, mask_ratio=.75)
 
                 this_loss = loss
                 total_loss += this_loss
 
                 print(f'(Eval Model) Loss of this images: {this_loss:.4f}')
+                correct, total = acc_jigsaw(pred_jigsaw, target_jigsaw)
+                print(f'acc of jigsaw: {correct / total * 100:.2f}%')
                 inout_images_plot(samples=samples, mask=mask, pred=pred, model=model)
 
                 loss, pred, mask = model_given(samples, mask_ratio=.75)
@@ -213,12 +214,14 @@ class TesterPixelRecon(object):
             for i, data in tqdm_notebook(enumerate(val_loader, 0), total=len(val_loader)):
                 samples, _ = data
                 samples = samples.to(device, non_blocking=True)
-                loss, pred, mask = model(samples, mask_ratio=.75)
+                loss, pred, mask, pred_jigsaw, target_jigsaw = model(samples, mask_ratio=.75)
 
                 this_loss = loss
                 total_loss += this_loss
 
                 print(f'(Eval Model) Loss of this images: {this_loss:.4f}')
+                correct, total = acc_jigsaw(pred_jigsaw, target_jigsaw)
+                print(f'acc of jigsaw: {correct / total * 100:.2f}%')
                 inout_images_plot(samples=samples, mask=mask, pred=pred, model=model)
 
                 loss, pred, mask = model_given(samples, mask_ratio=.75)

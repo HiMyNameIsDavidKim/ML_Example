@@ -237,12 +237,12 @@ class MaskedAutoencoderViT(nn.Module):
     def forward(self, imgs, mask_ratio=0.75, weight_ratio=0.001):
         """
         data type
-        imgs = [n, 3, 224, 224], 원본 이미지
-        pred = [n, 196, 768], 이미 재구조화 된 이미지
-        mask = [n, 196], (0=언마스킹 49개, 1=마스킹 147개)
-        latent = [n, 50, 1024], 언마스킹인 애들에 대한 레이턴트 매트릭스, CLS 토큰 포함, 디멘션은 케바케
-        pred_jigsaw = [n, 49, 196], 크로스 엔트로피 넣기 위해서 reshape로 펼칠 예정 (n * 49, 196)
-        target_jigsaw = [n, 49], 크로스 엔트로피 넣기 위해서 reshape로 펼칠 예정 (n * 49, )
+        imgs: [n, 3, 224, 224], 원본 이미지
+        pred: [n, 196, 768], 이미 재구조화 된 이미지
+        mask: [n, 196], (0=언마스킹 49개, 1=마스킹 147개)
+        latent: [n, 50, 1024], 언마스킹인 애들에 대한 레이턴트 매트릭스, CLS 토큰 포함, 디멘션은 케바케
+        pred_jigsaw: [n, 49, 196], 크로스 엔트로피 넣기 위해서 reshape로 펼칠 예정 (n * 49, 196)
+        target_jigsaw: [n, 49], 크로스 엔트로피 넣기 위해서 reshape로 펼칠 예정 (n * 49, )
         """
         latent, mask, ids_restore, target_masked = self.forward_encoder(imgs, mask_ratio)
         pred_recon = self.forward_reconstruction(latent, ids_restore)  # [N, L, p*p*3]
