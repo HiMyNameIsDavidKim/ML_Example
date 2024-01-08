@@ -14,7 +14,7 @@ import facebook_vit
 from mae_util import interpolate_pos_embed
 from timm.models.layers import trunc_normal_
 
-import shuffled_mae
+import shuffled_mae_case2
 import mae_misc as misc
 from mae_misc import NativeScalerWithGradNormCount as NativeScaler
 from CV.util.visualization import inverse_transform, inout_images_plot, acc_jigsaw

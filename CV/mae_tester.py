@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 
 import facebook_vit
 import facebook_mae
-import shuffled_mae
+import shuffled_mae_case2
 from mae_util import interpolate_pos_embed
 from timm.models.layers import trunc_normal_
 from facebook_mae import MaskedAutoencoderViT
@@ -44,7 +44,7 @@ NUM_EPOCHS = 800  # 100 // 800
 WARMUP_EPOCHS = 40  # 5 // 40
 NUM_WORKERS = 2
 LEARNING_RATE = 1.5e-04  # paper: 1e-03 // 1.5e-04 -> implementation: 5e-04 // 1.5e-04
-model_path = './save/mae_vit_base_i2012_ep100_lr4e-06.pt'
+model_path = './save/mae/mae_vit_large_i2012_ep10_lr2e-06.pt'
 given_model_path = './save/MAE/mae_visualize_vit_large_given.pth'
 
 
@@ -60,13 +60,13 @@ transform_test = transforms.Compose([
     transforms.ToTensor(),
     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 ])
-train_set = torchvision.datasets.ImageFolder('../datasets/ImageNet/train', transform=transform_train)
+train_set = torchvision.datasets.ImageFolder('./data/ImageNet/val', transform=transform_train)
 train_size = int(0.8 * len(train_set))
 val_size = len(train_set) - train_size
 train_set, val_set = random_split(train_set, [train_size, val_size])
 train_loader = data.DataLoader(train_set, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
 val_loader = torch.utils.data.DataLoader(val_set, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
-test_set = torchvision.datasets.ImageFolder('../datasets/ImageNet/val', transform=transform_test)
+test_set = torchvision.datasets.ImageFolder('./data/ImageNet/val', transform=transform_test)
 test_loader = data.DataLoader(test_set, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
 
 
