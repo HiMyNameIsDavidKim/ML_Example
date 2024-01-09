@@ -87,7 +87,7 @@ class TesterFacebook(object):
             drop_path_rate=0.1,
             global_pool=True,
         )
-        checkpoint = torch.load(model_path)
+        checkpoint = torch.load(model_path, map_location=device)
         checkpoint_model = checkpoint['model']
         self.model.load_state_dict(checkpoint_model)
         self.model.to(device)
@@ -161,7 +161,7 @@ class TesterPixelRecon(object):
 
     def build_model(self):
         self.model = shuffled_mae.__dict__['mae_vit_large_patch16_dec512d8b'](norm_pix_loss=True).to(device)
-        checkpoint = torch.load(model_path)
+        checkpoint = torch.load(model_path, map_location=device)
         msg = self.model.load_state_dict(checkpoint['model'], strict=False)
         print(msg)
         if 'given' not in str(model_path):

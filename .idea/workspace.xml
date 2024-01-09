@@ -8,9 +8,6 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/CV/facebook_mae_imagenet.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/facebook_mae_imagenet.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/CV/mae_tester.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/mae_tester.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CV/shuffled_mae.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/shuffled_mae_case2.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CV/shuffled_mae_imagenet.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/shuffled_mae_imagenet.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CV/zJustTest.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/zJustTest.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -324,6 +321,8 @@
       <workItem from="1704417765536" duration="8734000" />
       <workItem from="1704675238078" duration="597000" />
       <workItem from="1704676608731" duration="9827000" />
+      <workItem from="1704696960526" duration="875000" />
+      <workItem from="1704767499678" duration="1258000" />
     </task>
     <servers />
   </component>

@@ -90,7 +90,7 @@ class FineTuner(object):
         self.scheduler = CosineAnnealingLR(self.optimizer, T_max=NUM_EPOCHS)
 
         if load:
-            checkpoint = torch.load(load_model_path)
+            checkpoint = torch.load(load_model_path, map_location=device)
             checkpoint_model = checkpoint['model']
             state_dict = self.model.state_dict()
             for k in ['head.weight', 'head.bias']:
@@ -201,7 +201,7 @@ class PreTrainer(object):
         self.scheduler = CosineAnnealingLR(self.optimizer, T_max=NUM_EPOCHS)
 
         if load:
-            checkpoint = torch.load(load_model_path)
+            checkpoint = torch.load(load_model_path, map_location=device)
             msg = self.model.load_state_dict(checkpoint['model'], strict=False)
             print(msg)
             if 'given' not in str(load_model_path):
