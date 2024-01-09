@@ -1,8 +1,18 @@
+# Copyright (c) Meta Platforms, Inc. and affiliates.
+# All rights reserved.
+
+# This source code is licensed under the license found in the
+# LICENSE file in the root directory of this source tree.
+# --------------------------------------------------------
+# References:
+# timm: https://github.com/rwightman/pytorch-image-models/tree/master/timm
+# DeiT: https://github.com/facebookresearch/deit
+# --------------------------------------------------------
+
 from functools import partial
 
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 
 from timm.models.vision_transformer import PatchEmbed, Block
 from torchsummary import summary
@@ -30,7 +40,7 @@ class MaskedAutoencoderViT(nn.Module):
                                       requires_grad=False)  # fixed sin-cos embedding
 
         self.blocks = nn.ModuleList([
-            Block(embed_dim, num_heads, mlp_ratio, qkv_bias=True, norm_layer=norm_layer)
+            Block(embed_dim, num_heads, mlp_ratio, qkv_bias=True, qk_scale=None, norm_layer=norm_layer)
             for i in range(depth)])
         self.norm = norm_layer(embed_dim)
         # --------------------------------------------------------------------------
@@ -45,21 +55,11 @@ class MaskedAutoencoderViT(nn.Module):
                                               requires_grad=False)  # fixed sin-cos embedding
 
         self.decoder_blocks = nn.ModuleList([
-            Block(decoder_embed_dim, decoder_num_heads, mlp_ratio, qkv_bias=True, norm_layer=norm_layer)
+            Block(decoder_embed_dim, decoder_num_heads, mlp_ratio, qkv_bias=True, qk_scale=None, norm_layer=norm_layer)
             for i in range(decoder_depth)])
 
         self.decoder_norm = norm_layer(decoder_embed_dim)
         self.decoder_pred = nn.Linear(decoder_embed_dim, patch_size ** 2 * in_chans, bias=True)  # decoder to patch
-        # --------------------------------------------------------------------------
-
-        # --------------------------------------------------------------------------
-        # Jigsaw decoder specifics
-        self.num_patches = num_patches
-        self.decoder_jigsaw = torch.nn.Sequential(*[torch.nn.Linear(decoder_embed_dim, decoder_embed_dim),
-                                                    torch.nn.ReLU(),
-                                                    torch.nn.Linear(decoder_embed_dim, decoder_embed_dim),
-                                                    torch.nn.ReLU(),
-                                                    torch.nn.Linear(decoder_embed_dim, self.num_patches)])
         # --------------------------------------------------------------------------
 
         self.norm_pix_loss = norm_pix_loss
@@ -175,7 +175,7 @@ class MaskedAutoencoderViT(nn.Module):
 
         return x, mask, ids_restore
 
-    def forward_reconstruction(self, x, ids_restore):
+    def forward_decoder(self, x, ids_restore):
         # embed tokens
         x = self.decoder_embed(x)
 
@@ -198,20 +198,10 @@ class MaskedAutoencoderViT(nn.Module):
 
         # remove cls token
         x = x[:, 1:, :]
+
         return x
 
-    def forward_jigsaw(self, x, target_masked):
-        # embed tokens
-        x = self.decoder_embed(x)
-
-        # jigsaw
-        x = self.decoder_jigsaw(x[:, 1:])
-
-        # reshape
-        target_jigsaw = target_masked
-        return x, target_jigsaw
-
-    def forward_loss(self, imgs, pred, mask, pred_jigsaw, target_jigsaw, weight_ratio):
+    def forward_loss(self, imgs, pred, mask):
         """
         imgs: [N, 3, H, W]
         pred: [N, L, p*p*3]
@@ -223,31 +213,25 @@ class MaskedAutoencoderViT(nn.Module):
             var = target.var(dim=-1, keepdim=True)
             target = (target - mean) / (var + 1.e-6) ** .5
 
-        loss_recon = (pred - target) ** 2
-        loss_recon = loss_recon.mean(dim=-1)  # [N, L], mean loss per patch
-        loss_recon = (loss_recon * mask).sum() / mask.sum()  # mean loss on removed patches
+        loss = (pred - target) ** 2
+        loss = loss.mean(dim=-1)  # [N, L], mean loss per patch
 
-        _, _, L = pred_jigsaw.shape
-        loss_jigsaw = F.cross_entropy(pred_jigsaw.reshape(-1, L), target_jigsaw.reshape(-1)) * weight_ratio
-
-        loss = loss_recon + loss_jigsaw
+        loss = (loss * mask).sum() / mask.sum()  # mean loss on removed patches
         return loss
 
-    def forward(self, imgs, mask_ratio=0.75, weight_ratio=0.001):
-        """
-        data type
-        imgs: [n, 3, 224, 224], 원본 이미지
-        pred: [n, 196, 768], 이미 재구조화 된 이미지
-        mask: [n, 196], (0=언마스킹 49개, 1=마스킹 147개)
-        latent: [n, 50, 1024], 언마스킹인 애들에 대한 레이턴트 매트릭스, CLS 토큰 포함, 디멘션은 케바케
-        pred_jigsaw: [n, 49, 196], 크로스 엔트로피 넣기 위해서 reshape로 펼칠 예정 (n * 49, 196)
-        target_jigsaw: [n, 49], 크로스 엔트로피 넣기 위해서 reshape로 펼칠 예정 (n * 49, )
-        """
+    def forward(self, imgs, mask_ratio=0.75):
         latent, mask, ids_restore = self.forward_encoder(imgs, mask_ratio)
-        pred_recon = self.forward_reconstruction(latent, ids_restore)  # [N, L, p*p*3]
-        pred_jigsaw, target_jigsaw = self.forward_jigsaw(latent, ids_restore)
-        loss = self.forward_loss(imgs, pred_recon, mask, pred_jigsaw, target_jigsaw, weight_ratio)
-        return loss, pred_recon, mask, pred_jigsaw, target_jigsaw
+
+        # 퍼즐
+        # 직쏘 디코더에 뭐를 넣고 뭐가 나오게 할 것인가? MAE 인코딩 결과만? 포지션 임베딩은? 원래 순서는?
+        # 원래 순서를 넣었을때 원래 순서를 알아야하는데 모를껄????????? 그럼 이게 말이 되냐는 거지...
+
+        # 퍼즐의 결과 ids 리스트를 self.forward_reconstruction 메서드에 넣어야함.
+        pred = self.forward_decoder(latent, ids_restore)  # [N, L, p*p*3]
+
+        # 로스에 if문 넣어서 모드에 따라서 다르게 해야함.
+        loss = self.forward_loss(imgs, pred, mask)
+        return loss, pred, mask
 
 
 def mae_vit_base_patch16_dec512d8b(**kwargs):
