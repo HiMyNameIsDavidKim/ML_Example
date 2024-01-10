@@ -62,6 +62,24 @@ class MaskedAutoencoderViT(nn.Module):
         self.decoder_pred = nn.Linear(decoder_embed_dim, patch_size ** 2 * in_chans, bias=True)  # decoder to patch
         # --------------------------------------------------------------------------
 
+        # --------------------------------------------------------------------------
+        # Jigsaw decoder specifics
+        self.jigsaw_decoder_embed = nn.Linear(embed_dim, decoder_embed_dim, bias=True)
+
+        self.num_patches = num_patches
+
+        self.jigsaw_decoder_blocks = nn.ModuleList([
+            Block(decoder_embed_dim, decoder_num_heads, mlp_ratio, qkv_bias=True, qk_scale=None, norm_layer=norm_layer)
+            for i in range(decoder_depth)])
+
+        self.jigsaw_decoder_norm = norm_layer(decoder_embed_dim)
+        self.jigsaw_decoder_pred = nn.Linear(decoder_embed_dim, num_patches, bias=True)
+
+        self.jigsaw_key = nn.Parameter(torch.zeros(1, num_patches))
+        torch.nn.init.normal_(self.jigsaw_key, std=.02)
+
+        # --------------------------------------------------------------------------
+
         self.norm_pix_loss = norm_pix_loss
 
         self.initialize_weights()
@@ -175,6 +193,26 @@ class MaskedAutoencoderViT(nn.Module):
 
         return x, mask, ids_restore
 
+    def forward_jigsaw_decoder(self, x, ids_restore):
+        # embed tokens
+        x = self.jigsaw_decoder_embed(x)
+
+        # 196개로 뻥튀기 해야함.
+
+        # apply Transformer blocks
+        for blk in self.jigsaw_decoder_blocks:
+            x = blk(x)
+        x = self.jigsaw_decoder_norm(x)
+
+        # predictor projection
+        x = self.jigsaw_decoder_pred(x)
+
+        # remove cls token
+        x = x[:, 1:, :]
+
+        target_jigsaw = ids_restore[:, :x.shape[1]]
+        return x, target_jigsaw
+
     def forward_decoder(self, x, ids_restore):
         # embed tokens
         x = self.decoder_embed(x)
@@ -213,25 +251,48 @@ class MaskedAutoencoderViT(nn.Module):
             var = target.var(dim=-1, keepdim=True)
             target = (target - mean) / (var + 1.e-6) ** .5
 
-        loss = (pred - target) ** 2
-        loss = loss.mean(dim=-1)  # [N, L], mean loss per patch
+        loss_recon = (pred - target) ** 2
+        loss_recon = loss_recon.mean(dim=-1)  # [N, L], mean loss per patch
+        loss_recon = (loss_recon * mask).sum() / mask.sum()  # mean loss on removed patches
 
-        loss = (loss * mask).sum() / mask.sum()  # mean loss on removed patches
+        # jigsaw key를 argsort 하기
+        # 196개 중에서 49개만 평가해야함.
+        loss_jigsaw = 0
+
+        loss = loss_recon + loss_jigsaw
         return loss
 
     def forward(self, imgs, mask_ratio=0.75):
+        """
+        data type
+        imgs: [n, 3, 224, 224], 원본 이미지
+        latent: [n, 50, 1024], 언마스킹인 애들에 대한 레이턴트 매트릭스, CLS 토큰 포함, 디멘션은 케바케
+        mask: [n, 196], (0=언마스킹 49개, 1=마스킹 147개)
+        ids_restore = [n, 196], 섞인 패치의 고유 id 전체
+        pred_jigsaw: [n, 49, 196], 크로스 엔트로피 넣기 위해서 reshape로 펼칠 예정 (n * 49, 196)
+        target_jigsaw: [n, 49], 크로스 엔트로피 넣기 위해서 reshape로 펼칠 예정 (n * 49, )
+        """
         latent, mask, ids_restore = self.forward_encoder(imgs, mask_ratio)
 
         # 퍼즐
-        # 직쏘 디코더에 뭐를 넣고 뭐가 나오게 할 것인가? MAE 인코딩 결과만? 포지션 임베딩은? 원래 순서는?
+        # 직쏘 디코더에 input 은 뭘로 output 은 뭘로 할 것인가?
+        # input = MAE 인코딩 결과인 latent, output = 크기 순서에 대한 representation -> forward_loss 에서 크기 순으로 정렬
         # 원래 순서를 넣었을때 원래 순서를 알아야하는데 모를껄????????? 그럼 이게 말이 되냐는 거지...
+        # 순서를 풀어내서 하는 법을 일단 알고리즘 속에 넣어야함. case2처럼 대충 저렇게 3개 레이어로 때려넣으면 안됨...
+        pred_jigsaw, target_jigsaw = self.forward_jigsaw_decoder(latent, ids_restore)
 
-        # 퍼즐의 결과 ids 리스트를 self.forward_reconstruction 메서드에 넣어야함.
-        pred = self.forward_decoder(latent, ids_restore)  # [N, L, p*p*3]
+
+        # 퍼즐의 결과 ids 리스트를 self.forward_decoder 메서드에 넣어야함.
+        pred_recon = self.forward_decoder(latent, ids_restore)  # [N, L, p*p*3]
 
         # 로스에 if문 넣어서 모드에 따라서 다르게 해야함.
-        loss = self.forward_loss(imgs, pred, mask)
-        return loss, pred, mask
+        loss = self.forward_loss(imgs, pred_recon, mask)
+
+        # 테스트
+        # 언셔플 해서 순서 맞추는지 보기
+        # 49개만 jigsaw한 영향? 허수라도 196개로 하고 loss에 반영 안하기?
+        # 셔플 해서 순서 맞추는지 보기
+        return loss, pred_recon, mask
 
 
 def mae_vit_base_patch16_dec512d8b(**kwargs):

@@ -14,7 +14,7 @@ import facebook_vit
 from mae_util import interpolate_pos_embed
 from timm.models.layers import trunc_normal_
 
-import shuffled_mae_case2
+import shuffled_mae_case6
 import mae_misc as misc
 from mae_misc import NativeScalerWithGradNormCount as NativeScaler
 from CV.util.visualization import inverse_transform, inout_images_plot, acc_jigsaw
@@ -34,6 +34,7 @@ else:
     gpu = "cuda" if torch.cuda.is_available() else "cpu"
 
 
+gpu = 'mps'
 device = gpu
 BATCH_SIZE = 64  # 1024 // 64
 NUM_EPOCHS = 100  # 100 // 800
@@ -58,7 +59,7 @@ transform_test = transforms.Compose([
     transforms.ToTensor(),
     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 ])
-train_set = torchvision.datasets.ImageFolder('./data/ImageNet/train', transform=transform_train)
+train_set = torchvision.datasets.ImageFolder('./data/ImageNet/val', transform=transform_train)
 train_loader = data.DataLoader(train_set, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
 test_set = torchvision.datasets.ImageFolder('./data/ImageNet/val', transform=transform_test)
 test_loader = data.DataLoader(test_set, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
@@ -194,7 +195,7 @@ class PreTrainer(object):
         self.save_model()
 
     def build_model(self, load):
-        self.model = shuffled_mae.__dict__['mae_vit_large_patch16_dec512d8b'](norm_pix_loss=True).to(device)
+        self.model = shuffled_mae_case6.__dict__['mae_vit_large_patch16_dec512d8b'](norm_pix_loss=True).to(device)
         print(f'Parameter: {sum(p.numel() for p in self.model.parameters() if p.requires_grad)}')
         self.optimizer = SGD(self.model.parameters(), lr=0)
         self.scheduler = CosineAnnealingLR(self.optimizer, T_max=NUM_EPOCHS)
