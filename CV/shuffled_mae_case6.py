@@ -197,7 +197,9 @@ class MaskedAutoencoderViT(nn.Module):
         # embed tokens
         x = self.jigsaw_decoder_embed(x)
 
-        # 196개로 뻥튀기 해야함.
+        # append mask tokens to sequence
+        mask_tokens = self.mask_token.repeat(x.shape[0], ids_restore.shape[1] + 1 - x.shape[1], 1)
+        x = torch.cat([x, mask_tokens], dim=1)
 
         # apply Transformer blocks
         for blk in self.jigsaw_decoder_blocks:
@@ -210,7 +212,7 @@ class MaskedAutoencoderViT(nn.Module):
         # remove cls token
         x = x[:, 1:, :]
 
-        target_jigsaw = ids_restore[:, :x.shape[1]]
+        target_jigsaw = ids_restore
         return x, target_jigsaw
 
     def forward_decoder(self, x, ids_restore):
@@ -256,33 +258,32 @@ class MaskedAutoencoderViT(nn.Module):
         loss_recon = (loss_recon * mask).sum() / mask.sum()  # mean loss on removed patches
 
         # jigsaw key를 argsort 하기
-        # 196개 중에서 49개만 평가해야함.
+        # 196개 중에서 49개만 평가 해야함. 이걸로 자르기 -> [:, :x.shape[1]]
         loss_jigsaw = 0
 
         loss = loss_recon + loss_jigsaw
         return loss
 
-    def forward(self, imgs, mask_ratio=0.75):
+    def forward(self, imgs, mask_ratio=0.75, train_jigsaw=True, train_encoder=False):
         """
         data type
         imgs: [n, 3, 224, 224], 원본 이미지
         latent: [n, 50, 1024], 언마스킹인 애들에 대한 레이턴트 매트릭스, CLS 토큰 포함, 디멘션은 케바케
         mask: [n, 196], (0=언마스킹 49개, 1=마스킹 147개)
-        ids_restore = [n, 196], 섞인 패치의 고유 id 전체
-        pred_jigsaw: [n, 49, 196], 크로스 엔트로피 넣기 위해서 reshape로 펼칠 예정 (n * 49, 196)
-        target_jigsaw: [n, 49], 크로스 엔트로피 넣기 위해서 reshape로 펼칠 예정 (n * 49, )
+        ids_restore = [n, 196], int, 섞인 패치의 고유 id 전체
+        pred_jigsaw: [n, 196, 196], probs, 각 패치의 위치에 대한 representation, [언마스킹 패치들의 순서 + 마스킹 패치들의 순서]
+        target_jigsaw = ids_restore: [n, 196], ints,
         """
         latent, mask, ids_restore = self.forward_encoder(imgs, mask_ratio)
-
-        # 퍼즐
-        # 직쏘 디코더에 input 은 뭘로 output 은 뭘로 할 것인가?
-        # input = MAE 인코딩 결과인 latent, output = 크기 순서에 대한 representation -> forward_loss 에서 크기 순으로 정렬
-        # 원래 순서를 넣었을때 원래 순서를 알아야하는데 모를껄????????? 그럼 이게 말이 되냐는 거지...
-        # 순서를 풀어내서 하는 법을 일단 알고리즘 속에 넣어야함. case2처럼 대충 저렇게 3개 레이어로 때려넣으면 안됨...
         pred_jigsaw, target_jigsaw = self.forward_jigsaw_decoder(latent, ids_restore)
 
-
         # 퍼즐의 결과 ids 리스트를 self.forward_decoder 메서드에 넣어야함.
+        # pred_jigsaw에는 [언마스킹 패치 들의 순서, 마스킹 패치 들의 순서]가 있음.
+        # 여기서 [언마스킹 패치 들의 순서]는 틀린다 쳐도 [마스킹 패치 들의 순서]는 틀리면 안됨.
+        # 만약에 [언마스킹 패치 들의 순서]만 보존하고 target_jigsaw로 부터 [마스킹 패치 들의 순서]를 받아온다고 쳐도
+        # 패치의 고유 넘버가 겹치는 문제가 발생할 수 있음.
+        # -> 해결법 : forward_decoder에 들어가기 전에 argsort랑 key matching까지 끝내고 들어가면 괜찮나?
+        # ->
         pred_recon = self.forward_decoder(latent, ids_restore)  # [N, L, p*p*3]
 
         # 로스에 if문 넣어서 모드에 따라서 다르게 해야함.
@@ -290,7 +291,8 @@ class MaskedAutoencoderViT(nn.Module):
 
         # 테스트
         # 언셔플 해서 순서 맞추는지 보기
-        # 49개만 jigsaw한 영향? 허수라도 196개로 하고 loss에 반영 안하기?
+        # 언셔플+언마스킹 해서 원래 순서를 넣었을때 원래 순서를 알아야 하는데 모르면 의미가 없음.
+        # 이러면 순서를 풀어내서 하는 법을 일단 알고리즘 속에 넣어야함. case2처럼 대충 저렇게 3개 레이어로 때려 넣으면 안됨.
         # 셔플 해서 순서 맞추는지 보기
         return loss, pred_recon, mask
 

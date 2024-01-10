@@ -227,6 +227,7 @@ class MaskedAutoencoderViT(nn.Module):
         loss_recon = loss_recon.mean(dim=-1)  # [N, L], mean loss per patch
         loss_recon = (loss_recon * mask).sum() / mask.sum()  # mean loss on removed patches
 
+        # reshape for input to cross_entropy (n * 49, 196) and (n* 49, )
         _, _, L = pred_jigsaw.shape
         loss_jigsaw = F.cross_entropy(pred_jigsaw.reshape(-1, L), target_jigsaw.reshape(-1)) * weight_ratio
 
@@ -241,8 +242,8 @@ class MaskedAutoencoderViT(nn.Module):
         latent: [n, 50, 1024], 언마스킹인 애들에 대한 레이턴트 매트릭스, CLS 토큰 포함, 디멘션은 케바케
         mask: [n, 196], (0=언마스킹 49개, 1=마스킹 147개)
         ids_restore = [n, 196], 섞인 패치의 고유 id 전체
-        pred_jigsaw: [n, 49, 196], 크로스 엔트로피 넣기 위해서 reshape로 펼칠 예정 (n * 49, 196)
-        target_jigsaw: [n, 49], 크로스 엔트로피 넣기 위해서 reshape로 펼칠 예정 (n * 49, )
+        pred_jigsaw: [n, 49, 196],
+        target_jigsaw: [n, 49],
         """
         latent, mask, ids_restore = self.forward_encoder(imgs, mask_ratio)
         pred_recon = self.forward_decoder(latent, ids_restore)  # [N, L, p*p*3]
