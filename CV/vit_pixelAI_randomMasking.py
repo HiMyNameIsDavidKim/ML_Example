@@ -174,10 +174,10 @@ class ViTPixelAI(nn.Module):
         ids_restore = torch.argsort(ids_shuffle, dim=1)  # 패치의 고유 id 저장
 
         ids_keep = ids_shuffle[:, :len_keep]  # 지정한 마스크 비율 만큼 id 리스트 컷팅
-        x_masked = torch.gather(x, dim=1, index=ids_keep.unsqueeze(-1).repeat(1, 1, D))  # 패치들 컷팅
+        x_masked = torch.gather(x, dim=1, index=ids_keep.unsqueeze(-1).repeat(1, 1, D))  # 언마스킹인 일부 패치만 가져오기
 
         mask_tokens = self.mask_token.repeat(x.shape[0], x.shape[1] + 1 - x_masked.shape[1], 1)  # 마스킹 토큰(=마스킹 패치)
-        x = torch.cat([x_masked, mask_tokens], dim=1)  # 패치(컷팅된 일부) + 마스킹 패치
+        x = torch.cat([x_masked, mask_tokens], dim=1)  # 패치(언마스킹인 일부 패치) + 마스킹 패치
         x = torch.gather(x, dim=1, index=ids_restore.unsqueeze(-1).repeat(1, 1, x_masked.shape[2]))  # unshuffle
 
         return x

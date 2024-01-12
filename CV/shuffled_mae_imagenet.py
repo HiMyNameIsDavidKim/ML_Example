@@ -36,7 +36,7 @@ else:
 
 gpu = 'mps'
 device = gpu
-BATCH_SIZE = 64  # 1024 // 64
+BATCH_SIZE = 1  # 1024 // 64
 NUM_EPOCHS = 100  # 100 // 800
 WARMUP_EPOCHS = 5  # 5 // 40
 NUM_WORKERS = 2
