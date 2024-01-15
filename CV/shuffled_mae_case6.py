@@ -215,17 +215,13 @@ class MaskedAutoencoderViT(nn.Module):
         x = x[:, 1:, :]
 
         # sort for debug
-        ids_temp = self.sort_pred_jigsaw(x, ids_restore, len_keep)
-
-        target_jigsaw = ids_restore
-        return x, target_jigsaw, ids_temp
-
-    def sort_pred_jigsaw(self, x, ids_restore, len_keep):
-        x = x  # [n, 196, 196], probs, 각 패치의 위치 class 에 대한 representation, [언마스킹 패치들의 순서 + 마스킹 패치들의 순서]
         ids_pred = torch.argmax(x, dim=2)  # [n, 196], int, 각 패치의 위치 class 예측값 ids
         ids_temp = torch.cat((ids_pred[:, :len_keep], ids_restore[:, len_keep:]), dim=1)  # [언마스킹 예측 + 마스킹 정답]
         ids_temp = torch.argsort(ids_temp, dim=1)  # 오류 방지를 위해 다시 한번 sorting
-        return ids_temp
+
+        x = x
+        target_jigsaw = ids_restore
+        return x, target_jigsaw, ids_temp
 
     def forward_decoder(self, x, ids_restore):
         # embed tokens
@@ -292,6 +288,9 @@ class MaskedAutoencoderViT(nn.Module):
         pred_recon = self.forward_decoder(latent, ids_temp)  # [N, L, p*p*3]
 
         # 로스에 if문 넣어서 모드에 따라서 다르게 해야함.
+        # 83% 기준으로 고정 푸는거 어디다 넣을지 고민.
+        # 학습 코드를 바꾸지 않는게 사실 제일 좋음. 그래서 클래스 안에서 해결 해야함.
+        #
         loss = self.forward_loss(imgs, pred_recon, mask)
 
         # 테스트

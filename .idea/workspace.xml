@@ -7,8 +7,6 @@
     <list default="true" id="6dc597b5-90f3-42c0-9fbe-571e0fb81339" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/CV/shuffled_mae_case6.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/shuffled_mae_case6.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CV/shuffled_mae_imagenet.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/shuffled_mae_imagenet.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CV/vit_pixelAI_randomMasking.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/vit_pixelAI_randomMasking.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -325,7 +323,8 @@
       <workItem from="1704696960526" duration="875000" />
       <workItem from="1704767499678" duration="6408000" />
       <workItem from="1704848271809" duration="11780000" />
-      <workItem from="1705022959542" duration="9900000" />
+      <workItem from="1705022959542" duration="12786000" />
+      <workItem from="1705280618300" duration="597000" />
     </task>
     <servers />
   </component>
