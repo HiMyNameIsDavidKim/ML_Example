@@ -76,14 +76,15 @@ class MaskedAutoencoderViT(nn.Module):
         self.jigsaw_decoder_norm = norm_layer(decoder_embed_dim)
         self.jigsaw_decoder_pred = nn.Linear(decoder_embed_dim, num_patches, bias=True)
 
-        self.jigsaw_key = nn.Parameter(torch.zeros(1, num_patches))
-        torch.nn.init.normal_(self.jigsaw_key, std=.02)
-
+        self.dic_fix = {}
+        self.fix_encoder = True
         # --------------------------------------------------------------------------
 
         self.norm_pix_loss = norm_pix_loss
 
         self.initialize_weights()
+
+        self.mode_of_jigsaw_train()
 
     def initialize_weights(self):
         # initialization
@@ -194,14 +195,18 @@ class MaskedAutoencoderViT(nn.Module):
 
         return x, mask, ids_restore
 
-    def forward_jigsaw_decoder(self, x, ids_restore):
+    def forward_jigsaw_decoder(self, x, ids_restore, threshold):
         # embed tokens
         x = self.jigsaw_decoder_embed(x)
 
         # append mask tokens to sequence
         len_keep = x.shape[1]
         mask_tokens = self.mask_token.repeat(x.shape[0], ids_restore.shape[1] + 1 - len_keep, 1)
-        x = torch.cat([x, mask_tokens], dim=1)
+        # x = torch.cat([x, mask_tokens], dim=1)
+        # test point
+        x_ = torch.cat([x[:, 1:, :], mask_tokens], dim=1)  # no cls token
+        x_ = torch.gather(x_, dim=1, index=ids_restore.unsqueeze(-1).repeat(1, 1, x.shape[2]))  # unshuffle
+        x = torch.cat([x[:, :1, :], x_], dim=1)  # append cls token
 
         # apply Transformer blocks
         for blk in self.jigsaw_decoder_blocks:
@@ -219,9 +224,37 @@ class MaskedAutoencoderViT(nn.Module):
         ids_temp = torch.cat((ids_pred[:, :len_keep], ids_restore[:, len_keep:]), dim=1)  # [언마스킹 예측 + 마스킹 정답]
         ids_temp = torch.argsort(ids_temp, dim=1)  # 오류 방지를 위해 다시 한번 sorting
 
-        x = x
-        target_jigsaw = ids_restore
-        return x, target_jigsaw, ids_temp
+        x = x[:, :len_keep, :]
+        target_jigsaw = ids_restore[:, :len_keep]
+
+        # eval acc
+        if self.fix_encoder:
+            self.eval_jigsaw_acc(x, target_jigsaw, threshold)
+
+        return x, ids_temp, target_jigsaw
+
+    def eval_jigsaw_acc(self, pred_jigsaw, target_jigsaw, threshold):
+        pred_jigsaw = torch.argmax(pred_jigsaw, dim=2)
+        total = target_jigsaw.size(0) * target_jigsaw.size(1)
+        correct = (pred_jigsaw == target_jigsaw).sum().item()
+        acc = correct / total
+        if acc > threshold:
+            self.mode_of_encoder_train()
+            self.fix_encoder = False
+
+    def mode_of_jigsaw_train(self):
+        for name, param in self.named_parameters():
+            self.dic_fix[name] = param.requires_grad
+            param.requires_grad = False
+            if 'jigsaw_decoder' in name:
+                param.requires_grad = True
+
+    def mode_of_encoder_train(self):
+        for name, param in self.named_parameters():
+            if name in self.dic_fix:
+                param.requires_grad = self.dic_fix[name]
+            if 'decoder' in name:
+                param.requires_grad = False
 
     def forward_decoder(self, x, ids_restore):
         # embed tokens
@@ -249,7 +282,7 @@ class MaskedAutoencoderViT(nn.Module):
 
         return x
 
-    def forward_loss(self, imgs, pred, mask):
+    def forward_loss(self, imgs, pred, mask, pred_jigsaw, target_jigsaw):
         """
         imgs: [N, 3, H, W]
         pred: [N, L, p*p*3]
@@ -265,38 +298,38 @@ class MaskedAutoencoderViT(nn.Module):
         loss_recon = loss_recon.mean(dim=-1)  # [N, L], mean loss per patch
         loss_recon = (loss_recon * mask).sum() / mask.sum()  # mean loss on removed patches
 
-        # jigsaw key를 argsort 하기
-        # 196개 중에서 49개만 평가 해야함. 이걸로 자르기 -> [:, :x.shape[1]]
-        loss_jigsaw = 0
+        # reshape for input to cross_entropy (n * 49, 196) and (n* 49, )
+        weight_ratio = 0.01
+        _, _, L = pred_jigsaw.shape
+        loss_jigsaw = F.cross_entropy(pred_jigsaw.reshape(-1, L), target_jigsaw.reshape(-1))
 
-        loss = loss_recon + loss_jigsaw
-        return loss
+        loss = loss_recon + loss_jigsaw * weight_ratio
 
-    def forward(self, imgs, mask_ratio=0.75, train_jigsaw=True, train_encoder=False):
+        if self.fix_encoder:
+            return loss_jigsaw
+        else:
+            return loss
+
+    def forward(self, imgs, mask_ratio=0.75, threshold=0.83):
         """
         data type
         imgs: [n, 3, 224, 224], 원본 이미지
         latent: [n, 50, 1024], 언마스킹인 애들에 대한 레이턴트 매트릭스, CLS 토큰 포함, 디멘션은 케바케
         mask: [n, 196], (0=언마스킹 49개, 1=마스킹 147개)
         ids_restore = [n, 196], int, 섞인 패치의 고유 ids
-        pred_jigsaw: [n, 196, 196], prob, 각 패치의 위치에 대한 representation, [언마스킹 패치들의 순서 + 마스킹 패치들의 순서]
-        target_jigsaw = ids_restore: [n, 196], int,
+        pred_jigsaw: [n, 49, 196], prob, 언마스킹 패치들의 위치에 대한 representation
+        target_jigsaw = ids_restore: [n, 49], int, 언마스킹 패치들의 ids 정답지
         ids_temp: [n, 196], int, pred_jigsaw와 target_jigsaw를 겹치는 값이 없도록 수정한 값
         """
         latent, mask, ids_restore = self.forward_encoder(imgs, mask_ratio)
-        pred_jigsaw, target_jigsaw, ids_temp = self.forward_jigsaw_decoder(latent, ids_restore)
+        pred_jigsaw, ids_temp, target_jigsaw = self.forward_jigsaw_decoder(latent, ids_restore, threshold)
         pred_recon = self.forward_decoder(latent, ids_temp)  # [N, L, p*p*3]
-
-        # 로스에 if문 넣어서 모드에 따라서 다르게 해야함.
-        # 83% 기준으로 고정 푸는거 어디다 넣을지 고민.
-        # 학습 코드를 바꾸지 않는게 사실 제일 좋음. 그래서 클래스 안에서 해결 해야함.
-        #
-        loss = self.forward_loss(imgs, pred_recon, mask)
+        loss = self.forward_loss(imgs, pred_recon, mask, pred_jigsaw, target_jigsaw)
 
         # 테스트
-        # 언셔플 해서 순서 맞추는지 보기
+        # 언셔플 해서 순서 맞추는지 보기 (진행중) (학습 못하는디....)
         # 언셔플+언마스킹 해서 원래 순서를 넣었을때 원래 순서를 알아야 하는데 모르면 의미가 없음.
-        # 이러면 순서를 풀어내서 하는 법을 일단 알고리즘 속에 넣어야함. case2처럼 대충 저렇게 3개 레이어로 때려 넣으면 안됨.
+        # 이러면 순서를 풀어내서 하는 법을 일단 알고리즘 속에 넣어야함.
         # 셔플 해서 순서 맞추는지 보기
         return loss, pred_recon, mask, pred_jigsaw, target_jigsaw
 
