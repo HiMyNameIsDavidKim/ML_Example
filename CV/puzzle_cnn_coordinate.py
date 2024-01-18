@@ -1,5 +1,6 @@
 from itertools import permutations
 
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -23,20 +24,23 @@ transform = transforms.Compose([
     transforms.Normalize((0.5,), (0.5,))
 ])
 
-train_dataset = datasets.CIFAR10(root='./data', train=True, transform=transform, download=True)
-test_dataset = datasets.CIFAR10(root='./data', train=False, transform=transform, download=True)
+train_dataset = datasets.MNIST(root='./data', train=True, transform=transform, download=True)
+test_dataset = datasets.MNIST(root='./data', train=False, transform=transform, download=True)
 
 train_loader = DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True)
 test_loader = DataLoader(dataset=test_dataset, batch_size=batch_size, shuffle=False)
 
 
 class PuzzleCNNCoord(nn.Module):
-    def __init__(self, num_puzzle=9, size_puzzle=10):
+    def __init__(self, num_puzzle=25, size_puzzle=6, threshold=0.8):
         super(PuzzleCNNCoord, self).__init__()
         self.num_puzzle = num_puzzle
         self.size_puzzle = size_puzzle
+        self.map_values = []
         self.map_coord = None
-        self.conv1 = nn.Conv2d(3, 32, kernel_size=3, stride=1, padding=1)
+        self.min_dist = 0
+        self.threshold = threshold
+        self.conv1 = nn.Conv2d(1, 32, kernel_size=3, stride=1, padding=1)
         self.conv2 = nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=1)
         self.conv3 = nn.Conv2d(64, 128, kernel_size=3, stride=1, padding=1)
         self.pool = nn.MaxPool2d(kernel_size=2, stride=2)
@@ -62,7 +66,10 @@ class PuzzleCNNCoord(nn.Module):
             shuffled_img = torch.cat(shuffled_img, dim=1)
             x[i] = shuffled_img
 
-        self.map_coord = torch.tensor([(i, j) for i in range(1, n+1, 1) for j in range(1, n+1, 1)])
+        start, end = 0.1, 1
+        self.min_dist = (end-start)/n
+        self.map_values = list(torch.arange(start, end, self.min_dist))
+        self.map_coord = torch.tensor([(i, j) for i in self.map_values for j in self.map_values])
 
         coord_shuffles = torch.zeros([N, self.num_puzzle, 2])
         coord_restores = torch.zeros([N, self.num_puzzle, 2])
@@ -71,6 +78,14 @@ class PuzzleCNNCoord(nn.Module):
             coord_restores[i] = self.map_coord[ids_restore]
 
         return x, coord_restores.to(x.device)
+
+    def forward_loss_dist(self, x):
+        N, n, c = x.shape
+        distances = torch.zeros((N, n, n), device=x.device)
+        for batch in range(N):
+            distances[batch] = torch.cdist(x[batch], x[batch]) + torch.eye(25, device=x.device)
+        loss_dist = torch.sum(torch.relu(self.threshold * self.min_dist - distances))
+        return loss_dist
 
     def forward(self, x):
         x, target = self.random_shuffle(x)
@@ -84,7 +99,8 @@ class PuzzleCNNCoord(nn.Module):
         x = F.relu(self.fc4(x))
         x = self.fc5(x)
         x = x.view(-1, self.num_puzzle, 2)
-        return x, target
+        loss_dist = self.forward_loss_dist(x)
+        return x, target, loss_dist
 
 
 if __name__ == '__main__':
@@ -99,11 +115,12 @@ if __name__ == '__main__':
         for batch_idx, (inputs, _) in enumerate(train_loader):
             inputs = inputs.to(device)
 
-            outputs, labels = model(inputs)
+            outputs, labels, loss_dist = model(inputs)
 
             optimizer.zero_grad()
 
-            loss = criterion(outputs, labels)
+            loss_coord = criterion(outputs, labels)
+            loss = loss_coord + loss_dist
             loss.backward()
             optimizer.step()
 
@@ -112,16 +129,16 @@ if __name__ == '__main__':
 
         # test
         model.eval()
-        correct = 0
+        diff = 0
         total = 0
         with torch.no_grad():
             for inputs, _ in test_loader:
                 inputs = inputs.to(device)
 
-                outputs, labels = model(inputs)
+                outputs, labels, _ = model(inputs)
 
-                pred = torch.round(outputs)
-                total += labels.size(0) * labels.size(1)
-                correct += (pred == labels).all(dim=2).sum().item()
+                pred = outputs
+                total += labels.size(0)
+                diff += (torch.dist(pred, labels)).sum().item()
 
-        print(f'[Epoch {epoch}] Accuracy on the test set: {100 * correct / total:.2f}%')
+        print(f'[Epoch {epoch}] Avg diff on the test set: {diff / total:.2f}')
