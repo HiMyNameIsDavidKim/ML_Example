@@ -87,6 +87,13 @@ class PuzzleCNNCoord(nn.Module):
         loss_dist = torch.sum(torch.relu(self.threshold * self.min_dist - distances))
         return loss_dist
 
+    def mapping(self, target):
+        for i in range(target.shape[0]):
+            for j in range(target.shape[1]):
+                diff = torch.abs(target[i, j] - torch.tensor(self.map_values, device=target.device))
+                target[i, j] = torch.argmin(diff)
+        return target
+
     def forward(self, x):
         x, target = self.random_shuffle(x)
         x = self.pool(F.relu(self.conv1(x)))
@@ -142,3 +149,7 @@ if __name__ == '__main__':
                 diff += (torch.dist(pred, labels)).sum().item()
 
         print(f'[Epoch {epoch}] Avg diff on the test set: {diff / total:.2f}')
+
+        torch.set_printoptions(precision=2)
+        print(torch.cat((pred[0], labels[0]), dim=1))
+        print(torch.cat((model.mapping(pred[0]), model.mapping(labels[0])), dim=1))
