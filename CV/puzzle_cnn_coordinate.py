@@ -88,10 +88,9 @@ class PuzzleCNNCoord(nn.Module):
         return loss_dist
 
     def mapping(self, target):
-        for i in range(target.shape[0]):
-            for j in range(target.shape[1]):
-                diff = torch.abs(target[i, j] - torch.tensor(self.map_values, device=target.device))
-                target[i, j] = torch.argmin(diff)
+        diff = torch.abs(target.unsqueeze(3) - torch.tensor(self.map_values, device=target.device))
+        min_indices = torch.argmin(diff, dim=3)
+        target[:] = min_indices
         return target
 
     def forward(self, x):
@@ -124,6 +123,8 @@ if __name__ == '__main__':
 
             outputs, labels, loss_dist = model(inputs)
 
+            model.mapping(outputs)
+            break
             optimizer.zero_grad()
 
             loss_coord = criterion(outputs, labels)
@@ -136,8 +137,9 @@ if __name__ == '__main__':
 
         # test
         model.eval()
-        diff = 0
         total = 0
+        diff = 0
+        correct = 0
         with torch.no_grad():
             for inputs, _ in test_loader:
                 inputs = inputs.to(device)
@@ -147,9 +149,9 @@ if __name__ == '__main__':
                 pred = outputs
                 total += labels.size(0)
                 diff += (torch.dist(pred, labels)).sum().item()
+                correct += (model.mapping(pred) == model.mapping(labels)).all(dim=2).sum().item()
 
         print(f'[Epoch {epoch}] Avg diff on the test set: {diff / total:.2f}')
-
+        print(f'[Epoch {epoch}] Accuracy on the test set: {100 * correct / (total*labels.size(1)):.2f}%')
         torch.set_printoptions(precision=2)
-        print(torch.cat((pred[0], labels[0]), dim=1))
-        print(torch.cat((model.mapping(pred[0]), model.mapping(labels[0])), dim=1))
+        print(torch.cat((model.mapping(pred)[0], model.mapping(labels)[0]), dim=1))
