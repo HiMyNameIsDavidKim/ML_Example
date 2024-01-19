@@ -21,12 +21,13 @@ NUM_EPOCHS = 20
 transform = transforms.Compose([
     transforms.Pad(padding=3),
     transforms.CenterCrop(30),
+    transforms.Grayscale(num_output_channels=3),
     transforms.ToTensor(),
     transforms.Normalize((0.5,), (0.5,))
 ])
 
-train_dataset = datasets.MNIST(root='./data', train=True, transform=transform, download=True)
-test_dataset = datasets.MNIST(root='./data', train=False, transform=transform, download=True)
+train_dataset = datasets.CIFAR10(root='./data', train=True, transform=transform, download=True)
+test_dataset = datasets.CIFAR10(root='./data', train=False, transform=transform, download=True)
 
 train_loader = DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True)
 test_loader = DataLoader(dataset=test_dataset, batch_size=batch_size, shuffle=False)
@@ -111,7 +112,6 @@ if __name__ == '__main__':
     model = PuzzleCNNCoord().to(device)
     criterion = nn.SmoothL1Loss()
     optimizer = optim.AdamW(model.parameters(), lr=lr, weight_decay=0.05)
-    scheduler = CosineAnnealingLR(optimizer, T_max=NUM_EPOCHS)
 
     for epoch in range(NUM_EPOCHS):
         # train
@@ -128,7 +128,7 @@ if __name__ == '__main__':
             loss.backward()
             optimizer.step()
 
-            if batch_idx % 100 == 0:
+            if batch_idx % 30 == 0:
                 print(f'[Epoch {epoch}] [Batch {batch_idx}] Loss: {loss.item():.4f}')
 
         # test
