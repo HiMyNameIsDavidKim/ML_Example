@@ -12,6 +12,7 @@ from torchvision import datasets, transforms
 from torchvision.models import resnet18
 import math
 
+from CV.util.tester import visualDoubleLoss
 
 device = 'cpu'
 lr = 3e-05
@@ -138,25 +139,13 @@ if __name__ == '__main__':
 
             inter = 30
             if batch_idx % inter == inter-1:
-                print(f'[Epoch {epoch}] [Batch {batch_idx+1}] Loss: {running_loss/inter:.4f}')
-                print(f'[Epoch {epoch}] [Batch {batch_idx+1}] Total Loss: {running_loss_t/inter:.4f}')
+                print(f'[Epoch {epoch+1}] [Batch {batch_idx+1}] Loss: {running_loss/inter:.4f}')
+                print(f'[Epoch {epoch+1}] [Batch {batch_idx+1}] Total Loss: {running_loss_t/inter:.4f}')
                 ls.append(running_loss/inter)
                 ls_t.append(running_loss_t/inter)
                 running_loss = 0.
                 running_loss_t = 0.
-        plt.figure(1)
-        plt.plot(range(len(ls)), ls, label='Coord Loss')
-        plt.title('Coord Loss')
-        plt.xlabel('steps')
-        plt.ylabel('Loss')
-        plt.legend()
-        plt.figure(2)
-        plt.plot(range(len(ls_t)), ls_t, label='Total Loss')
-        plt.title('Total Loss')
-        plt.xlabel('Epochs')
-        plt.ylabel('Loss')
-        plt.legend()
-        plt.show()
+        visualDoubleLoss(ls, ls_t)
 
         # test
         model.eval()
@@ -176,8 +165,8 @@ if __name__ == '__main__':
                 labels_ = model.mapping(labels)
                 correct += (pred_ == labels_).all(dim=2).sum().item()
 
-        print(f'[Epoch {epoch}] Avg diff on the test set: {diff / total:.2f}')
-        print(f'[Epoch {epoch}] Accuracy on the test set: {100 * correct / (total*labels.size(1)):.2f}%')
+        print(f'[Epoch {epoch+1}] Avg diff on the test set: {diff / total:.2f}')
+        print(f'[Epoch {epoch+1}] Accuracy on the test set: {100 * correct / (total*labels.size(1)):.2f}%')
         torch.set_printoptions(precision=2)
         total = labels.size(1)
         correct = (pred_[0] == labels_[0]).all(dim=1).sum().item()
