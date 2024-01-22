@@ -5,6 +5,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
+from matplotlib import pyplot as plt
 from torch.optim.lr_scheduler import CosineAnnealingLR
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
@@ -34,7 +35,7 @@ test_loader = DataLoader(dataset=test_dataset, batch_size=batch_size, shuffle=Fa
 
 
 class PuzzleCNNCoord(nn.Module):
-    def __init__(self, num_puzzle=25, size_puzzle=6, threshold=0.8):
+    def __init__(self, num_puzzle=9, size_puzzle=10, threshold=0.8):
         super(PuzzleCNNCoord, self).__init__()
         self.num_puzzle = num_puzzle
         self.size_puzzle = size_puzzle
@@ -66,7 +67,7 @@ class PuzzleCNNCoord(nn.Module):
             shuffled_img = torch.cat(shuffled_img, dim=1)
             x[i] = shuffled_img
 
-        start, end = 0.1, 1
+        start, end = 0, n
         self.min_dist = (end-start)/n
         self.map_values = list(torch.arange(start, end, self.min_dist))
         self.map_coord = torch.tensor([(i, j) for i in self.map_values for j in self.map_values])
@@ -83,8 +84,8 @@ class PuzzleCNNCoord(nn.Module):
         N, n, c = x.shape
         distances = torch.zeros((N, n, n), device=x.device)
         for batch in range(N):
-            distances[batch] = torch.cdist(x[batch], x[batch]) + torch.eye(25, device=x.device)
-        loss_dist = torch.sum(torch.relu(self.threshold * self.min_dist - distances))
+            distances[batch] = torch.cdist(x[batch], x[batch]) + torch.eye(self.num_puzzle, device=x.device)
+        loss_dist = torch.sum(torch.relu((self.threshold * self.min_dist) - distances))
         return loss_dist
 
     def mapping(self, target):
@@ -113,9 +114,13 @@ if __name__ == '__main__':
     criterion = nn.SmoothL1Loss()
     optimizer = optim.AdamW(model.parameters(), lr=lr, weight_decay=0.05)
 
+    ls = []
+    ls_t = []
     for epoch in range(NUM_EPOCHS):
         # train
         model.train()
+        running_loss = 0.
+        running_loss_t = 0.
         for batch_idx, (inputs, _) in enumerate(train_loader):
             inputs = inputs.to(device)
 
@@ -128,8 +133,30 @@ if __name__ == '__main__':
             loss.backward()
             optimizer.step()
 
-            if batch_idx % 30 == 0:
-                print(f'[Epoch {epoch}] [Batch {batch_idx}] Loss: {loss.item():.4f}')
+            running_loss += loss_coord.item()
+            running_loss_t += loss.item()
+
+            inter = 30
+            if batch_idx % inter == inter-1:
+                print(f'[Epoch {epoch}] [Batch {batch_idx+1}] Loss: {running_loss/inter:.4f}')
+                print(f'[Epoch {epoch}] [Batch {batch_idx+1}] Total Loss: {running_loss_t/inter:.4f}')
+                ls.append(running_loss/inter)
+                ls_t.append(running_loss_t/inter)
+                running_loss = 0.
+                running_loss_t = 0.
+        plt.figure(1)
+        plt.plot(range(len(ls)), ls, label='Coord Loss')
+        plt.title('Coord Loss')
+        plt.xlabel('steps')
+        plt.ylabel('Loss')
+        plt.legend()
+        plt.figure(2)
+        plt.plot(range(len(ls_t)), ls_t, label='Total Loss')
+        plt.title('Total Loss')
+        plt.xlabel('Epochs')
+        plt.ylabel('Loss')
+        plt.legend()
+        plt.show()
 
         # test
         model.eval()

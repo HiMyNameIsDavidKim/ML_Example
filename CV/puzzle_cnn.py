@@ -78,46 +78,45 @@ class PuzzleCNN(nn.Module):
 
 # 모든 경우의 수 (0~15)의 순열을 클래스로 만들고 이게 매칭되게 도와줘야함.
 # 이러면 갯수가 너무 많은데............
+# list_ = list(range(9))
+# list_perm = list(permutations(list_))
+# print(len(list_perm))
 
 
 if __name__ == '__main__':
-    list_ = list(range(9))
-    list_perm = list(permutations(list_))
-    print(len(list_perm))
+    model = PuzzleCNN().to(device)
+    criterion = nn.CrossEntropyLoss()
+    optimizer = optim.AdamW(model.parameters(), lr=lr)
 
-    # model = PuzzleCNN().to(device)
-    # criterion = nn.CrossEntropyLoss()
-    # optimizer = optim.AdamW(model.parameters(), lr=lr)
-    #
-    # for epoch in range(num_epochs):
-    #     # train
-    #     model.train()
-    #     for batch_idx, (inputs, _) in enumerate(train_loader):
-    #         inputs = inputs.to(device)
-    #
-    #         outputs, labels = model(inputs)
-    #
-    #         optimizer.zero_grad()
-    #
-    #         loss = criterion(outputs, labels)
-    #         loss.backward()
-    #         optimizer.step()
-    #
-    #         if batch_idx % 300 == 0:
-    #             print(f'[Epoch {epoch}] [Batch {batch_idx}] Loss: {loss.item():.4f}')
-    #
-    #     # test
-    #     model.eval()
-    #     correct = 0
-    #     total = 0
-    #     with torch.no_grad():
-    #         for inputs, _ in test_loader:
-    #             inputs = inputs.to(device)
-    #
-    #             outputs, labels = model(inputs)
-    #
-    #             _, pred = torch.max(outputs.data, 1)
-    #             total += labels.size(0) * labels.size(1)
-    #             correct += (pred == labels).sum().item()
-    #
-    #     print(f'[Epoch {epoch}] Accuracy on the test set: {100 * correct / total:.2f}%')
+    for epoch in range(num_epochs):
+        # train
+        model.train()
+        for batch_idx, (inputs, _) in enumerate(train_loader):
+            inputs = inputs.to(device)
+
+            outputs, labels = model(inputs)
+
+            optimizer.zero_grad()
+
+            loss = criterion(outputs, labels)
+            loss.backward()
+            optimizer.step()
+
+            if batch_idx % 300 == 0:
+                print(f'[Epoch {epoch}] [Batch {batch_idx}] Loss: {loss.item():.4f}')
+
+        # test
+        model.eval()
+        correct = 0
+        total = 0
+        with torch.no_grad():
+            for inputs, _ in test_loader:
+                inputs = inputs.to(device)
+
+                outputs, labels = model(inputs)
+
+                _, pred = torch.max(outputs.data, 1)
+                total += labels.size(0) * labels.size(1)
+                correct += (pred == labels).sum().item()
+
+        print(f'[Epoch {epoch}] Accuracy on the test set: {100 * correct / total:.2f}%')

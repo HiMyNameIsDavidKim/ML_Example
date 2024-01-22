@@ -66,7 +66,7 @@ class PuzzleCNNCoord(nn.Module):
             shuffled_img = torch.cat(shuffled_img, dim=1)
             x[i] = shuffled_img
 
-        start, end = 0.1, 1
+        start, end = 0, n
         self.min_dist = (end-start)/n
         self.map_values = list(torch.arange(start, end, self.min_dist))
         self.map_coord = torch.tensor([(i, j) for i in self.map_values for j in self.map_values])
@@ -84,7 +84,7 @@ class PuzzleCNNCoord(nn.Module):
         distances = torch.zeros((N, n, n), device=x.device)
         for batch in range(N):
             distances[batch] = torch.cdist(x[batch], x[batch]) + torch.eye(25, device=x.device)
-        loss_dist = torch.sum(torch.relu(self.threshold * self.min_dist - distances))
+        loss_dist = torch.sum(torch.relu((self.threshold * self.min_dist) - distances))
         return loss_dist
 
     def mapping(self, target):
