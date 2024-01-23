@@ -172,3 +172,12 @@ if __name__ == '__main__':
         correct = (pred_[0] == labels_[0]).all(dim=1).sum().item()
         print(torch.cat((pred_[0], labels_[0]), dim=1))
         print(f'Accuracy: {100 * correct / (labels.size(1)):.2f}')
+
+        checkpoint = {
+            'model': model.state_dict(),
+            'optimizer': optimizer.state_dict(),
+            'losses': ls,
+            'total_losses': ls_t,
+        }
+        torch.save(checkpoint, f'./save/puzzle_res18_ep{NUM_EPOCHS}_lr{lr}_b{batch_size}.pt')
+        print(f"### Model checkpoint saved at epoch {epoch} ###")
