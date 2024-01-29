@@ -22,9 +22,10 @@ from sprt_util import get_2d_sincos_pos_embed
 # SPRT
 # img_size=192, patch_size=16, in_chans=2
 # input = [batch, 2, 192, 192]
-# encoder_dim = [batch, 768, 192, 192]
-# decoder_dim = [batch, 512, 192, 192]
-# output = [batch 1, 96, 96]
+# number of patch = (192 / 16)^2 = 12*12
+# encoder_dim = [batch, 12*12, 768]
+# decoder_dim = [batch, 12*12, 512]
+# output = [batch, 1, 96, 96]
 # --------------------------------------------------------
 
 
@@ -49,7 +50,7 @@ class SPRTransformer(nn.Module):
         # --------------------------------------------------------------------------
 
         # --------------------------------------------------------------------------
-        # decoder specifics 여기 패치 풀어헤치는 과정 크기 언제 바꿀지? 바꾸긴 바꿀지? 고민하기
+        # decoder specifics 여기 패치 풀어헤치는 과정 크기 언제 바꿀지? 바꾸긴 바꿀지? -> 일단 맥스풀은 하면 안됌. -> 웨이트 통일하려면 어떡하지..
         self.decoder_embed = nn.Linear(embed_dim, decoder_embed_dim, bias=True)
 
         self.decoder_pos_embed = nn.Parameter(torch.zeros(1, num_patches + 1, decoder_embed_dim),
@@ -122,6 +123,9 @@ class SPRTransformer(nn.Module):
         x = self.decoder_pred(x)
         x = x[:, 1:, :]
         return x
+
+    def unpatchify(self):
+        pass
 
     def forward(self, x):
         x = self.forward_encoder(x)

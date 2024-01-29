@@ -5,10 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6dc597b5-90f3-42c0-9fbe-571e0fb81339" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/CV/puzzle_res50.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/CV/sprt_util.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CV/puzzle_res18_coordinate.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/puzzle_res18.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/CV/spr_transformer.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/spr_transformer.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -339,7 +336,12 @@
       <workItem from="1705976737531" duration="3179000" />
       <workItem from="1705983005037" duration="6107000" />
       <workItem from="1706020659064" duration="40000" />
-      <workItem from="1706059153868" duration="11571000" />
+      <workItem from="1706059153868" duration="11588000" />
+      <workItem from="1706144572171" duration="1847000" />
+      <workItem from="1706154777625" duration="29000" />
+      <workItem from="1706154816712" duration="1707000" />
+      <workItem from="1706245498787" duration="597000" />
+      <workItem from="1706506342489" duration="6255000" />
     </task>
     <servers />
   </component>
