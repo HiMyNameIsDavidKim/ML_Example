@@ -23,14 +23,15 @@ from sprt_util import get_2d_sincos_pos_embed
 # img_size=192, patch_size=16, in_chans=2
 # input = [batch, 2, 192, 192]
 # number of patch = (192 / 16)^2 = 12*12
-# encoder_dim = [batch, 12*12, 768]
-# decoder_dim = [batch, 12*12, 512]
-# output = [batch, 1, 96, 96]
+# encoder_dim = [batch, 12*12, 512]
+# decoder_dim = [batch, 12*12, 512]  # lower?
+# decoder_output = [batch, 12*12, 64], [batch, 12*12, 32]
+# final_output = [batch, 1, 96, 96], [batch, 1, 96, 48]
 # --------------------------------------------------------
 
 
 class SPRTransformer(nn.Module):
-    def __init__(self, img_size=192, patch_size=16, in_chans=2, embed_dim=768, depth=12, num_heads=12,
+    def __init__(self, img_size=192, patch_size=16, in_chans=2, embed_dim=512, depth=12, num_heads=12,
                  out_patch_size=8, out_chans=1, decoder_embed_dim=512, decoder_depth=8, decoder_num_heads=16,
                  mlp_ratio=4., norm_layer=nn.LayerNorm, norm_pix_loss=False):
         super().__init__()
@@ -50,7 +51,7 @@ class SPRTransformer(nn.Module):
         # --------------------------------------------------------------------------
 
         # --------------------------------------------------------------------------
-        # decoder specifics 여기 패치 풀어헤치는 과정 크기 언제 바꿀지? 바꾸긴 바꿀지? -> 일단 맥스풀은 하면 안됌. -> 웨이트 통일하려면 어떡하지..
+        # decoder specifics
         self.decoder_embed = nn.Linear(embed_dim, decoder_embed_dim, bias=True)
 
         self.decoder_pos_embed = nn.Parameter(torch.zeros(1, num_patches + 1, decoder_embed_dim),
@@ -61,7 +62,9 @@ class SPRTransformer(nn.Module):
             for i in range(decoder_depth)])
 
         self.decoder_norm = norm_layer(decoder_embed_dim)
-        self.decoder_pred = nn.Linear(decoder_embed_dim, out_patch_size ** 2 * out_chans, bias=True)  # decoder to patch
+        self.decoder_pred_g = nn.Linear(decoder_embed_dim, out_patch_size ** 2 * out_chans, bias=True)  # decoder to patch
+        self.decoder_pred_rb = nn.Linear(decoder_embed_dim, (out_patch_size ** 2 * out_chans)/2, bias=True)  # decoder to patch
+        self.out_patch_size = out_patch_size
         # --------------------------------------------------------------------------
 
         self.initialize_weights()
@@ -111,7 +114,7 @@ class SPRTransformer(nn.Module):
         x = self.norm(x)
         return x
 
-    def forward_decoder(self, x):
+    def forward_decoder(self, x, pattern):
         x = self.decoder_embed(x)
 
         x = x + self.decoder_pos_embed
@@ -120,22 +123,40 @@ class SPRTransformer(nn.Module):
             x = blk(x)
         x = self.decoder_norm(x)
 
-        x = self.decoder_pred(x)
+        if pattern == 'green':
+            x = self.decoder_pred_g(x)
+        else:
+            x = self.decoder_pred_rb(x)
         x = x[:, 1:, :]
         return x
 
-    def unpatchify(self):
-        pass
+    def unpatchify(self, x, pattern):
+        p = self.out_patch_size  # 8
+        h = w = int(x.shape[1] ** .5)  # 12
+        assert h * w == x.shape[1]
 
-    def forward(self, x):
+        if pattern == 'green':
+            x = x.reshape(shape=(x.shape[0], h, w, p, p, 1))
+            x = torch.einsum('nhwpqc->nchpwq', x)
+            imgs = x.reshape(shape=(x.shape[0], 1, h * p, h * p))
+            return imgs
+        else:
+            x = x.reshape(shape=(x.shape[0], h, w, p, p/2, 1))
+            x = torch.einsum('nhwpqc->nchpwq', x)
+            imgs = x.reshape(shape=(x.shape[0], 1, h * p, h * p/2))
+            return imgs
+
+    def forward(self, x, pattern='green'):
         x = self.forward_encoder(x)
-        x = self.forward_decoder(x)
+        x = self.forward_decoder(x, pattern)
+        x = self.unpatchify(x, pattern)
         return x
 
 
 def sprt_base_patch16_img192(**kwargs):
     model = SPRTransformer(
-        img_size=192, patch_size=16, in_chans=2, embed_dim=768, depth=12, num_heads=12,
+        img_size=192, patch_size=16, in_chans=2, embed_dim=512, depth=12, num_heads=12,
         out_patch_size=8, out_chans=1, decoder_embed_dim=512, decoder_depth=8, decoder_num_heads=16,
         mlp_ratio=4, qkv_bias=True, norm_layer=partial(nn.LayerNorm, eps=1e-6), **kwargs)
     return model
+
