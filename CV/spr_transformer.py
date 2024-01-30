@@ -114,7 +114,7 @@ class SPRTransformer(nn.Module):
         x = self.norm(x)
         return x
 
-    def forward_decoder(self, x, pattern):
+    def forward_decoder(self, x, color):
         x = self.decoder_embed(x)
 
         x = x + self.decoder_pos_embed
@@ -123,19 +123,19 @@ class SPRTransformer(nn.Module):
             x = blk(x)
         x = self.decoder_norm(x)
 
-        if pattern == 'green':
+        if color == 'green':
             x = self.decoder_pred_g(x)
         else:
             x = self.decoder_pred_rb(x)
         x = x[:, 1:, :]
         return x
 
-    def unpatchify(self, x, pattern):
+    def unpatchify(self, x, color):
         p = self.out_patch_size  # 8
         h = w = int(x.shape[1] ** .5)  # 12
         assert h * w == x.shape[1]
 
-        if pattern == 'green':
+        if color == 'green':
             x = x.reshape(shape=(x.shape[0], h, w, p, p, 1))
             x = torch.einsum('nhwpqc->nchpwq', x)
             imgs = x.reshape(shape=(x.shape[0], 1, h * p, h * p))
@@ -146,10 +146,10 @@ class SPRTransformer(nn.Module):
             imgs = x.reshape(shape=(x.shape[0], 1, h * p, h * p/2))
             return imgs
 
-    def forward(self, x, pattern='green'):
+    def forward(self, x, color='green'):
         x = self.forward_encoder(x)
-        x = self.forward_decoder(x, pattern)
-        x = self.unpatchify(x, pattern)
+        x = self.forward_decoder(x, color)
+        x = self.unpatchify(x, color)
         return x
 
 
