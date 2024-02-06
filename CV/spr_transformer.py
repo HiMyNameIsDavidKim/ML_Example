@@ -2,6 +2,7 @@ from functools import partial
 
 import torch
 import torch.nn as nn
+from torchsummary import summary
 
 import timm.models.vision_transformer
 from timm.models.vision_transformer import PatchEmbed, Block
@@ -31,7 +32,7 @@ from sprt_util import get_2d_sincos_pos_embed
 
 
 class SPRTransformer(nn.Module):
-    def __init__(self, img_size=192, patch_size=16, in_chans=2, embed_dim=512, depth=12, num_heads=12,
+    def __init__(self, img_size=192, patch_size=16, in_chans=2, embed_dim=512, depth=12, num_heads=16,
                  out_patch_size=8, out_chans=1, decoder_embed_dim=512, decoder_depth=8, decoder_num_heads=16,
                  mlp_ratio=4., norm_layer=nn.LayerNorm, norm_pix_loss=False):
         super().__init__()
@@ -86,7 +87,6 @@ class SPRTransformer(nn.Module):
 
         # timm's trunc_normal_(std=.02) is effectively normal_(std=0.02) as cutoff is too big (2.)
         torch.nn.init.normal_(self.cls_token, std=.02)
-        torch.nn.init.normal_(self.mask_token, std=.02)
 
         # initialize nn.Linear and nn.LayerNorm
         self.apply(self._init_weights)
@@ -107,7 +107,6 @@ class SPRTransformer(nn.Module):
         cls_tokens = self.cls_token.expand(x.shape[0], -1, -1)
         x = torch.cat((cls_tokens, x), dim=1)
         x = x + self.pos_embed
-        x = self.pos_drop(x)
 
         for blk in self.blocks:
             x = blk(x)
@@ -155,8 +154,12 @@ class SPRTransformer(nn.Module):
 
 def sprt_base_patch16_img192(**kwargs):
     model = SPRTransformer(
-        img_size=192, patch_size=16, in_chans=2, embed_dim=512, depth=12, num_heads=12,
+        img_size=192, patch_size=16, in_chans=2, embed_dim=512, depth=12, num_heads=16,
         out_patch_size=8, out_chans=1, decoder_embed_dim=512, decoder_depth=8, decoder_num_heads=16,
-        mlp_ratio=4, qkv_bias=True, norm_layer=partial(nn.LayerNorm, eps=1e-6), **kwargs)
+        mlp_ratio=4, norm_layer=partial(nn.LayerNorm, eps=1e-6), **kwargs)
     return model
 
+
+if __name__ == '__main__':
+    # set recommended archs
+    sprt = sprt_base_patch16_img192()  # decoder: 512 dim, 8 blocks
