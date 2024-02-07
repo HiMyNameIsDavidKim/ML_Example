@@ -46,7 +46,7 @@ class SPRTransformer(nn.Module):
                                       requires_grad=False)  # fixed sin-cos embedding
 
         self.blocks = nn.ModuleList([
-            Block(embed_dim, num_heads, mlp_ratio, qkv_bias=True, qk_scale=None, norm_layer=norm_layer)
+            Block(embed_dim, num_heads, mlp_ratio, qkv_bias=True, norm_layer=norm_layer)
             for i in range(depth)])
         self.norm = norm_layer(embed_dim)
         # --------------------------------------------------------------------------
@@ -59,12 +59,12 @@ class SPRTransformer(nn.Module):
                                               requires_grad=False)  # fixed sin-cos embedding
 
         self.decoder_blocks = nn.ModuleList([
-            Block(decoder_embed_dim, decoder_num_heads, mlp_ratio, qkv_bias=True, qk_scale=None, norm_layer=norm_layer)
+            Block(decoder_embed_dim, decoder_num_heads, mlp_ratio, qkv_bias=True, norm_layer=norm_layer)
             for i in range(decoder_depth)])
 
         self.decoder_norm = norm_layer(decoder_embed_dim)
         self.decoder_pred_g = nn.Linear(decoder_embed_dim, out_patch_size ** 2 * out_chans, bias=True)  # decoder to patch
-        self.decoder_pred_rb = nn.Linear(decoder_embed_dim, (out_patch_size ** 2 * out_chans)/2, bias=True)  # decoder to patch
+        self.decoder_pred_rb = nn.Linear(decoder_embed_dim, (out_patch_size ** 2 * out_chans)//2, bias=True)  # decoder to patch
         self.out_patch_size = out_patch_size
         # --------------------------------------------------------------------------
 
@@ -140,9 +140,9 @@ class SPRTransformer(nn.Module):
             imgs = x.reshape(shape=(x.shape[0], 1, h * p, h * p))
             return imgs
         else:
-            x = x.reshape(shape=(x.shape[0], h, w, p, p/2, 1))
+            x = x.reshape(shape=(x.shape[0], h, w, p, p//2, 1))
             x = torch.einsum('nhwpqc->nchpwq', x)
-            imgs = x.reshape(shape=(x.shape[0], 1, h * p, h * p/2))
+            imgs = x.reshape(shape=(x.shape[0], 1, h * p, h * p//2))
             return imgs
 
     def forward(self, x, color='green'):
@@ -162,4 +162,6 @@ def sprt_base_patch16_img192(**kwargs):
 
 if __name__ == '__main__':
     # set recommended archs
-    sprt = sprt_base_patch16_img192()  # decoder: 512 dim, 8 blocks
+    sprt = sprt_base_patch16_img192  # decoder: 512 dim, 8 blocks
+    # output = sprt(torch.rand(1, 2, 192, 192), color='green')
+    # output = sprt(torch.rand(1, 2, 192, 192), color='blue')
