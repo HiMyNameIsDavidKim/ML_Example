@@ -158,6 +158,20 @@ def sprt_base_patch16_img192(**kwargs):
         mlp_ratio=4, norm_layer=partial(nn.LayerNorm, eps=1e-6), **kwargs)
     return model
 
+def sprt_large_patch16_img192(**kwargs):
+    model = SPRTransformer(
+        img_size=192, patch_size=16, in_chans=2, embed_dim=1024, depth=24, num_heads=16,
+        out_patch_size=8, out_chans=1, decoder_embed_dim=512, decoder_depth=8, decoder_num_heads=16,
+        mlp_ratio=4, norm_layer=partial(nn.LayerNorm, eps=1e-6), **kwargs)
+    return model
+
+def sprt_huge_patch16_img192(**kwargs):
+    model = SPRTransformer(
+        img_size=192, patch_size=16, in_chans=2, embed_dim=1280, depth=32, num_heads=16,
+        out_patch_size=8, out_chans=1, decoder_embed_dim=512, decoder_depth=8, decoder_num_heads=16,
+        mlp_ratio=4, norm_layer=partial(nn.LayerNorm, eps=1e-6), **kwargs)
+    return model
+
 
 if __name__ == '__main__':
     # set recommended archs
