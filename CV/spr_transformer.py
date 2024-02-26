@@ -5,6 +5,7 @@ import torch.nn as nn
 
 import timm.models.vision_transformer
 from timm.models.vision_transformer import PatchEmbed, Block
+from torchsummary import summary
 
 from sprt_util import get_2d_sincos_pos_embed
 
@@ -178,3 +179,6 @@ if __name__ == '__main__':
     sprt = sprt_base_patch16_img192  # decoder: 512 dim, 8 blocks
     # output = sprt(torch.rand(1, 2, 192, 192), color='green')
     # output = sprt(torch.rand(1, 2, 192, 192), color='blue')
+
+    model = sprt_base_patch16_img192()
+    summary(model, (2, 192, 192))
