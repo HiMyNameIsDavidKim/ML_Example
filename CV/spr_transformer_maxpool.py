@@ -31,7 +31,7 @@ from sprt_util import get_2d_sincos_pos_embed
 
 
 class SPRTransformer(nn.Module):
-    def __init__(self, img_size=2040, patch_size=16, in_chans=2, embed_dim=512, depth=12, num_heads=16,
+    def __init__(self, img_size=5184, patch_size=16, in_chans=2, embed_dim=512, depth=12, num_heads=16,
                  out_patch_size=8, out_chans=1, decoder_depth=8, decoder_num_heads=16,
                  mlp_ratio=4., norm_layer=nn.LayerNorm, norm_pix_loss=False):
         super().__init__()

@@ -6,6 +6,46 @@ from torchvision import transforms as T
 import matplotlib.pyplot as plt
 
 
+# train = 2040 x 2040
+# val = 2040 x 2040
+# test = 3456 x 5184
+
+
+def pad_img(img, device, img_size=5184):
+    img = T.ToTensor()(img.copy()).to(device=device)
+    c, h, w = img.shape
+    pad_h = img_size - h
+    pad_w = img_size - w
+    top_pad = pad_h // 2
+    bottom_pad = pad_h - top_pad
+    left_pad = pad_w // 2
+    right_pad = pad_w - left_pad
+
+    transforms_img = T.Compose([
+        T.Pad((left_pad, top_pad, right_pad, bottom_pad), fill=0)
+    ])
+    img = transforms_img(img)
+
+    img = img.unsqueeze(0)
+
+    return img
+
+def crop_img(img, origin_img, device, img_size=5184):
+    origin_img = T.ToTensor()(origin_img.copy()).to(device=device)
+    c, h, w = origin_img.shape
+    pad_h = img_size - h
+    pad_w = img_size - w
+    top_pad = pad_h // 2
+    bottom_pad = pad_h - top_pad
+    left_pad = pad_w // 2
+    right_pad = pad_w - left_pad
+
+    img = img.squeeze(0)
+
+    img = img[:, top_pad:img_size - bottom_pad, left_pad:img_size - right_pad]
+
+    return img
+
 def split_img(img, device, img_size=192):
     img = T.ToTensor()(img.copy()).to(device=device)
     c, h, w = img.shape
@@ -65,8 +105,21 @@ def concat_pieces(pieces, origin_img, device, img_size=192):
 if __name__ == '__main__':
     img = imread('../data/rabbit.jpg')
     print(img.shape)
-    pieces = split_img(img, device='cpu')
-    img2 = concat_pieces(pieces, img, device='cpu')
+    img2 = pad_img(img, device='cpu')
+    print(img2.shape)
+    img3 = crop_img(img2, img, device='cpu')
+    print(img3.shape)
 
-    plt.imshow(img)
+    img2 = img2.squeeze(0).permute(1, 2, 0).cpu().numpy()
+    img3 = img3.permute(1, 2, 0).cpu().numpy()
+    plt.imshow(img3)
     plt.show()
+
+    # img = imread('../data/rabbit.jpg')
+    # print(img.shape)
+    # pieces = split_img(img, device='cpu')
+    # img2 = concat_pieces(pieces, img, device='cpu')
+    #
+    # img2 = img2.permute(1, 2, 0).cpu().numpy()
+    # plt.imshow(img)
+    # plt.show()
