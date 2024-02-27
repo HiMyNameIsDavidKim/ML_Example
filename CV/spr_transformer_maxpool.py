@@ -67,6 +67,11 @@ class SPRTransformer(nn.Module):
         self.out_patch_size = out_patch_size
         # --------------------------------------------------------------------------
 
+        # --------------------------------------------------------------------------
+        # Unpatch specifics
+        self.max_pool = nn.MaxPool2d(kernel_size=(1, 2))
+        # --------------------------------------------------------------------------
+
         self.initialize_weights()
 
     def initialize_weights(self):
@@ -112,7 +117,7 @@ class SPRTransformer(nn.Module):
         x = self.norm(x)
         return x
 
-    def forward_decoder(self, x, color):
+    def forward_decoder(self, x):
         x = self.decoder_embed(x)
 
         x = x + self.decoder_pos_embed
@@ -129,21 +134,16 @@ class SPRTransformer(nn.Module):
         h = w = int(x.shape[1] ** .5)  # 12
         assert h * w == x.shape[1]
 
-        if color == 'green':
-            x = x.reshape(shape=(x.shape[0], h, w, p, p, 1))
-            x = torch.einsum('nhwpqc->nchpwq', x)
-            imgs = x.reshape(shape=(x.shape[0], 1, h * p, h * p))
-            return imgs
-        else:
-            x = nn.MaxPool2d(kernel_size=(1, 2))(x)
-            x = x.reshape(shape=(x.shape[0], h, w, p, p//2, 1))
-            x = torch.einsum('nhwpqc->nchpwq', x)
-            imgs = x.reshape(shape=(x.shape[0], 1, h * p, h * p//2))
-            return imgs
+        x = x.reshape(shape=(x.shape[0], h, w, p, p, 1))
+        x = torch.einsum('nhwpqc->nchpwq', x)
+        imgs = x.reshape(shape=(x.shape[0], 1, h * p, h * p))
+        if color != 'green':
+            imgs = self.max_pool(imgs)
+        return imgs
 
     def forward(self, x, color='green'):
         x = self.forward_encoder(x)
-        x = self.forward_decoder(x, color)
+        x = self.forward_decoder(x)
         x = self.unpatchify(x, color)
         return x
 
