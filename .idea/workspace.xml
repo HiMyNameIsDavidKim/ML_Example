@@ -5,6 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6dc597b5-90f3-42c0-9fbe-571e0fb81339" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/CV/puzzle_tester.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CV/puzzle_trainer.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CV/puzzle_vit.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/CV/puzzle_res50.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/puzzle_res50.py" afterDir="false" />
     </list>
@@ -353,7 +356,7 @@
       <workItem from="1707958902084" duration="8944000" />
       <workItem from="1708909958131" duration="17293000" />
       <workItem from="1708997510862" duration="5912000" />
-      <workItem from="1709086333672" duration="1396000" />
+      <workItem from="1709086333672" duration="7566000" />
     </task>
     <servers />
   </component>
@@ -361,6 +364,7 @@
     <option name="version" value="3" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/ML_Example$puzzle_trainer.coverage" NAME="puzzle_trainer Coverage Results" MODIFIED="1709107778970" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
     <SUITE FILE_PATH="coverage/ML_Example$lotto_arima.coverage" NAME="lotto_arima Coverage Results" MODIFIED="1679451207531" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/prediction" />
     <SUITE FILE_PATH="coverage/ML_Example$laboratory.coverage" NAME="laboratory Coverage Results" MODIFIED="1699342318248" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
     <SUITE FILE_PATH="coverage/ML_Example$spr_transformer.coverage" NAME="spr_transformer Coverage Results" MODIFIED="1708928913217" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
