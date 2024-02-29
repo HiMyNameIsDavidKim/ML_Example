@@ -20,7 +20,10 @@ device = 'cpu'
 LEARNING_RATE = 3e-05
 BATCH_SIZE = 64
 NUM_EPOCHS = 20
-pre_model_path = './save/xxx.pt'
+NUM_WORKERS = 32
+TASK_NAME = 'puzzle_cifar10'
+MODEL_NAME = 'res50'
+pre_model_path = f'./save/{TASK_NAME}_{MODEL_NAME}_ep{NUM_EPOCHS}_lr{LEARNING_RATE}_b{BATCH_SIZE}.pt'
 pre_load_model_path = './save/xxx.pt'
 
 
@@ -33,9 +36,9 @@ transform = transforms.Compose([
 ])
 
 train_dataset = datasets.CIFAR10(root='./data', train=True, transform=transform, download=True)
-train_loader = DataLoader(dataset=train_dataset, batch_size=BATCH_SIZE, shuffle=True)
+train_loader = DataLoader(dataset=train_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
 test_dataset = datasets.CIFAR10(root='./data', train=False, transform=transform, download=True)
-test_loader = DataLoader(dataset=test_dataset, batch_size=BATCH_SIZE, shuffle=False)
+test_loader = DataLoader(dataset=test_dataset, batch_size=BATCH_SIZE, shuffle=False, num_workers=NUM_WORKERS)
 
 
 class PreTrainer(object):
@@ -117,7 +120,7 @@ class PreTrainer(object):
         diff = 0
         correct = 0
         with torch.no_grad():
-            for inputs, _ in tqdm(enumerate(test_loader, 0), total=len(test_loader)):
+            for inputs, _ in tqdm(enumerate(train_loader[:int(len(train_loader)*0.2)], 0), total=int(len(train_loader)*0.2)):
                 inputs = inputs.to(device)
 
                 outputs, labels, _ = model(inputs)

@@ -20,6 +20,7 @@ device = 'cpu'
 LEARNING_RATE = 3e-05
 BATCH_SIZE = 64
 NUM_EPOCHS = 20
+NUM_WORKERS = 32
 test_model_path = './save/xxx.pt'
 
 
@@ -31,8 +32,10 @@ transform = transforms.Compose([
     transforms.Normalize((0.5,), (0.5,))
 ])
 
+train_dataset = datasets.CIFAR10(root='./data', train=True, transform=transform, download=True)
+train_loader = DataLoader(dataset=train_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
 test_dataset = datasets.CIFAR10(root='./data', train=False, transform=transform, download=True)
-test_loader = DataLoader(dataset=test_dataset, batch_size=BATCH_SIZE, shuffle=False)
+test_loader = DataLoader(dataset=test_dataset, batch_size=BATCH_SIZE, shuffle=False, num_workers=NUM_WORKERS)
 
 
 class Tester(object):

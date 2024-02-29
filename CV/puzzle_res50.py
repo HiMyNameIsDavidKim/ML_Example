@@ -48,9 +48,6 @@ class PuzzleCNNCoord(nn.Module):
         super(PuzzleCNNCoord, self).__init__()
         self.num_puzzle = num_puzzle
         self.size_puzzle = size_puzzle
-        self.map_values = []
-        self.map_coord = None
-        self.min_dist = 0
         self.threshold = threshold
         resnet = resnet50(pretrained=True)
         resnet_output_size = resnet.fc.in_features
@@ -60,6 +57,9 @@ class PuzzleCNNCoord(nn.Module):
         self.fc3 = nn.Linear(4096, 4096)
         self.fc4 = nn.Linear(4096, 4096)
         self.fc5 = nn.Linear(4096, self.num_puzzle * 2)
+        self.map_values = []
+        self.map_coord = None
+        self.min_dist = 0
 
     def random_shuffle(self, x):
         N, C, H, W = x.shape

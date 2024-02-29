@@ -1,16 +1,14 @@
-import numpy as np
+import timm
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
-from matplotlib import pyplot as plt
 from torch.optim.lr_scheduler import CosineAnnealingLR
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
-from torchvision.models import resnet50
 import math
 
-from CV.util.tester import visualDoubleLoss
+from util.tester import visualDoubleLoss
 
 # --------------------------------------------------------
 # PuzzleCNN
@@ -22,44 +20,22 @@ from CV.util.tester import visualDoubleLoss
 # output = [batch, 9, 2]
 # --------------------------------------------------------
 
-device = 'cpu'
-lr = 3e-05
-batch_size = 64
-NUM_EPOCHS = 20
 
-
-transform = transforms.Compose([
-    transforms.Pad(padding=3),
-    transforms.CenterCrop(30),
-    transforms.Grayscale(num_output_channels=3),
-    transforms.ToTensor(),
-    transforms.Normalize((0.5,), (0.5,))
-])
-
-train_dataset = datasets.CIFAR10(root='./data', train=True, transform=transform, download=True)
-test_dataset = datasets.CIFAR10(root='./data', train=False, transform=transform, download=True)
-
-train_loader = DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True)
-test_loader = DataLoader(dataset=test_dataset, batch_size=batch_size, shuffle=False)
-
-
-class PuzzleCNNCoord(nn.Module):
-    def __init__(self, num_puzzle=9, size_puzzle=10, threshold=0.8):
-        super(PuzzleCNNCoord, self).__init__()
+class PuzzleViT(nn.Module):
+    def __init__(self, num_puzzle=9, size_puzzle=75, threshold=0.8):
+        super(PuzzleViT, self).__init__()
         self.num_puzzle = num_puzzle
         self.size_puzzle = size_puzzle
-        self.map_values = []
-        self.map_coord = None
-        self.min_dist = 0
         self.threshold = threshold
-        resnet = resnet50(pretrained=True)
-        resnet_output_size = resnet.fc.in_features
-        self.resnet_features = nn.Sequential(*list(resnet.children())[:-2])
-        self.fc1 = nn.Linear(resnet_output_size, 4096)
+        self.vit_features = timm.create_model('vit_base_patch16_224', pretrained=True)
+        self.fc1 = nn.Linear(1000, 4096)
         self.fc2 = nn.Linear(4096, 4096)
         self.fc3 = nn.Linear(4096, 4096)
         self.fc4 = nn.Linear(4096, 4096)
         self.fc5 = nn.Linear(4096, self.num_puzzle * 2)
+        self.map_values = []
+        self.map_coord = None
+        self.min_dist = 0
 
     def random_shuffle(self, x):
         N, C, H, W = x.shape
@@ -106,10 +82,9 @@ class PuzzleCNNCoord(nn.Module):
 
     def forward(self, x):
         x, target = self.random_shuffle(x)
+        x = x[:, :, :-1, :-1]
 
-        x = self.resnet_features(x)
-        x = F.adaptive_avg_pool2d(x, (1, 1))
-        x = x.view(x.size(0), -1)
+        x = self.vit_features(x)
 
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
@@ -124,75 +99,5 @@ class PuzzleCNNCoord(nn.Module):
 
 
 if __name__ == '__main__':
-    model = PuzzleCNNCoord().to(device)
-    criterion = nn.SmoothL1Loss()
-    optimizer = optim.AdamW(model.parameters(), lr=lr, weight_decay=0.05)
-    scheduler = CosineAnnealingLR(optimizer, T_max=NUM_EPOCHS)
-
-    ls = []
-    ls_t = []
-    for epoch in range(NUM_EPOCHS):
-        model.train()
-
-        running_loss = 0.
-        running_loss_t = 0.
-        for batch_idx, (inputs, _) in enumerate(train_loader):
-            inputs = inputs.to(device)
-
-            outputs, labels, loss_var = model(inputs)
-
-            optimizer.zero_grad()
-
-            loss_coord = criterion(outputs, labels)
-            loss = loss_coord + loss_var
-            loss.backward()
-            optimizer.step()
-
-            running_loss += loss_coord.item()
-            running_loss_t += loss.item()
-
-            inter = 30
-            if batch_idx % inter == inter-1:
-                print(f'[Epoch {epoch+1}] [Batch {batch_idx+1}] Loss: {running_loss/inter:.4f}')
-                print(f'[Epoch {epoch+1}] [Batch {batch_idx+1}] Total Loss: {running_loss_t/inter:.4f}')
-                ls.append(running_loss/inter)
-                ls_t.append(running_loss_t/inter)
-                running_loss = 0.
-                running_loss_t = 0.
-        scheduler.step()
-        visualDoubleLoss(ls, ls_t)
-
-        model.eval()
-
-        total = 0
-        diff = 0
-        correct = 0
-        with torch.no_grad():
-            for inputs, _ in test_loader:
-                inputs = inputs.to(device)
-
-                outputs, labels, _ = model(inputs)
-
-                pred = outputs
-                total += labels.size(0)
-                diff += (torch.dist(pred, labels)).sum().item()
-                pred_ = model.mapping(pred)
-                labels_ = model.mapping(labels)
-                correct += (pred_ == labels_).all(dim=2).sum().item()
-
-        print(f'[Epoch {epoch+1}] Avg diff on the test set: {diff / total:.2f}')
-        print(f'[Epoch {epoch+1}] Accuracy on the test set: {100 * correct / (total*labels.size(1)):.2f}%')
-        torch.set_printoptions(precision=2)
-        total = labels.size(1)
-        correct = (pred_[0] == labels_[0]).all(dim=1).sum().item()
-        print(torch.cat((pred_[0], labels_[0]), dim=1))
-        print(f'Accuracy: {100 * correct / (labels.size(1)):.2f}')
-
-        checkpoint = {
-            'model': model.state_dict(),
-            'optimizer': optimizer.state_dict(),
-            'losses': ls,
-            'total_losses': ls_t,
-        }
-        torch.save(checkpoint, f'./save/puzzle_res50_ep{NUM_EPOCHS}_lr{lr}_b{batch_size}.pt')
-        print(f"### Model checkpoint saved at epoch {epoch+1} ###")
+    model = PuzzleViT()
+    output, target, loss_var = model(torch.rand(2, 3, 225, 225))
