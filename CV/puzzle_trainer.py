@@ -5,7 +5,7 @@ import torch.nn.functional as F
 import torch.optim as optim
 from matplotlib import pyplot as plt
 from torch.optim.lr_scheduler import CosineAnnealingLR
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, Subset
 from torchvision import datasets, transforms
 from torchvision.models import resnet50
 import math
@@ -37,6 +37,8 @@ transform = transforms.Compose([
 
 train_dataset = datasets.CIFAR10(root='./data', train=True, transform=transform, download=True)
 train_loader = DataLoader(dataset=train_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
+val_dataset = Subset(train_dataset, list(range(int(0.2*len(train_dataset)))))
+val_loader = DataLoader(dataset=val_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
 test_dataset = datasets.CIFAR10(root='./data', train=False, transform=transform, download=True)
 test_loader = DataLoader(dataset=test_dataset, batch_size=BATCH_SIZE, shuffle=False, num_workers=NUM_WORKERS)
 
@@ -73,7 +75,7 @@ class PreTrainer(object):
     def pretrain_model(self):
         model = self.model
         criterion = nn.SmoothL1Loss()
-        optimizer = optim.AdamW(model.parameters(), lr=LEARNING_RATE, weight_decay=0.05)
+        optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
         scheduler = CosineAnnealingLR(optimizer, T_max=NUM_EPOCHS)
 
         model.train()
@@ -87,13 +89,13 @@ class PreTrainer(object):
 
                 outputs, labels, loss_var = model(inputs)
                 loss_coord = criterion(outputs, labels)
-                loss = loss_coord + loss_var
+                loss = loss_coord + loss_var/1e05
                 loss.backward()
                 optimizer.step()
                 running_loss_c += loss_coord.item()
                 running_loss_t += loss.item()
 
-                inter = 30
+                inter = 100
                 if batch_idx % inter == inter - 1:
                     print(f'[Epoch {epoch + 1}] [Batch {batch_idx + 1}] Loss: {running_loss_c / inter:.4f}')
                     print(f'[Epoch {epoch + 1}] [Batch {batch_idx + 1}] Total Loss: {running_loss_t / inter:.4f}')
@@ -102,10 +104,10 @@ class PreTrainer(object):
                     self.optimizer = optimizer
                     self.losses_c.append(running_loss_c / inter)
                     self.losses_t.append(running_loss_t / inter)
-                    self.save_model()
                     running_loss_c = 0.
                     running_loss_t = 0.
             scheduler.step()
+            self.save_model()
             visualDoubleLoss(self.losses_c, self.losses_t)
             self.val_model(epoch)
         print('****** Finished Fine-tuning ******')
@@ -120,7 +122,7 @@ class PreTrainer(object):
         diff = 0
         correct = 0
         with torch.no_grad():
-            for inputs, _ in tqdm(enumerate(train_loader[:int(len(train_loader)*0.2)], 0), total=int(len(train_loader)*0.2)):
+            for batch_idx, (inputs, _) in tqdm(enumerate(train_loader[:int(len(train_loader)*0.2)], 0), total=int(len(train_loader)*0.2)):
                 inputs = inputs.to(device)
 
                 outputs, labels, _ = model(inputs)
@@ -137,8 +139,9 @@ class PreTrainer(object):
         torch.set_printoptions(precision=2)
         total = labels.size(1)
         correct = (pred_[0] == labels_[0]).all(dim=1).sum().item()
+        print(f'[Sample result]')
         print(torch.cat((pred_[0], labels_[0]), dim=1))
-        print(f'Accuracy: {100 * correct / total:.2f}')
+        print(f'Accuracy: {100 * correct / total:.2f}%')
 
     def save_model(self):
         checkpoint = {

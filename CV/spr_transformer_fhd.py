@@ -30,9 +30,10 @@ from sprt_util import get_2d_sincos_pos_embed
 # final_output = [batch, 1, 96, 96], [batch, 1, 96, 48]
 # --------------------------------------------------------
 
+
 class SPRTransformer(nn.Module):
-    def __init__(self, img_size=5184, patch_size=16, in_chans=2, embed_dim=512, depth=4, num_heads=4,
-                 out_patch_size=8, out_chans=1, decoder_depth=2, decoder_num_heads=4,
+    def __init__(self, img_size=192, patch_size=16, in_chans=2, embed_dim=512, depth=12, num_heads=16,
+                 out_patch_size=8, out_chans=1, decoder_embed_dim=512, decoder_depth=8, decoder_num_heads=16,
                  mlp_ratio=4., norm_layer=nn.LayerNorm, norm_pix_loss=False):
         super().__init__()
         # --------------------------------------------------------------------------
@@ -52,7 +53,6 @@ class SPRTransformer(nn.Module):
 
         # --------------------------------------------------------------------------
         # decoder specifics
-        decoder_embed_dim = out_patch_size ** 2 * out_chans
         self.decoder_embed = nn.Linear(embed_dim, decoder_embed_dim, bias=True)
 
         self.decoder_pos_embed = nn.Parameter(torch.zeros(1, num_patches + 1, decoder_embed_dim),
@@ -63,6 +63,8 @@ class SPRTransformer(nn.Module):
             for i in range(decoder_depth)])
 
         self.decoder_norm = norm_layer(decoder_embed_dim)
+        self.decoder_pred_g = nn.Linear(decoder_embed_dim, out_patch_size ** 2 * out_chans, bias=True)  # decoder to patch
+        self.decoder_pred_rb = nn.Linear(decoder_embed_dim, (out_patch_size ** 2 * out_chans)//2, bias=True)  # decoder to patch
         self.out_patch_size = out_patch_size
         # --------------------------------------------------------------------------
 
@@ -111,7 +113,7 @@ class SPRTransformer(nn.Module):
         x = self.norm(x)
         return x
 
-    def forward_decoder(self, x):
+    def forward_decoder(self, x, color):
         x = self.decoder_embed(x)
 
         x = x + self.decoder_pos_embed
@@ -120,6 +122,10 @@ class SPRTransformer(nn.Module):
             x = blk(x)
         x = self.decoder_norm(x)
 
+        if color == 'green':
+            x = self.decoder_pred_g(x)
+        else:
+            x = self.decoder_pred_rb(x)
         x = x[:, 1:, :]
         return x
 
@@ -134,7 +140,6 @@ class SPRTransformer(nn.Module):
             imgs = x.reshape(shape=(x.shape[0], 1, h * p, h * p))
             return imgs
         else:
-            x = nn.MaxPool2d(kernel_size=(1, 2))(x)
             x = x.reshape(shape=(x.shape[0], h, w, p, p//2, 1))
             x = torch.einsum('nhwpqc->nchpwq', x)
             imgs = x.reshape(shape=(x.shape[0], 1, h * p, h * p//2))
@@ -142,45 +147,38 @@ class SPRTransformer(nn.Module):
 
     def forward(self, x, color='green'):
         x = self.forward_encoder(x)
-        x = self.forward_decoder(x)
+        x = self.forward_decoder(x, color)
         x = self.unpatchify(x, color)
         return x
 
 
-def sprt_base_patch16_img5184(**kwargs):
+def sprt_base_patch16_img192(**kwargs):
     model = SPRTransformer(
-        img_size=5184, patch_size=16, in_chans=2, embed_dim=512, depth=12, num_heads=16,
-        out_patch_size=8, out_chans=1, decoder_depth=8, decoder_num_heads=16,
+        img_size=192, patch_size=16, in_chans=2, embed_dim=512, depth=12, num_heads=16,
+        out_patch_size=8, out_chans=1, decoder_embed_dim=512, decoder_depth=8, decoder_num_heads=16,
         mlp_ratio=4, norm_layer=partial(nn.LayerNorm, eps=1e-6), **kwargs)
     return model
 
-def sprt_tiny_patch16_img5184(**kwargs):
+def sprt_large_patch16_img192(**kwargs):
     model = SPRTransformer(
-        img_size=5184, patch_size=16, in_chans=2, embed_dim=512, depth=4, num_heads=4,
-        out_patch_size=8, out_chans=1, decoder_depth=2, decoder_num_heads=4,
+        img_size=192, patch_size=16, in_chans=2, embed_dim=1024, depth=24, num_heads=16,
+        out_patch_size=8, out_chans=1, decoder_embed_dim=512, decoder_depth=8, decoder_num_heads=16,
         mlp_ratio=4, norm_layer=partial(nn.LayerNorm, eps=1e-6), **kwargs)
     return model
 
-def sprt_large_patch16_img5184(**kwargs):
+def sprt_huge_patch16_img192(**kwargs):
     model = SPRTransformer(
-        img_size=5184, patch_size=16, in_chans=2, embed_dim=1024, depth=24, num_heads=16,
-        out_patch_size=8, out_chans=1, decoder_depth=8, decoder_num_heads=16,
-        mlp_ratio=4, norm_layer=partial(nn.LayerNorm, eps=1e-6), **kwargs)
-    return model
-
-def sprt_huge_patch16_img5184(**kwargs):
-    model = SPRTransformer(
-        img_size=5184, patch_size=16, in_chans=2, embed_dim=1280, depth=32, num_heads=16,
-        out_patch_size=8, out_chans=1, decoder_depth=8, decoder_num_heads=16,
+        img_size=192, patch_size=16, in_chans=2, embed_dim=1280, depth=32, num_heads=16,
+        out_patch_size=8, out_chans=1, decoder_embed_dim=512, decoder_depth=8, decoder_num_heads=16,
         mlp_ratio=4, norm_layer=partial(nn.LayerNorm, eps=1e-6), **kwargs)
     return model
 
 
 if __name__ == '__main__':
     # set recommended archs
-    # sprt = sprt_base_patch16_img5184  # decoder: 512 dim, 8 blocks
-
+    sprt = sprt_base_patch16_img192  # decoder: 512 dim, 8 blocks
     # output = sprt(torch.rand(1, 2, 192, 192), color='green')
     # output = sprt(torch.rand(1, 2, 192, 192), color='blue')
-    model = sprt_tiny_patch16_img5184()
-    summary(model, (2, 5184, 5184))
+
+    model = sprt_base_patch16_img192()
+    summary(model, (2, 192, 192))
