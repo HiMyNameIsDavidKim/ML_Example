@@ -26,7 +26,7 @@ from sprt_util import get_2d_sincos_pos_embed
 # number of patch = (192 / 16)^2 = 12*12
 # encoder_dim = [batch, 12*12, 512]
 # decoder_dim = [batch, 12*12, 512]  # lower?
-# decoder_output = [batch, 12*12, 64], [batch, 12*12, 32]
+# decoder_mlp = [batch, 12*12, 64], [batch, 12*12, 32]
 # final_output = [batch, 1, 96, 96], [batch, 1, 96, 48]
 # --------------------------------------------------------
 
@@ -137,12 +137,12 @@ class SPRTransformer(nn.Module):
         if color == 'green':
             x = x.reshape(shape=(x.shape[0], h, w, p, p, 1))
             x = torch.einsum('nhwpqc->nchpwq', x)
-            imgs = x.reshape(shape=(x.shape[0], 1, h * p, h * p))
+            imgs = x.reshape(shape=(x.shape[0], 1, h * p, w * p))
             return imgs
         else:
             x = x.reshape(shape=(x.shape[0], h, w, p, p//2, 1))
             x = torch.einsum('nhwpqc->nchpwq', x)
-            imgs = x.reshape(shape=(x.shape[0], 1, h * p, h * p//2))
+            imgs = x.reshape(shape=(x.shape[0], 1, h * p, w * p//2))
             return imgs
 
     def forward(self, x, color='green'):
