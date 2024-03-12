@@ -1,5 +1,6 @@
 # Copyright (c) Meta Platforms, Inc. and affiliates.
 # All rights reserved.
+import os
 
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
@@ -10,7 +11,6 @@
 import numpy as np
 import torch
 from torch import nn as nn
-from timm.models.layers.helpers import to_2tuple
 
 # --------------------------------------------------------
 # 2D sine-cosine position embedding
@@ -104,8 +104,8 @@ class PatchEmbed(nn.Module):
         if type(img_size) == tuple:
             img_size = img_size
         else:
-            img_size = to_2tuple(img_size)
-        patch_size = to_2tuple(patch_size)
+            img_size = (img_size, img_size)
+        patch_size = (patch_size, patch_size)
         self.img_size = img_size
         self.patch_size = patch_size
         self.grid_size = (img_size[0] // patch_size[0], img_size[1] // patch_size[1])

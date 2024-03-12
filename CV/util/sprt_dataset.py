@@ -4,12 +4,40 @@ import torch
 from skimage.io import imread
 from torchvision import transforms as T
 import matplotlib.pyplot as plt
+from torch.utils.data import DataLoader
+from torchvision.datasets import ImageFolder
 
 
-# train = 2040 x 2040
-# val = 2040 x 2040
-# test = 3456 x 5184
+# max size
+# train = 2040 x 2040 (min: 648x1116)
+# val = 2040 x 2040 (min: 816x1356)
+# test = 3456 x 5184 (min: 713x840)
 
+
+def get_transform(output_size=(1080, 1920), pad_size=700, dataset='train'):
+    if dataset == 'train':
+        transform = T.Compose([
+            T.Pad(pad_size),
+            T.ToTensor(),
+            T.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+            T.RandomVerticalFlip(p=0.5),
+            T.RandomHorizontalFlip(p=0.5),
+            T.RandomChoice([
+                T.RandomRotation(degrees=0),
+                T.RandomRotation(degrees=90),
+                T.RandomRotation(degrees=180),
+                T.RandomRotation(degrees=270),
+            ]),
+            T.RandomCrop(output_size),
+        ])
+    else:
+        transform = T.Compose([
+            T.Pad(pad_size),
+            T.ToTensor(),
+            T.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+            T.CenterCrop(output_size),
+        ])
+    return transform
 
 def pad_img(img, device, img_size=5184):
     img = T.ToTensor()(img.copy()).to(device=device)
@@ -103,17 +131,28 @@ def concat_pieces(pieces, origin_img, device, img_size=192):
 
 
 if __name__ == '__main__':
-    img = imread('../data/rabbit.jpg')
-    print(img.shape)
-    img2 = pad_img(img, device='cpu')
-    print(img2.shape)
-    img3 = crop_img(img2, img, device='cpu')
-    print(img3.shape)
+    '''
+    폴더 내에 이미지 파일 빼고 모두 삭제.
+    각 폴더 이름이 클래스가 됨.
+    '''
+    train_data = ImageFolder(root='../data/fruits-360-5/Training/', transform=get_transform(pad_size=1500))
+    train_loader = DataLoader(train_data, batch_size=2, shuffle=True)
+    # for (data, label) in train_loader:
+    #     print(label.shape)
+    #     print(label[0])
+    #     print(data[0].shape)
 
-    img2 = img2.squeeze(0).permute(1, 2, 0).cpu().numpy()
-    img3 = img3.permute(1, 2, 0).cpu().numpy()
-    plt.imshow(img3)
-    plt.show()
+    # img = imread('../data/rabbit.jpg')
+    # print(img.shape)
+    # img2 = pad_img(img, device='cpu')
+    # print(img2.shape)
+    # img3 = crop_img(img2, img, device='cpu')
+    # print(img3.shape)
+    #
+    # img2 = img2.squeeze(0).permute(1, 2, 0).cpu().numpy()
+    # img3 = img3.permute(1, 2, 0).cpu().numpy()
+    # plt.imshow(img3)
+    # plt.show()
 
     # img = imread('../data/rabbit.jpg')
     # print(img.shape)
