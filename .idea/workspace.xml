@@ -6,7 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="6dc597b5-90f3-42c0-9fbe-571e0fb81339" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CV/sprt_util.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/sprt_util.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CV/spr_transformer_fhd.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/spr_transformer_fhd.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/CV/util/sprt_dataset.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/util/sprt_dataset.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -363,7 +363,8 @@
       <workItem from="1709776648410" duration="598000" />
       <workItem from="1709859535818" duration="4025000" />
       <workItem from="1710122317987" duration="12481000" />
-      <workItem from="1710213669149" duration="4147000" />
+      <workItem from="1710213669149" duration="7111000" />
+      <workItem from="1710292788412" duration="1746000" />
     </task>
     <servers />
   </component>

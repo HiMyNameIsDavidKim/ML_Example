@@ -153,7 +153,7 @@ class SPRTransformer(nn.Module):
         return x
 
 
-def sprt_base_patch16_img_fhd(**kwargs):
+def sprt_base_patch120_img_fhd(**kwargs):
     model = SPRTransformer(
         img_size=(1080, 1920), patch_size=120, in_chans=2, embed_dim=1024, depth=8, num_heads=16,
         out_patch_size=60, out_chans=1, decoder_embed_dim=1024, decoder_depth=4, decoder_num_heads=16,
@@ -163,7 +163,7 @@ def sprt_base_patch16_img_fhd(**kwargs):
 
 if __name__ == '__main__':
     # set recommended archs
-    sprt = sprt_base_patch16_img_fhd  # decoder: 512 dim, 8 blocks
+    sprt = sprt_base_patch120_img_fhd  # decoder: 512 dim, 8 blocks
 
-    model = sprt_base_patch16_img_fhd()
+    model = sprt_base_patch120_img_fhd()
     summary(model, (2, 1080, 1920))

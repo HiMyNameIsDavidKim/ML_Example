@@ -19,7 +19,6 @@ def get_transform(output_size=(1080, 1920), pad_size=700, dataset='train'):
         transform = T.Compose([
             T.Pad(pad_size),
             T.ToTensor(),
-            T.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
             T.RandomVerticalFlip(p=0.5),
             T.RandomHorizontalFlip(p=0.5),
             T.RandomChoice([
@@ -34,7 +33,6 @@ def get_transform(output_size=(1080, 1920), pad_size=700, dataset='train'):
         transform = T.Compose([
             T.Pad(pad_size),
             T.ToTensor(),
-            T.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
             T.CenterCrop(output_size),
         ])
     return transform
