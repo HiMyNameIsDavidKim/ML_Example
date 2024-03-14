@@ -17,16 +17,16 @@ from torchvision.datasets import ImageFolder
 def get_transform(output_size=(1080, 1920), pad_size=700, dataset='train'):
     if dataset == 'train':
         transform = T.Compose([
-            T.Pad(pad_size),
             T.ToTensor(),
             T.RandomVerticalFlip(p=0.5),
             T.RandomHorizontalFlip(p=0.5),
-            T.RandomChoice([
-                T.RandomRotation(degrees=0),
-                T.RandomRotation(degrees=90),
-                T.RandomRotation(degrees=180),
-                T.RandomRotation(degrees=270),
-            ]),
+            # T.RandomChoice([
+            #     T.RandomRotation(degrees=0),
+            #     T.RandomRotation(degrees=90),
+            #     T.RandomRotation(degrees=180),
+            #     T.RandomRotation(degrees=270),
+            # ]),
+            T.Pad(pad_size),
             T.RandomCrop(output_size),
         ])
     else:

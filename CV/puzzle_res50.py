@@ -144,7 +144,9 @@ if __name__ == '__main__':
             optimizer.zero_grad()
 
             loss_coord = criterion(outputs, labels)
-            loss = loss_coord + loss_var
+            print(f'loss coord : {loss_coord}')
+            print(f'loss_var : {loss_var}')
+            loss = loss_coord + loss_var/1e05
             loss.backward()
             optimizer.step()
 
