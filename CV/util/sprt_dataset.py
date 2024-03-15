@@ -9,9 +9,9 @@ from torchvision.datasets import ImageFolder
 
 
 # max size
-# train = 2040 x 2040 (min: 648x1116)
-# val = 2040 x 2040 (min: 816x1356)
-# test = 3456 x 5184 (min: 713x840)
+# train = 2040 x 2040 (min: 648 x 1116)
+# val = 2040 x 2040 (min: 816 x 1356)
+# test = 3456 x 5184 (min: 713 x 840)
 
 
 def get_transform(output_size=(1080, 1920), pad_size=700, dataset='train'):
@@ -20,12 +20,6 @@ def get_transform(output_size=(1080, 1920), pad_size=700, dataset='train'):
             T.ToTensor(),
             T.RandomVerticalFlip(p=0.5),
             T.RandomHorizontalFlip(p=0.5),
-            # T.RandomChoice([
-            #     T.RandomRotation(degrees=0),
-            #     T.RandomRotation(degrees=90),
-            #     T.RandomRotation(degrees=180),
-            #     T.RandomRotation(degrees=270),
-            # ]),
             T.Pad(pad_size),
             T.RandomCrop(output_size),
         ])
