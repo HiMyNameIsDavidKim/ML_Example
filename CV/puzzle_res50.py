@@ -147,6 +147,7 @@ if __name__ == '__main__':
             print(f'loss coord : {loss_coord}')
             print(f'loss_var : {loss_var}')
             loss = loss_coord + loss_var/1e05
+
             loss.backward()
             optimizer.step()
 

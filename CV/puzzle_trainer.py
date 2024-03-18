@@ -48,9 +48,9 @@ class PreTrainer(object):
     def __init__(self):
         self.model = None
         self.optimizer = None
-        self.epochs = [0]
-        self.losses_c = [0]
-        self.losses_t = [0]
+        self.epochs = []
+        self.losses_c = []
+        self.losses_t = []
 
     def process(self, load=False):
         self.build_model(load)

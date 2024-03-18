@@ -48,9 +48,9 @@ class PreTrainer(object):
     def __init__(self):
         self.model = None
         self.optimizer = None
-        self.epochs = [0]
-        self.losses_c = [0]
-        self.losses_t = [0]
+        self.epochs = []
+        self.losses_c = []
+        self.losses_t = []
 
     def process(self, load=False):
         self.build_model(load)
@@ -90,14 +90,14 @@ class PreTrainer(object):
 
                 outputs, labels, loss_var = model(inputs)
                 loss_coord = criterion(outputs, labels)
-                loss = loss_coord + loss_var/1e05
+                loss = loss_coord + loss_var/1e04
+
                 loss.backward()
                 optimizer.step()
                 running_loss_c += loss_coord.item()
                 running_loss_t += loss.item()
 
                 inter = 100
-                inter = 1
                 if batch_idx % inter == inter - 1:
                     print(f'[Epoch {epoch + 1}] [Batch {batch_idx + 1}] Loss: {running_loss_c / inter:.4f}')
                     print(f'[Epoch {epoch + 1}] [Batch {batch_idx + 1}] Total Loss: {running_loss_t / inter:.4f}')
@@ -108,7 +108,6 @@ class PreTrainer(object):
                     self.losses_t.append(running_loss_t / inter)
                     running_loss_c = 0.
                     running_loss_t = 0.
-                break
             scheduler.step()
             self.save_model()
             visualDoubleLoss(self.losses_c, self.losses_t)
@@ -122,7 +121,6 @@ class PreTrainer(object):
         model.eval()
 
         total = 0
-        diff = 0
         correct = 0
         with torch.no_grad():
             for batch_idx, (inputs, _) in tqdm(enumerate(val_loader, 0), total=len(val_loader)):
@@ -130,20 +128,16 @@ class PreTrainer(object):
 
                 outputs, labels, _ = model(inputs)
 
-                pred = outputs
-                total += labels.size(0)
-                diff += (torch.dist(pred, labels)).sum().item()
-                pred_ = model.mapping(pred)
-                labels_ = model.mapping(labels)
-                correct += (pred_ == labels_).all(dim=2).sum().item()
+                _, pred = torch.max(outputs.data, 1)
+                total += labels.size(0) * labels.size(1)
+                correct += (pred == labels).sum().item()
 
-        print(f'[Epoch {epoch + 1}] Avg diff on the test set: {diff / total:.2f}')
-        print(f'[Epoch {epoch + 1}] Accuracy on the test set: {100 * correct / (total * labels.size(1)):.2f}%')
+        print(f'[Epoch {epoch + 1}] Accuracy on the test set: {100 * correct / total:.2f}%')
         torch.set_printoptions(precision=2)
         total = labels.size(1)
-        correct = (pred_[0] == labels_[0]).all(dim=1).sum().item()
+        correct = (pred[0] == labels[0]).sum().item()
         print(f'[Sample result]')
-        print(torch.cat((pred_[0], labels_[0]), dim=1))
+        print(torch.cat((pred[0].view(9, -1), labels[0].view(9, -1)), dim=1))
         print(f'Accuracy: {100 * correct / total:.2f}%')
 
     def save_model(self):

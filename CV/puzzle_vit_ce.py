@@ -67,6 +67,9 @@ class PuzzleViT(nn.Module):
         return x, ids_restores.to(x.device)
 
     def forward_loss_var(self, x):
+        _, x = torch.max(x.data, 1)
+        x = self.mapping(x)
+
         N, n, c = x.shape
         self_distances = torch.zeros((N, n, n), device=x.device)
         for batch in range(N):
@@ -75,10 +78,12 @@ class PuzzleViT(nn.Module):
         return loss_var
 
     def mapping(self, target):
-        diff = torch.abs(target.unsqueeze(3) - torch.tensor(self.map_values, device=target.device))
-        min_indices = torch.argmin(diff, dim=3)
-        target[:] = min_indices
-        return target
+        N, c = target.shape
+        mapped_target = torch.zeros(N, c, 2, device=target.device)
+        for batch in range(N):
+            for coord in range(c):
+                mapped_target[batch][coord] = self.map_coord[int(target[batch][coord])]
+        return mapped_target
 
     def forward(self, x):
         x, target = self.random_shuffle(x)
