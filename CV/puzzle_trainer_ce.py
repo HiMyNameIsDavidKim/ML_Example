@@ -11,8 +11,8 @@ from torchvision.models import resnet50
 import math
 from tqdm import tqdm
 
-from CV.puzzle_res50 import PuzzleCNNCoord
-from CV.puzzle_vit import PuzzleViT
+from CV.puzzle_res50_ce import PuzzleCNNCoord
+from CV.puzzle_vit_ce import PuzzleViT
 from CV.util.tester import visualDoubleLoss
 
 
@@ -23,14 +23,14 @@ BATCH_SIZE = 64
 NUM_EPOCHS = 20
 NUM_WORKERS = 2
 TASK_NAME = 'puzzle_cifar10'
-MODEL_NAME = 'vit'
+MODEL_NAME = 'res50_ce'
 pre_model_path = f'./save/{TASK_NAME}_{MODEL_NAME}_ep{NUM_EPOCHS}_lr{LEARNING_RATE}_b{BATCH_SIZE}.pt'
 pre_load_model_path = './save/xxx.pt'
 
 
 transform = transforms.Compose([
-    transforms.Resize((224, 224)),
-    transforms.Pad(padding=(0, 0, 1, 1)),
+    transforms.Pad(padding=3),
+    transforms.CenterCrop(30),
     transforms.Grayscale(num_output_channels=3),
     transforms.ToTensor(),
     transforms.Normalize((0.5,), (0.5,))
@@ -58,7 +58,7 @@ class PreTrainer(object):
         self.save_model()
 
     def build_model(self, load):
-        self.model = PuzzleViT().to(device)
+        self.model = PuzzleCNNCoord().to(device)
         print(f'Parameter: {sum(p.numel() for p in self.model.parameters() if p.requires_grad)}')
         if load:
             checkpoint = torch.load(pre_load_model_path)
@@ -75,7 +75,7 @@ class PreTrainer(object):
 
     def pretrain_model(self):
         model = self.model
-        criterion = nn.SmoothL1Loss()
+        criterion = nn.CrossEntropyLoss()
         optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
         scheduler = CosineAnnealingLR(optimizer, T_max=NUM_EPOCHS)
 
@@ -97,6 +97,7 @@ class PreTrainer(object):
                 running_loss_t += loss.item()
 
                 inter = 100
+                inter = 1
                 if batch_idx % inter == inter - 1:
                     print(f'[Epoch {epoch + 1}] [Batch {batch_idx + 1}] Loss: {running_loss_c / inter:.4f}')
                     print(f'[Epoch {epoch + 1}] [Batch {batch_idx + 1}] Total Loss: {running_loss_t / inter:.4f}')
@@ -107,6 +108,7 @@ class PreTrainer(object):
                     self.losses_t.append(running_loss_t / inter)
                     running_loss_c = 0.
                     running_loss_t = 0.
+                break
             scheduler.step()
             self.save_model()
             visualDoubleLoss(self.losses_c, self.losses_t)
