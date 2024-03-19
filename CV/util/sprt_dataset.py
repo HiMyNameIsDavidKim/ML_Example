@@ -14,22 +14,31 @@ from torchvision.datasets import ImageFolder
 # test = 3456 x 5184 (min: 713 x 840)
 
 
-def get_transform(output_size=(1080, 1920), pad_size=700, dataset='train'):
+def get_transform(output_size=(1080, 1920), dataset='train'):
     if dataset == 'train':
         transform = T.Compose([
             T.ToTensor(),
             T.RandomVerticalFlip(p=0.5),
             T.RandomHorizontalFlip(p=0.5),
-            T.Pad(pad_size),
-            T.RandomCrop(output_size),
+            T.Lambda(dynamic_padding),
+            T.CenterCrop(output_size),
         ])
     else:
         transform = T.Compose([
-            T.Pad(pad_size),
             T.ToTensor(),
+            T.Lambda(dynamic_padding),
             T.CenterCrop(output_size),
         ])
     return transform
+
+def dynamic_padding(image):
+    if image.shape[0] < 1080:
+        pad_size = 1080 - image.shape[0] + 100
+        image = T.functional.pad(image, (0, pad_size//2, 0, pad_size//2))
+    if image.shape[1] < 1920:
+        pad_size = 1920 - image.shape[1] + 100
+        image = T.functional.pad(image, (pad_size//2, 0, pad_size//2, 0))
+    return image
 
 def pad_img(img, device, img_size=5184):
     img = T.ToTensor()(img.copy()).to(device=device)
