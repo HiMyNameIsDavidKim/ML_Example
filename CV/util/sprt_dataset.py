@@ -22,6 +22,7 @@ def get_transform(output_size=(1080, 1920), dataset='train'):
             T.RandomHorizontalFlip(p=0.5),
             T.Lambda(dynamic_padding),
             T.CenterCrop(output_size),
+            # 여기 노멀라이즈가 없는게 좀 이상한데
         ])
     else:
         transform = T.Compose([
