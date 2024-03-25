@@ -36,6 +36,14 @@ transform = transforms.Compose([
     transforms.Normalize((0.5,), (0.5,))
 ])
 
+# transform = transforms.Compose([
+#     transforms.Resize((224, 224)),
+#     transforms.Pad(padding=(0, 0, 1, 1)),
+#     transforms.Grayscale(num_output_channels=3),
+#     transforms.ToTensor(),
+#     transforms.Normalize((0.5,), (0.5,))
+# ])
+
 train_dataset = datasets.CIFAR10(root='./data', train=True, transform=transform, download=True)
 train_loader = DataLoader(dataset=train_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
 val_dataset = Subset(train_dataset, list(range(int(0.2*len(train_dataset)))))
