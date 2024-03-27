@@ -133,5 +133,3 @@ class PuzzleCNNCoord(nn.Module):
 if __name__ == '__main__':
     model = PuzzleCNNCoord()
     output, target, loss_var = model(torch.rand(2, 3, 30, 30))
-
-    print(loss_var)
