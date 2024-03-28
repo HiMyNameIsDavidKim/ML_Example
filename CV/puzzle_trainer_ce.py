@@ -31,7 +31,6 @@ pre_load_model_path = './save/xxx.pt'
 transform = transforms.Compose([
     transforms.Pad(padding=3),
     transforms.CenterCrop(30),
-    transforms.Grayscale(num_output_channels=3),
     transforms.ToTensor(),
     transforms.Normalize((0.5,), (0.5,))
 ])
@@ -39,7 +38,6 @@ transform = transforms.Compose([
 # transform = transforms.Compose([
 #     transforms.Resize((224, 224)),
 #     transforms.Pad(padding=(0, 0, 1, 1)),
-#     transforms.Grayscale(num_output_channels=3),
 #     transforms.ToTensor(),
 #     transforms.Normalize((0.5,), (0.5,))
 # ])

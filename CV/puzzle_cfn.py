@@ -3,6 +3,8 @@ import torch.nn as nn
 from torchsummary import summary
 
 # --------------------------------------------------------
+# Ref : https://github.com/bbrattoli/JigsawPuzzlePytorch/blob/master/JigsawNetwork.py
+# --------------------------------------------------------
 # PuzzleCFN
 # img_size=225, patch_size=75, num_puzzle=9
 # input = [batch, 9, 3, 75, 75]
