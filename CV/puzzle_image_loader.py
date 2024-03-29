@@ -25,7 +25,7 @@ class PuzzleDataLoader(Dataset):
         img, label = self.dataset[index]
         img = self.transform_to_pil(img)
 
-        s = 10
+        s = 10-1
         a = s / 2
         tiles = [None] * 9
         for n in range(9):
