@@ -23,23 +23,12 @@ class PuzzleDataLoader(Dataset):
 
     def __getitem__(self, index):
         img, label = self.dataset[index]
-        img = self.transform_to_pil(img)
 
-        s = 10-1
-        a = s / 2
-        tiles = [None] * 9
-        for n in range(9):
-            i = n / 3
-            j = n % 3
-            c = [a * i * 2 + a, a * j * 2 + a]
-            c = np.array([c[1] - a, c[0] - a, c[1] + a + 1, c[0] + a + 1]).astype(int)
-            tile = img.crop(c.tolist())
-            tile = self.transform_to_tensor(tile)
-            m, s = tile.view(3, -1).mean(dim=1).numpy(), tile.view(3, -1).std(dim=1).numpy()
-            s[s == 0] = 1
-            norm = transforms.Normalize(mean=m.tolist(), std=s.tolist())
-            tile = norm(tile)
-            tiles[n] = tile
+        C, H, W = img.shape
+        p = int(H/3)
+
+        pieces = [img[:, i:i + p, j:j + p] for i in range(0, H, p) for j in range(0, W, p)]
+        tiles = pieces
 
         order = np.random.randint(len(self.permutations))
         data = [tiles[self.permutations[order][t]] for t in range(9)]
