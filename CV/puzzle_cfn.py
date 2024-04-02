@@ -76,17 +76,6 @@ class PuzzleCFN(nn.Module):
 
         # self.apply(weights_init)
 
-    def load(self, checkpoint):
-        model_dict = self.state_dict()
-        pretrained_dict = torch.load(checkpoint)
-        pretrained_dict = {k: v for k, v in list(pretrained_dict.items()) if k in model_dict and 'fc8' not in k}
-        model_dict.update(pretrained_dict)
-        self.load_state_dict(model_dict)
-        print([k for k, v in list(pretrained_dict.items())])
-
-    def save(self, checkpoint):
-        torch.save(self.state_dict(), checkpoint)
-
     def forward(self, x):
         B, T, C, H, W = x.size()
         x = x.transpose(0, 1)
@@ -143,19 +132,8 @@ class PuzzleCFN_30(nn.Module):
 
         # self.apply(weights_init)
 
-    def load(self, checkpoint):
-        model_dict = self.state_dict()
-        pretrained_dict = torch.load(checkpoint)
-        pretrained_dict = {k: v for k, v in list(pretrained_dict.items()) if k in model_dict and 'fc8' not in k}
-        model_dict.update(pretrained_dict)
-        self.load_state_dict(model_dict)
-        print([k for k, v in list(pretrained_dict.items())])
-
-    def save(self, checkpoint):
-        torch.save(self.state_dict(), checkpoint)
-
     def forward(self, x):
-        B, T, C, H, W = x.size()
+        B, T, C, H, W = x.shape
         x = x.transpose(0, 1)
 
         x_list = []

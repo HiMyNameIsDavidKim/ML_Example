@@ -23,6 +23,17 @@ def visualLossAcc(losses, accuracies, lim_loss=(0.5, 7), lim_acc=(0, 90)):
     plt.show()
 
 
+def visualLoss(ls_loss1):
+    fig, axs = plt.subplots(1, 1, figsize=(12, 4))
+    axs[0].plot(range(len(ls_loss1)), ls_loss1, label='Loss')
+    axs[0].set_title('Loss')
+    axs[0].set_xlabel('Steps')
+    axs[0].set_ylabel('Loss')
+
+    plt.tight_layout()
+    plt.show()
+
+
 def visualDoubleLoss(ls_loss1, ls_loss2):
     fig, axs = plt.subplots(1, 2, figsize=(12, 4))
     axs[0].plot(range(len(ls_loss1)), ls_loss1, label='Coord Loss')
