@@ -133,8 +133,9 @@ class PuzzleCFN_30(nn.Module):
         # self.apply(weights_init)
 
     def forward(self, x):
+        device = x.device
         B, T, C, H, W = x.shape
-        x = x.transpose(0, 1)
+        x = x.transpose(0, 1).to(device)
 
         x_list = []
         for i in range(9):
@@ -143,7 +144,7 @@ class PuzzleCFN_30(nn.Module):
             z = z.view([B, 1, -1])
             x_list.append(z)
 
-        x = torch.cat(x_list, 1)
+        x = torch.cat(x_list, 1).to(device)
         x = self.fc7(x.view(B, -1))
         x = self.classifier(x)
 
@@ -179,7 +180,7 @@ class LRN(nn.Module):
 
 
 if __name__ == '__main__':
-    model = PuzzleCFN_30()
+    model = PuzzleCFN_30(classes=362880)
     output = model(torch.rand(2, 9, 3, 10, 10))
     print(output.shape)
     summary(model, (9, 3, 10, 10))

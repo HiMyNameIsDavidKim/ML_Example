@@ -8,18 +8,13 @@ from itertools import permutations
 # --------------------------------------------------------
 # Ref : https://github.com/bbrattoli/JigsawPuzzlePytorch/blob/master/Dataset/JigsawImageLoader.py
 # --------------------------------------------------------
-class PuzzleDataLoader(Dataset):
-    def __init__(self, dataset, batch_size, shuffle, num_workers):
+class PuzzleDataset(Dataset):
+    def __init__(self, dataset):
         self.dataset = dataset
-        self.batch_size = batch_size
-        self.shuffle = shuffle
-        self.num_workers = num_workers
         numbers = list(range(9))
         permutation_list = permutations(numbers)
         permutations_array = np.array(list(permutation_list))
         self.permutations = permutations_array
-        self.transform_to_pil = transforms.Compose([transforms.ToPILImage()])
-        self.transform_to_tensor = transforms.Compose([transforms.ToTensor()])
 
     def __getitem__(self, index):
         img, label = self.dataset[index]

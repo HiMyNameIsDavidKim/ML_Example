@@ -12,19 +12,21 @@ from torchvision import datasets, transforms
 from tqdm import tqdm
 
 from CV.puzzle_cfn import PuzzleCFN_30
-from CV.puzzle_image_loader import PuzzleDataLoader
+from CV.puzzle_image_loader import PuzzleDataset
 from CV.util.tester import visualLoss
+
 
 device = 'cpu'
 # device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 LEARNING_RATE = 1e-03
-BATCH_SIZE = 8  # 256
+BATCH_SIZE = 1  # 256
 NUM_EPOCHS = 2000
 NUM_WORKERS = 2
 TASK_NAME = 'puzzle_cifar10'
 MODEL_NAME = 'cfn'
 pre_model_path = f'./save/{TASK_NAME}_{MODEL_NAME}_ep{NUM_EPOCHS}_lr{LEARNING_RATE}_b{BATCH_SIZE}.pt'
 pre_load_model_path = './save/xxx.pt'
+
 
 transform = transforms.Compose([
     transforms.Pad(padding=3),
@@ -33,16 +35,15 @@ transform = transforms.Compose([
     transforms.Normalize((0.5,), (0.5,))
 ])
 
-# [에러]
-# 데이터 로더가 아니라 데이터 셋이고 로더는 원래 로더 씀........ㅎ........
-
-
 train_dataset = datasets.CIFAR10(root='./data', train=True, transform=transform, download=True)
-train_loader = PuzzleDataLoader(dataset=train_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
+train_dataset = PuzzleDataset(dataset=train_dataset)
+train_loader = DataLoader(dataset=train_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
 val_dataset = Subset(train_dataset, list(range(int(0.2*len(train_dataset)))))
-val_loader = PuzzleDataLoader(dataset=val_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
+val_dataset = PuzzleDataset(dataset=val_dataset)
+val_loader = DataLoader(dataset=val_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
 test_dataset = datasets.CIFAR10(root='./data', train=False, transform=transform, download=True)
-test_loader = PuzzleDataLoader(dataset=test_dataset, batch_size=BATCH_SIZE, shuffle=False, num_workers=NUM_WORKERS)
+test_dataset = PuzzleDataset(dataset=test_dataset)
+test_loader = DataLoader(dataset=test_dataset, batch_size=BATCH_SIZE, shuffle=False, num_workers=NUM_WORKERS)
 
 
 class PreTrainer(object):
@@ -62,7 +63,7 @@ class PreTrainer(object):
         self.save_model()
 
     def build_model(self, load):
-        self.model = PuzzleCFN_30().to(device)
+        self.model = PuzzleCFN_30(classes=362880).to(device)
         print(f'Parameter: {sum(p.numel() for p in self.model.parameters() if p.requires_grad)}')
         if load:
             checkpoint = torch.load(pre_load_model_path)
@@ -86,14 +87,11 @@ class PreTrainer(object):
             running_loss = 0.
             for batch_idx, (images, labels, original) in tqdm(enumerate(train_loader, 0), total=len(train_loader)):
                 images = images.to(device)
+                labels = labels.to(device)
 
                 optimizer.zero_grad()
 
-                print(images.shape)
-
                 outputs = model(images)
-                print(outputs)
-                print(outputs.shape)
                 loss = criterion(outputs, labels)
 
                 loss.backward()
@@ -128,6 +126,10 @@ class PreTrainer(object):
                 labels = labels.to(device)
 
                 outputs = model(images)
+
+
+
+
 
     def save_model(self):
         checkpoint = {

@@ -7,8 +7,8 @@
     <list default="true" id="6dc597b5-90f3-42c0-9fbe-571e0fb81339" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/CV/puzzle_cfn.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/puzzle_cfn.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CV/puzzle_image_loader.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/puzzle_image_loader.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/CV/puzzle_trainer_cfn.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/puzzle_trainer_cfn.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CV/util/tester.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/util/tester.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -390,7 +390,9 @@
       <workItem from="1711636825147" duration="250000" />
       <workItem from="1711673040422" duration="607000" />
       <workItem from="1711936503501" duration="10317000" />
-      <workItem from="1712020504342" duration="600000" />
+      <workItem from="1712020504342" duration="8562000" />
+      <workItem from="1712069148707" duration="363000" />
+      <workItem from="1712106197446" duration="2383000" />
     </task>
     <servers />
   </component>
@@ -408,7 +410,7 @@
     <SUITE FILE_PATH="coverage/ML_Example$mae_tester.coverage" NAME="mae_tester Coverage Results" MODIFIED="1704684448045" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
     <SUITE FILE_PATH="coverage/ML_Example$puzzle_image_loader.coverage" NAME="puzzle_image_loader Coverage Results" MODIFIED="1711945280247" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
     <SUITE FILE_PATH="coverage/ML_Example$timm_vit_imagenet.coverage" NAME="timm_vit_imagenet Coverage Results" MODIFIED="1681781387094" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
-    <SUITE FILE_PATH="coverage/ML_Example$puzzle_cfn.coverage" NAME="puzzle_cfn Coverage Results" MODIFIED="1711959119345" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
+    <SUITE FILE_PATH="coverage/ML_Example$puzzle_cfn.coverage" NAME="puzzle_cfn Coverage Results" MODIFIED="1712108723611" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
     <SUITE FILE_PATH="coverage/ML_Example$vit_pixelAI_randomMasking.coverage" NAME="vit_pixelAI_randomMasking Coverage Results" MODIFIED="1704681043674" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
     <SUITE FILE_PATH="coverage/ML_Example$vit_concate.coverage" NAME="vit_concate Coverage Results" MODIFIED="1685687180934" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
     <SUITE FILE_PATH="coverage/ML_Example$lotto.coverage" NAME="lotto Coverage Results" MODIFIED="1679154983113" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/prediction" />
@@ -432,7 +434,7 @@
     <SUITE FILE_PATH="coverage/ML_Example$generation_0.coverage" NAME="generation_0 Coverage Results" MODIFIED="1699281287562" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/NLP/lecture_chatgpt/part02/ch03" />
     <SUITE FILE_PATH="coverage/ML_Example$positional_enhancement.coverage" NAME="positional_enhancement Coverage Results" MODIFIED="1691730760677" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
     <SUITE FILE_PATH="coverage/ML_Example$facebook_mae.coverage" NAME="facebook_mae Coverage Results" MODIFIED="1707204239509" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
-    <SUITE FILE_PATH="coverage/ML_Example$puzzle_trainer_ce.coverage" NAME="puzzle_trainer_ce Coverage Results" MODIFIED="1711611130837" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
+    <SUITE FILE_PATH="coverage/ML_Example$puzzle_trainer_ce.coverage" NAME="puzzle_trainer_ce Coverage Results" MODIFIED="1712042744249" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
     <SUITE FILE_PATH="coverage/ML_Example$vit_pixelAI.coverage" NAME="vit_pixelAI Coverage Results" MODIFIED="1700537386972" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
     <SUITE FILE_PATH="coverage/ML_Example$spr_transformer_maxpool.coverage" NAME="spr_transformer_maxpool Coverage Results" MODIFIED="1708934376893" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
     <SUITE FILE_PATH="coverage/ML_Example$custom_activation.coverage" NAME="custom_activation Coverage Results" MODIFIED="1703144414355" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV/util" />
@@ -449,6 +451,6 @@
     <SUITE FILE_PATH="coverage/ML_Example$select_permutations.coverage" NAME="select_permutations Coverage Results" MODIFIED="1711522390538" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV/util" />
     <SUITE FILE_PATH="coverage/ML_Example$lenna.coverage" NAME="lenna Coverage Results" MODIFIED="1685415742720" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
     <SUITE FILE_PATH="coverage/ML_Example$custom_act.coverage" NAME="custom_act Coverage Results" MODIFIED="1700540373468" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV/util" />
-    <SUITE FILE_PATH="coverage/ML_Example$puzzle_trainer_cfn.coverage" NAME="puzzle_trainer_cfn Coverage Results" MODIFIED="1711959196319" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
+    <SUITE FILE_PATH="coverage/ML_Example$puzzle_trainer_cfn.coverage" NAME="puzzle_trainer_cfn Coverage Results" MODIFIED="1712042757649" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
   </component>
 </project>
