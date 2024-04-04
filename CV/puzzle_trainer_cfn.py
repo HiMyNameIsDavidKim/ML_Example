@@ -1,5 +1,3 @@
-from itertools import permutations
-
 import numpy as np
 import torch
 import torch.nn as nn
@@ -10,20 +8,22 @@ from torch.optim.lr_scheduler import CosineAnnealingLR
 from torch.utils.data import DataLoader, Subset
 from torchvision import datasets, transforms
 from tqdm import tqdm
+from itertools import permutations
 
 from CV.puzzle_cfn import PuzzleCFN_30
-from CV.puzzle_image_loader import PuzzleDataset
+from CV.puzzle_image_loader import PuzzleDataset1000 as PuzzleDataset
 from CV.util.tester import visualLoss
 
 
 device = 'cpu'
 # device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+CLASSES = 1000
 LEARNING_RATE = 1e-03
 BATCH_SIZE = 1  # 256
 NUM_EPOCHS = 2000
 NUM_WORKERS = 2
 TASK_NAME = 'puzzle_cifar10'
-MODEL_NAME = 'cfn'
+MODEL_NAME = 'cfn_1000'
 pre_model_path = f'./save/{TASK_NAME}_{MODEL_NAME}_ep{NUM_EPOCHS}_lr{LEARNING_RATE}_b{BATCH_SIZE}.pt'
 pre_load_model_path = './save/xxx.pt'
 
@@ -39,7 +39,6 @@ train_dataset = datasets.CIFAR10(root='./data', train=True, transform=transform,
 train_dataset = PuzzleDataset(dataset=train_dataset)
 train_loader = DataLoader(dataset=train_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
 val_dataset = Subset(train_dataset, list(range(int(0.2*len(train_dataset)))))
-val_dataset = PuzzleDataset(dataset=val_dataset)
 val_loader = DataLoader(dataset=val_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
 test_dataset = datasets.CIFAR10(root='./data', train=False, transform=transform, download=True)
 test_dataset = PuzzleDataset(dataset=test_dataset)
@@ -63,7 +62,7 @@ class PreTrainer(object):
         self.save_model()
 
     def build_model(self, load):
-        self.model = PuzzleCFN_30(classes=362880).to(device)
+        self.model = PuzzleCFN_30(classes=CLASSES).to(device)
         print(f'Parameter: {sum(p.numel() for p in self.model.parameters() if p.requires_grad)}')
         if load:
             checkpoint = torch.load(pre_load_model_path)
@@ -127,9 +126,19 @@ class PreTrainer(object):
 
                 outputs = model(images)
 
+                _, pred = torch.max(outputs.data, 1)
+                labels_ = torch.tensor([self.idx2order(label) for label in labels])
+                pred_ = torch.tensor([self.idx2order(p) for p in pred])
+                total += labels_.size(0) * labels_.size(1)
+                correct += (pred_ == labels_).sum().item()
 
-
-
+        print(f'[Epoch {epoch + 1}] Accuracy on the test set: {100 * correct / total:.2f}%')
+        torch.set_printoptions(precision=2)
+        total = labels_.size(1)
+        correct = (pred_[0] == labels_[0]).sum().item()
+        print(f'[Sample result]')
+        print(torch.cat((pred_[0].view(9, -1), labels_[0].view(9, -1)), dim=1))
+        print(f'Accuracy: {100 * correct / total:.2f}%')
 
     def save_model(self):
         checkpoint = {
@@ -141,7 +150,18 @@ class PreTrainer(object):
         torch.save(checkpoint, pre_model_path)
         print(f"****** Model checkpoint saved at epochs {self.epochs[-1]} ******")
 
+    def idx2order(self, idx):
+        numbers = list(range(9))
+        permutation_list = permutations(numbers)
+        permutations_array = np.array(list(permutation_list))
+        return permutations_array[idx]
+
+    def idx2order1000(self, idx):
+        permutations_array = np.load(f'./save/permutations_1000.npy')
+        return permutations_array[idx]
+
 
 if __name__ == '__main__':
     trainer = PreTrainer()
     trainer.process()
+
