@@ -1,3 +1,4 @@
+import PIL
 import numpy as np
 import torch
 import torch.nn as nn
@@ -10,7 +11,7 @@ from torchvision import datasets, transforms
 from tqdm import tqdm
 from itertools import permutations
 
-from CV.puzzle_cfn import PuzzleCFN_30
+from CV.puzzle_cfn import PuzzleCFN_30, PuzzleCFN
 from CV.puzzle_image_loader import PuzzleDataset1000 as PuzzleDataset
 from CV.util.tester import visualLoss
 
@@ -18,31 +19,55 @@ from CV.util.tester import visualLoss
 device = 'cpu'
 # device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 CLASSES = 1000
-LEARNING_RATE = 1e-03
-BATCH_SIZE = 1  # 256
-NUM_EPOCHS = 2000
+LEARNING_RATE = 1e-03  # 1e-03
+BATCH_SIZE = 256  # 256
+NUM_EPOCHS = 20
 NUM_WORKERS = 2
-TASK_NAME = 'puzzle_cifar10'
-MODEL_NAME = 'cfn_1000'
+TASK_NAME = 'puzzle_ImageNet'
+MODEL_NAME = 'cfn1000'
 pre_model_path = f'./save/{TASK_NAME}_{MODEL_NAME}_ep{NUM_EPOCHS}_lr{LEARNING_RATE}_b{BATCH_SIZE}.pt'
 pre_load_model_path = './save/xxx.pt'
 
 
+# transform = transforms.Compose([
+#     transforms.Pad(padding=3),
+#     transforms.CenterCrop(30),
+#     transforms.ToTensor(),
+#     transforms.Normalize((0.5,), (0.5,))
+# ])
+
+# transform = transforms.Compose([
+#     transforms.Resize((224, 224)),
+#     transforms.Pad(padding=(0, 0, 1, 1)),
+#     transforms.ToTensor(),
+#     transforms.Normalize((0.5,), (0.5,))
+# ])
+
 transform = transforms.Compose([
-    transforms.Pad(padding=3),
-    transforms.CenterCrop(30),
+    transforms.Resize(256, interpolation=PIL.Image.BICUBIC),
+    transforms.CenterCrop(224),
+    transforms.Pad(padding=(0, 0, 1, 1)),
     transforms.ToTensor(),
-    transforms.Normalize((0.5,), (0.5,))
+    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 ])
 
-train_dataset = datasets.CIFAR10(root='./data', train=True, transform=transform, download=True)
+# train_dataset = datasets.CIFAR10(root='./data', train=True, transform=transform, download=True)
+# train_dataset = PuzzleDataset(dataset=train_dataset)
+# train_loader = DataLoader(dataset=train_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
+# val_dataset = Subset(train_dataset, list(range(int(0.2*len(train_dataset)))))
+# val_loader = DataLoader(dataset=val_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
+# test_dataset = datasets.CIFAR10(root='./data', train=False, transform=transform, download=True)
+# test_dataset = PuzzleDataset(dataset=test_dataset)
+# test_loader = DataLoader(dataset=test_dataset, batch_size=BATCH_SIZE, shuffle=False, num_workers=NUM_WORKERS)
+
+train_dataset = datasets.ImageFolder('../datasets/ImageNet/train', transform=transform)
 train_dataset = PuzzleDataset(dataset=train_dataset)
-train_loader = DataLoader(dataset=train_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
-val_dataset = Subset(train_dataset, list(range(int(0.2*len(train_dataset)))))
+train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
+val_dataset = Subset(train_dataset, list(range(int(0.01*len(train_dataset)))))
 val_loader = DataLoader(dataset=val_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
-test_dataset = datasets.CIFAR10(root='./data', train=False, transform=transform, download=True)
+test_dataset = datasets.ImageFolder('../datasets/ImageNet/val', transform=transform)
 test_dataset = PuzzleDataset(dataset=test_dataset)
-test_loader = DataLoader(dataset=test_dataset, batch_size=BATCH_SIZE, shuffle=False, num_workers=NUM_WORKERS)
+test_loader = DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
 
 
 class PreTrainer(object):
@@ -62,7 +87,7 @@ class PreTrainer(object):
         self.save_model()
 
     def build_model(self, load):
-        self.model = PuzzleCFN_30(classes=CLASSES).to(device)
+        self.model = PuzzleCFN(classes=CLASSES).to(device)
         print(f'Parameter: {sum(p.numel() for p in self.model.parameters() if p.requires_grad)}')
         if load:
             checkpoint = torch.load(pre_load_model_path)
@@ -78,7 +103,7 @@ class PreTrainer(object):
     def pretrain_model(self):
         model = self.model
         criterion = nn.CrossEntropyLoss()
-        optimizer = optim.SGD(model.parameters(), lr=LEARNING_RATE, momentum=0.9, weight_decay=5e-4)
+        optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
         scheduler = CosineAnnealingLR(optimizer, T_max=NUM_EPOCHS)
 
         model.train()
@@ -97,7 +122,7 @@ class PreTrainer(object):
                 optimizer.step()
                 running_loss += loss.item()
 
-                inter = 100
+                inter = 50
                 if batch_idx % inter == inter - 1:
                     print(f'[Epoch {epoch + 1}] [Batch {batch_idx + 1}] Loss: {running_loss / inter:.4f}')
                     self.epochs.append(epoch + 1)
@@ -127,8 +152,8 @@ class PreTrainer(object):
                 outputs = model(images)
 
                 _, pred = torch.max(outputs.data, 1)
-                labels_ = torch.tensor([self.idx2order(label) for label in labels])
-                pred_ = torch.tensor([self.idx2order(p) for p in pred])
+                labels_ = torch.tensor([self.idx2order1000(label) for label in labels])
+                pred_ = torch.tensor([self.idx2order1000(p) for p in pred])
                 total += labels_.size(0) * labels_.size(1)
                 correct += (pred_ == labels_).sum().item()
 
@@ -157,7 +182,7 @@ class PreTrainer(object):
         return permutations_array[idx]
 
     def idx2order1000(self, idx):
-        permutations_array = np.load(f'./save/permutations_1000.npy')
+        permutations_array = np.load(f'./data/permutations_1000.npy')
         return permutations_array[idx]
 
 

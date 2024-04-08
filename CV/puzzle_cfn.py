@@ -180,7 +180,7 @@ class LRN(nn.Module):
 
 
 if __name__ == '__main__':
-    model = PuzzleCFN_30(classes=362880)
-    output = model(torch.rand(2, 9, 3, 10, 10))
+    model = PuzzleCFN(classes=1000)
+    output = model(torch.rand(2, 9, 3, 75, 75))
     print(output.shape)
-    summary(model, (9, 3, 10, 10))
+    summary(model, (9, 3, 75, 75))

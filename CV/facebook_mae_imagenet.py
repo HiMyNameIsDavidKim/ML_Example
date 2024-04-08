@@ -59,7 +59,7 @@ transform_test = transforms.Compose([
     transforms.ToTensor(),
     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 ])
-train_set = torchvision.datasets.ImageFolder('./data/ImageNet/val', transform=transform_train)
+train_set = torchvision.datasets.ImageFolder('./data/ImageNet/train', transform=transform_train)
 train_loader = data.DataLoader(train_set, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
 test_set = torchvision.datasets.ImageFolder('./data/ImageNet/val', transform=transform_test)
 test_loader = data.DataLoader(test_set, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)

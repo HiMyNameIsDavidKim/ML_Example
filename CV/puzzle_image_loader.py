@@ -59,7 +59,7 @@ class PuzzleDataset1000(Dataset):
         return len(self.dataset)
 
     def retrive_permutations(self, classes):
-        all_perm = np.load(f'./save/permutations_{classes}.npy')
+        all_perm = np.load(f'./data/permutations_{classes}.npy')
         if all_perm.min() == 1:
             all_perm = all_perm - 1
         return all_perm
