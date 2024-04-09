@@ -43,7 +43,7 @@ test_loader = DataLoader(dataset=test_dataset, batch_size=batch_size, shuffle=Fa
 
 
 class PuzzleCNNCoord(nn.Module):
-    def __init__(self, num_puzzle=9, size_puzzle=10, threshold=0.8):
+    def __init__(self, num_puzzle=9, size_puzzle=75, threshold=0.8):
         super(PuzzleCNNCoord, self).__init__()
         self.num_puzzle = num_puzzle
         self.size_puzzle = size_puzzle
