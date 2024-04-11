@@ -20,7 +20,7 @@ device = 'cpu'
 # device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 CLASSES = 1000
 LEARNING_RATE = 1e-03  # 1e-03
-BATCH_SIZE = 256  # 256
+BATCH_SIZE = 2  # 256
 NUM_EPOCHS = 20
 NUM_WORKERS = 2
 TASK_NAME = 'puzzle_ImageNet'
@@ -60,12 +60,14 @@ transform = transforms.Compose([
 # test_dataset = PuzzleDataset(dataset=test_dataset)
 # test_loader = DataLoader(dataset=test_dataset, batch_size=BATCH_SIZE, shuffle=False, num_workers=NUM_WORKERS)
 
-train_dataset = datasets.ImageFolder('../datasets/ImageNet/train', transform=transform)
+train_dataset = datasets.ImageFolder('./data/ImageNet/val', transform=transform)
+# train_dataset = datasets.ImageFolder('../datasets/ImageNet/test', transform=transform)
 train_dataset = PuzzleDataset(dataset=train_dataset)
 train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
 val_dataset = Subset(train_dataset, list(range(int(0.01*len(train_dataset)))))
 val_loader = DataLoader(dataset=val_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
-test_dataset = datasets.ImageFolder('../datasets/ImageNet/val', transform=transform)
+test_dataset = datasets.ImageFolder('./data/ImageNet/val', transform=transform)
+# test_dataset = datasets.ImageFolder('../datasets/ImageNet/val', transform=transform)
 test_dataset = PuzzleDataset(dataset=test_dataset)
 test_loader = DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
 

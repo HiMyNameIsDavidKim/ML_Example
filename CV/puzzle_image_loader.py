@@ -39,6 +39,12 @@ class PuzzleDataset1000(Dataset):
     def __init__(self, dataset):
         self.dataset = dataset
         self.permutations = self.retrive_permutations(1000)
+        self.augment_tile = transforms.Compose([
+            transforms.RandomCrop(64),
+            transforms.Resize((75, 75)),
+            transforms.Lambda(rgb_jittering),
+            transforms.Lambda(tile_norm),
+        ])
 
     def __getitem__(self, index):
         img, label = self.dataset[index]
@@ -51,6 +57,7 @@ class PuzzleDataset1000(Dataset):
 
         order = np.random.randint(len(self.permutations))
         data = [tiles[self.permutations[order][t]] for t in range(9)]
+        data = [self.augment_tile(tile) for tile in data]
         data = torch.stack(data, 0)
 
         return data, int(order), tiles
@@ -63,3 +70,18 @@ class PuzzleDataset1000(Dataset):
         if all_perm.min() == 1:
             all_perm = all_perm - 1
         return all_perm
+
+
+def rgb_jittering(tile):
+    jitter_values = torch.randint(-2, 3, (3, 1, 1))
+    jittered_tile = tile + jitter_values
+    jittered_tile = torch.clamp(jittered_tile, 0, 255)
+    return jittered_tile
+
+
+def tile_norm(tile):
+    m, s = tile.view(3, -1).mean(dim=1).numpy(), tile.view(3, -1).std(dim=1).numpy()
+    s[s == 0] = 1
+    norm = transforms.Normalize(mean=m.tolist(), std=s.tolist())
+    tile = norm(tile)
+    return tile
