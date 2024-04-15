@@ -174,12 +174,29 @@ def sprt_base_patch60_img_fhd(**kwargs):
         mlp_ratio=4., norm_layer=partial(nn.LayerNorm, eps=1e-6), **kwargs)
     return model
 
+# large encoder
+def sprt_large_patch60_img_fhd(**kwargs):
+    model = SPRTransformer(
+        img_size=(1080, 1920), patch_size=60, in_chans=2, embed_dim=1024, depth=24, num_heads=16,
+        out_patch_size=30, out_chans=1, decoder_embed_dim=1024, decoder_depth=8, decoder_num_heads=16,
+        mlp_ratio=4., norm_layer=partial(nn.LayerNorm, eps=1e-6), **kwargs)
+    return model
+
+# large decoder
+def sprt_large_patch60_img_fhd_d(**kwargs):
+    model = SPRTransformer(
+        img_size=(1080, 1920), patch_size=60, in_chans=2, embed_dim=1024, depth=8, num_heads=16,
+        out_patch_size=30, out_chans=1, decoder_embed_dim=1024, decoder_depth=16, decoder_num_heads=16,
+        mlp_ratio=4., norm_layer=partial(nn.LayerNorm, eps=1e-6), **kwargs)
+    return model
+
 
 if __name__ == '__main__':
     # set recommended archs
-    sprt = sprt_base_patch120_img_fhd
+    # sprt = sprt_base_patch120_img_fhd
     # sprt = sprt_large_patch120_img_fhd
-    sprt = sprt_base_patch60_img_fhd
+    # sprt = sprt_base_patch60_img_fhd
+    sprt = sprt_large_patch60_img_fhd
 
-    model = sprt_base_patch60_img_fhd()
+    model = sprt_large_patch60_img_fhd_d()
     summary(model, (2, 1080, 1920))
