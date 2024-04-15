@@ -28,9 +28,16 @@ batch_size = 64
 NUM_EPOCHS = 20
 
 
+# transform = transforms.Compose([
+#     transforms.Pad(padding=3),
+#     transforms.CenterCrop(30),
+#     transforms.ToTensor(),
+#     transforms.Normalize((0.5,), (0.5,))
+# ])
+
 transform = transforms.Compose([
-    transforms.Pad(padding=3),
-    transforms.CenterCrop(30),
+    transforms.Resize((224, 224)),
+    transforms.Pad(padding=(0, 0, 1, 1)),
     transforms.ToTensor(),
     transforms.Normalize((0.5,), (0.5,))
 ])
@@ -59,6 +66,12 @@ class PuzzleCNNCoord(nn.Module):
         self.map_values = []
         self.map_coord = None
         self.min_dist = 0
+        self.augment_tile = transforms.Compose([
+            transforms.RandomCrop(64),
+            transforms.Resize((75, 75)),
+            transforms.Lambda(rgb_jittering),
+            transforms.Lambda(tile_norm),
+        ])
 
     def random_shuffle(self, x):
         N, C, H, W = x.shape
@@ -98,13 +111,14 @@ class PuzzleCNNCoord(nn.Module):
         if np.min(perm) == 1:
             perm -= 1
         orders = [np.random.randint(len(perm)) for _ in range(N)]
-        ids_shuffles = [perm[o] for o in orders]
+        ids_shuffles = np.array([perm[o] for o in orders])
         ids_shuffles = torch.tensor(ids_shuffles, device=x.device)
         ids_restores = torch.argsort(ids_shuffles, dim=1)
 
         for i, (img, ids_shuffle) in enumerate(zip(x, ids_shuffles)):
             pieces = [img[:, i:i + p, j:j + p] for i in range(0, H, p) for j in range(0, W, p)]
             shuffled_pieces = [pieces[idx] for idx in ids_shuffle]
+            shuffled_pieces = [self.augment_tile(piece) for piece in shuffled_pieces]
             shuffled_img = [torch.cat(row, dim=2) for row in [shuffled_pieces[i:i+n] for i in range(0, len(shuffled_pieces), n)]]
             shuffled_img = torch.cat(shuffled_img, dim=1)
             x[i] = shuffled_img
@@ -155,8 +169,23 @@ class PuzzleCNNCoord(nn.Module):
         return x, target, loss_var
 
 
+def rgb_jittering(tile):
+    jitter_values = torch.randint(-2, 3, (3, 1, 1))
+    jittered_tile = tile + jitter_values
+    jittered_tile = torch.clamp(jittered_tile, 0, 255)
+    return jittered_tile
+
+
+def tile_norm(tile):
+    m, s = tile.view(3, -1).mean(dim=1).numpy(), tile.view(3, -1).std(dim=1).numpy()
+    s[s == 0] = 1
+    norm = transforms.Normalize(mean=m.tolist(), std=s.tolist())
+    tile = norm(tile)
+    return tile
+
+
 if __name__ == '__main__':
-    model = PuzzleCNNCoord(size_puzzle=10).to(device)
+    model = PuzzleCNNCoord(size_puzzle=75).to(device)
     criterion = nn.SmoothL1Loss()
     optimizer = optim.AdamW(model.parameters(), lr=lr, weight_decay=0.05)
     scheduler = CosineAnnealingLR(optimizer, T_max=NUM_EPOCHS)
