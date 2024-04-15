@@ -60,7 +60,7 @@ class PuzzleDataset1000(Dataset):
         data = [self.augment_tile(tile) for tile in data]
         data = torch.stack(data, 0)
 
-        return data, int(order), tiles
+        return data, int(order), img
 
     def __len__(self):
         return len(self.dataset)

@@ -20,7 +20,7 @@ device = 'cpu'
 # device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 CLASSES = 1000
 LEARNING_RATE = 1e-03  # 1e-03
-BATCH_SIZE = 2  # 256
+BATCH_SIZE = 1  # 256
 NUM_EPOCHS = 20
 NUM_WORKERS = 2
 TASK_NAME = 'puzzle_ImageNet'
@@ -36,40 +36,40 @@ pre_load_model_path = './save/xxx.pt'
 #     transforms.Normalize((0.5,), (0.5,))
 # ])
 
-# transform = transforms.Compose([
-#     transforms.Resize((224, 224)),
-#     transforms.Pad(padding=(0, 0, 1, 1)),
-#     transforms.ToTensor(),
-#     transforms.Normalize((0.5,), (0.5,))
-# ])
-
 transform = transforms.Compose([
-    transforms.Resize(256, interpolation=PIL.Image.BICUBIC),
-    transforms.CenterCrop(224),
+    transforms.Resize((224, 224)),
     transforms.Pad(padding=(0, 0, 1, 1)),
     transforms.ToTensor(),
-    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+    transforms.Normalize((0.5,), (0.5,))
 ])
 
-# train_dataset = datasets.CIFAR10(root='./data', train=True, transform=transform, download=True)
-# train_dataset = PuzzleDataset(dataset=train_dataset)
-# train_loader = DataLoader(dataset=train_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
-# val_dataset = Subset(train_dataset, list(range(int(0.2*len(train_dataset)))))
-# val_loader = DataLoader(dataset=val_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
-# test_dataset = datasets.CIFAR10(root='./data', train=False, transform=transform, download=True)
-# test_dataset = PuzzleDataset(dataset=test_dataset)
-# test_loader = DataLoader(dataset=test_dataset, batch_size=BATCH_SIZE, shuffle=False, num_workers=NUM_WORKERS)
+# transform = transforms.Compose([
+#     transforms.Resize(256, interpolation=PIL.Image.BICUBIC),
+#     transforms.CenterCrop(224),
+#     transforms.Pad(padding=(0, 0, 1, 1)),
+#     transforms.ToTensor(),
+#     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+# ])
 
-train_dataset = datasets.ImageFolder('./data/ImageNet/val', transform=transform)
-# train_dataset = datasets.ImageFolder('../datasets/ImageNet/test', transform=transform)
+train_dataset = datasets.CIFAR10(root='./data', train=True, transform=transform, download=True)
 train_dataset = PuzzleDataset(dataset=train_dataset)
-train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
-val_dataset = Subset(train_dataset, list(range(int(0.01*len(train_dataset)))))
+train_loader = DataLoader(dataset=train_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
+val_dataset = Subset(train_dataset, list(range(int(0.2*len(train_dataset)))))
 val_loader = DataLoader(dataset=val_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
-test_dataset = datasets.ImageFolder('./data/ImageNet/val', transform=transform)
-# test_dataset = datasets.ImageFolder('../datasets/ImageNet/val', transform=transform)
+test_dataset = datasets.CIFAR10(root='./data', train=False, transform=transform, download=True)
 test_dataset = PuzzleDataset(dataset=test_dataset)
-test_loader = DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
+test_loader = DataLoader(dataset=test_dataset, batch_size=BATCH_SIZE, shuffle=False, num_workers=NUM_WORKERS)
+
+# train_dataset = datasets.ImageFolder('./data/ImageNet/val', transform=transform)
+# # train_dataset = datasets.ImageFolder('../datasets/ImageNet/test', transform=transform)
+# train_dataset = PuzzleDataset(dataset=train_dataset)
+# train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
+# val_dataset = Subset(train_dataset, list(range(int(0.01*len(train_dataset)))))
+# val_loader = DataLoader(dataset=val_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
+# test_dataset = datasets.ImageFolder('./data/ImageNet/val', transform=transform)
+# # test_dataset = datasets.ImageFolder('../datasets/ImageNet/val', transform=transform)
+# test_dataset = PuzzleDataset(dataset=test_dataset)
+# test_loader = DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
 
 
 class PreTrainer(object):
