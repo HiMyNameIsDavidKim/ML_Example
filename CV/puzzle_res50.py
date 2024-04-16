@@ -170,14 +170,14 @@ class PuzzleCNNCoord(nn.Module):
 
 
 def rgb_jittering(tile):
-    jitter_values = torch.randint(-2, 3, (3, 1, 1))
+    jitter_values = torch.randint(-2, 3, (3, 1, 1)).to(tile.device)
     jittered_tile = tile + jitter_values
     jittered_tile = torch.clamp(jittered_tile, 0, 255)
     return jittered_tile
 
 
 def tile_norm(tile):
-    m, s = tile.view(3, -1).mean(dim=1).numpy(), tile.view(3, -1).std(dim=1).numpy()
+    m, s = torch.mean(tile.view(3, -1), dim=1).to(tile.device), torch.std(tile.view(3, -1), dim=1).to(tile.device)
     s[s == 0] = 1
     norm = transforms.Normalize(mean=m.tolist(), std=s.tolist())
     tile = norm(tile)
