@@ -32,8 +32,8 @@ from sprt_util import get_2d_sincos_pos_embed, PatchEmbed
 
 
 class SPRTransformer(nn.Module):
-    def __init__(self, img_size=(720, 1280), patch_size=40, in_chans=2, embed_dim=1024, depth=8, num_heads=16,
-                 out_patch_size=20, out_chans=1, decoder_embed_dim=1024, decoder_depth=4, decoder_num_heads=16,
+    def __init__(self, img_size=(540, 960), patch_size=60, in_chans=2, embed_dim=1024, depth=8, num_heads=16,
+                 out_patch_size=30, out_chans=1, decoder_embed_dim=1024, decoder_depth=4, decoder_num_heads=16,
                  mlp_ratio=4., norm_layer=nn.LayerNorm, norm_pix_loss=False):
         super().__init__()
         # --------------------------------------------------------------------------
@@ -155,17 +155,25 @@ class SPRTransformer(nn.Module):
         return x
 
 
-def sprt_base_patch40_img_hd_1024(**kwargs):
+def sprt_base_patch60_img_hd_1024(**kwargs):
     model = SPRTransformer(
-        img_size=(720, 1280), patch_size=40, in_chans=2, embed_dim=1024, depth=8, num_heads=16,
-        out_patch_size=20, out_chans=1, decoder_embed_dim=1024, decoder_depth=4, decoder_num_heads=16,
+        img_size=(540, 960), patch_size=60, in_chans=2, embed_dim=1024, depth=8, num_heads=16,
+        out_patch_size=30, out_chans=1, decoder_embed_dim=1024, decoder_depth=4, decoder_num_heads=16,
+        mlp_ratio=4., norm_layer=partial(nn.LayerNorm, eps=1e-6), **kwargs)
+    return model
+
+
+def sprt_base_patch60_img_hd_2048(**kwargs):
+    model = SPRTransformer(
+        img_size=(540, 960), patch_size=60, in_chans=2, embed_dim=2048, depth=8, num_heads=16,
+        out_patch_size=30, out_chans=1, decoder_embed_dim=1024, decoder_depth=4, decoder_num_heads=16,
         mlp_ratio=4., norm_layer=partial(nn.LayerNorm, eps=1e-6), **kwargs)
     return model
 
 
 if __name__ == '__main__':
     # set recommended archs
-    sprt = sprt_base_patch40_img_hd_1024
+    sprt = sprt_base_patch60_img_hd_1024
 
-    model = sprt_base_patch40_img_hd_1024()
-    summary(model, (2, 720, 1280))
+    model = sprt_base_patch60_img_hd_1024()
+    summary(model, (2, 540, 960))

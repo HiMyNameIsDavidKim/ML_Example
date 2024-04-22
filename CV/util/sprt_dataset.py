@@ -32,7 +32,16 @@ def get_transform_fhd(output_size=(1080, 1920), dataset='train'):
         ])
     return transform
 
-def get_transform_hd(output_size=(720, 1280), dataset='train'):
+def dynamic_padding_fhd(image):
+    if image.shape[0] < 1080:
+        pad_size = 1080 - image.shape[0] + 100
+        image = T.functional.pad(image, (0, pad_size//2, 0, pad_size//2))
+    if image.shape[1] < 1920:
+        pad_size = 1920 - image.shape[1] + 100
+        image = T.functional.pad(image, (pad_size//2, 0, pad_size//2, 0))
+    return image
+
+def get_transform_hd(output_size=(540, 960), dataset='train'):
     if dataset == 'train':
         transform = T.Compose([
             T.ToTensor(),
@@ -50,21 +59,12 @@ def get_transform_hd(output_size=(720, 1280), dataset='train'):
         ])
     return transform
 
-def dynamic_padding_fhd(image):
-    if image.shape[0] < 1080:
-        pad_size = 1080 - image.shape[0] + 100
-        image = T.functional.pad(image, (0, pad_size//2, 0, pad_size//2))
-    if image.shape[1] < 1920:
-        pad_size = 1920 - image.shape[1] + 100
-        image = T.functional.pad(image, (pad_size//2, 0, pad_size//2, 0))
-    return image
-
 def dynamic_padding_hd(image):
-    if image.shape[0] < 720:
-        pad_size = 720 - image.shape[0] + 100
+    if image.shape[0] < 540:
+        pad_size = 540 - image.shape[0] + 100
         image = T.functional.pad(image, (0, pad_size//2, 0, pad_size//2))
-    if image.shape[1] < 1280:
-        pad_size = 1280 - image.shape[1] + 100
+    if image.shape[1] < 960:
+        pad_size = 960 - image.shape[1] + 100
         image = T.functional.pad(image, (pad_size//2, 0, pad_size//2, 0))
     return image
 
