@@ -74,7 +74,7 @@ class Tester(object):
         diff = 0
         correct = 0
         with torch.no_grad():
-            for inputs, _ in tqdm(enumerate(test_loader, 0), total=len(test_loader)):
+            for batch_idx, (inputs, _) in tqdm(enumerate(test_loader, 0), total=len(test_loader)):
                 inputs = inputs.to(device)
 
                 outputs, labels, _ = model(inputs)
@@ -91,8 +91,9 @@ class Tester(object):
         torch.set_printoptions(precision=2)
         total = labels.size(1)
         correct = (pred_[0] == labels_[0]).all(dim=1).sum().item()
+        print(f'[Sample result]')
         print(torch.cat((pred_[0], labels_[0]), dim=1))
-        print(f'Accuracy: {100 * correct / total:.2f}')
+        print(f'Accuracy: {100 * correct / total:.2f}%')
 
 
 if __name__ == '__main__':

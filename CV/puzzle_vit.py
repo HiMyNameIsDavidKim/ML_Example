@@ -8,6 +8,7 @@ from torch.optim.lr_scheduler import CosineAnnealingLR
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
 import math
+from torchsummary import summary
 
 from util.tester import visualDoubleLoss
 
@@ -157,3 +158,4 @@ def tile_norm(tile):
 if __name__ == '__main__':
     model = PuzzleViT()
     output, target, loss_var = model(torch.rand(2, 3, 225, 225))
+    summary(model, (3, 225, 225))
