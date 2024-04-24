@@ -247,8 +247,6 @@ class FineTuner(object):
 
             if 'given' not in str(fine_load_model_path):
                 self.epochs = checkpoint['epochs']
-                self.losses = checkpoint['losses']
-                self.accuracies = checkpoint['accuracies']
             print(f'Parameter: {sum(p.numel() for p in self.model.parameters() if p.requires_grad)}')
             print(f'Epoch: {self.epochs[-1]}')
             print(f'****** Reset epochs and losses ******')
