@@ -54,13 +54,6 @@ fine_model_path = fine_load_model_path[:-3] + f'___{TASK_NAME}_ep{NUM_EPOCHS}_lr
 # ])
 
 # transform = transforms.Compose([
-#     transforms.Resize((224, 224)),
-#     transforms.Pad(padding=(0, 0, 1, 1)),
-#     transforms.ToTensor(),
-#     transforms.Normalize((0.5,), (0.5,))
-# ])
-
-# transform = transforms.Compose([
 #     transforms.Resize(256, interpolation=PIL.Image.BICUBIC),
 #     transforms.CenterCrop(224),
 #     transforms.Pad(padding=(0, 0, 1, 1)),

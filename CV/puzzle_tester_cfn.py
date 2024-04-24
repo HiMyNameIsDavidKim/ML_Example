@@ -12,13 +12,13 @@ from torchvision.models import resnet50
 import math
 from tqdm import tqdm
 
-from CV.puzzle_vit import PuzzleViT
-from CV.puzzle_res50 import PuzzleCNNCoord
-from CV.util.tester import visualDoubleLoss
-
+from CV.puzzle_cfn import PuzzleCFN_30, PuzzleCFN
+from CV.puzzle_image_loader import PuzzleDataset1000 as PuzzleDataset
+from CV.util.tester import visualLoss
 
 device = 'cpu'
 # device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+CLASSES = 1000
 LEARNING_RATE = 3e-05
 BATCH_SIZE = 64
 NUM_EPOCHS = 20
@@ -55,20 +55,18 @@ class Tester(object):
         self.eval_model()
 
     def build_model(self, load):
-        self.model = PuzzleViT().to(device)
+        self.model = PuzzleCFN(classes=CLASSES).to(device)
         print(f'Parameter: {sum(p.numel() for p in self.model.parameters() if p.requires_grad)}')
         if load:
             checkpoint = torch.load(test_model_path)
             self.epochs = checkpoint['epochs']
             self.model.load_state_dict(checkpoint['model'])
-            self.losses_c = checkpoint['losses_coord']
-            self.losses_t = checkpoint['losses_total']
+            self.losses = checkpoint['losses']
             print(f'Parameter: {sum(p.numel() for p in self.model.parameters() if p.requires_grad)}')
             print(f'Epoch: {self.epochs[-1]}')
             print(f'****** Reset epochs and losses ******')
             self.epochs = []
-            self.losses_c = []
-            self.losses_t = []
+            self.losses = []
 
     def eval_model(self, epoch=-1):
         model = self.model
@@ -76,29 +74,31 @@ class Tester(object):
         model.eval()
 
         total = 0
-        diff = 0
         correct = 0
         with torch.no_grad():
-            for batch_idx, (inputs, _) in tqdm(enumerate(test_loader, 0), total=len(test_loader)):
-                inputs = inputs.to(device)
+            for batch_idx, (images, labels, original) in tqdm(enumerate(val_loader, 0), total=len(val_loader)):
+                images = images.to(device)
+                labels = labels.to(device)
 
-                outputs, labels, _ = model(inputs)
+                outputs = model(images)
 
-                pred = outputs
-                total += labels.size(0)
-                diff += (torch.dist(pred, labels)).sum().item()
-                pred_ = model.mapping(pred)
-                labels_ = model.mapping(labels)
-                correct += (pred_ == labels_).all(dim=2).sum().item()
+                _, pred = torch.max(outputs.data, 1)
+                labels_ = torch.tensor([self.idx2order1000(label) for label in labels])
+                pred_ = torch.tensor([self.idx2order1000(p) for p in pred])
+                total += labels_.size(0) * labels_.size(1)
+                correct += (pred_ == labels_).sum().item()
 
-        print(f'[Epoch {epoch + 1}] Avg diff on the test set: {diff / total:.2f}')
-        print(f'[Epoch {epoch + 1}] Accuracy on the test set: {100 * correct / (total * labels.size(1)):.2f}%')
+        print(f'[Epoch {epoch + 1}] Accuracy on the test set: {100 * correct / total:.2f}%')
         torch.set_printoptions(precision=2)
-        total = labels.size(1)
-        correct = (pred_[0] == labels_[0]).all(dim=1).sum().item()
+        total = labels_.size(1)
+        correct = (pred_[0] == labels_[0]).sum().item()
         print(f'[Sample result]')
-        print(torch.cat((pred_[0], labels_[0]), dim=1))
+        print(torch.cat((pred_[0].view(9, -1), labels_[0].view(9, -1)), dim=1))
         print(f'Accuracy: {100 * correct / total:.2f}%')
+
+    def idx2order1000(self, idx):
+        permutations_array = np.load(f'./data/permutations_1000.npy')
+        return permutations_array[idx]
 
 
 if __name__ == '__main__':
