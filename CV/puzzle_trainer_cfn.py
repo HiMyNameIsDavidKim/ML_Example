@@ -292,7 +292,7 @@ class FineTuner(object):
                     saving_loss = 0.0
                     correct = 0
                     total = 0
-                if i % 7000 == 6999:
+                if i % 2000 == 1999:
                     self.val_model(epoch)
             self.model = model
             self.optimizer = optimizer

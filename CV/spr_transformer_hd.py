@@ -171,9 +171,17 @@ def sprt_base_patch60_img_hd_2048(**kwargs):
     return model
 
 
+def sprt_base_patch20_img_hd_2048(**kwargs):
+    model = SPRTransformer(
+        img_size=(540, 960), patch_size=20, in_chans=2, embed_dim=2048, depth=8, num_heads=16,
+        out_patch_size=10, out_chans=1, decoder_embed_dim=1024, decoder_depth=4, decoder_num_heads=16,
+        mlp_ratio=4., norm_layer=partial(nn.LayerNorm, eps=1e-6), **kwargs)
+    return model
+
+
 if __name__ == '__main__':
     # set recommended archs
-    sprt = sprt_base_patch60_img_hd_1024
+    sprt = sprt_base_patch20_img_hd_2048
 
-    model = sprt_base_patch60_img_hd_1024()
+    model = sprt_base_patch20_img_hd_2048()
     summary(model, (2, 540, 960))

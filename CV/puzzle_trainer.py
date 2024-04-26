@@ -5,6 +5,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 from matplotlib import pyplot as plt
+from timm.data import create_transform, IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD, Mixup
+from timm.loss import SoftTargetCrossEntropy
 from torch.optim.lr_scheduler import CosineAnnealingLR
 from torch.utils.data import DataLoader, Subset
 from torchvision import datasets, transforms
@@ -20,7 +22,6 @@ import facebook_vit
 from mae_util import interpolate_pos_embed
 from timm.models.layers import trunc_normal_
 
-
 device = 'cpu'
 # device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
@@ -35,6 +36,7 @@ pre_model_path = f'./save/{TASK_NAME}_{MODEL_NAME}_ep{NUM_EPOCHS}_lr{LEARNING_RA
 pre_load_model_path = './save/xxx.pt'
 
 '''Fine-tuning'''
+AUGMENTATION = True
 LEARNING_RATE = 3e-05
 BATCH_SIZE = 64
 NUM_EPOCHS = 100
@@ -43,7 +45,6 @@ NUM_WORKERS = 2
 TASK_NAME = 'classification_ImageNet'
 fine_load_model_path = './save/xxx.pt'  # duplicate file
 fine_model_path = fine_load_model_path[:-3] + f'___{TASK_NAME}_ep{NUM_EPOCHS}_lr{LEARNING_RATE}_b{BATCH_SIZE}.pt'
-
 
 '''Pre-training'''
 # transform = transforms.Compose([
@@ -69,19 +70,44 @@ transform = transforms.Compose([
     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 ])
 
-train_dataset = datasets.CIFAR10(root='./data', train=True, transform=transform, download=True)
-train_loader = DataLoader(dataset=train_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
-val_dataset = Subset(train_dataset, list(range(int(0.2*len(train_dataset)))))
-val_loader = DataLoader(dataset=val_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
-test_dataset = datasets.CIFAR10(root='./data', train=False, transform=transform, download=True)
-test_loader = DataLoader(dataset=test_dataset, batch_size=BATCH_SIZE, shuffle=False, num_workers=NUM_WORKERS)
+if AUGMENTATION:
+    transform = create_transform(
+        input_size=224,
+        is_training=True,
+        color_jitter=None,
+        auto_augment='rand-m9-mstd0.5-inc1',
+        interpolation='bicubic',
+        re_prob=0.25,
+        re_mode='pixel',
+        re_count=1,
+        mean=IMAGENET_DEFAULT_MEAN,
+        std=IMAGENET_DEFAULT_STD,
+    )
 
-# train_dataset = datasets.ImageFolder('../datasets/ImageNet/train', transform=transform)
-# train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
-# val_dataset = Subset(train_dataset, list(range(int(0.01*len(train_dataset)))))
+mixup_fn = Mixup(
+    mixup_alpha=0.8,
+    cutmix_alpha=1.0,
+    cutmix_minmax=None,
+    prob=1.0,
+    switch_prob=0.5,
+    mode='batch',
+    label_smoothing=0.1,
+    num_classes=1000
+)
+
+# train_dataset = datasets.CIFAR10(root='./data', train=True, transform=transform, download=True)
+# train_loader = DataLoader(dataset=train_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
+# val_dataset = Subset(train_dataset, list(range(int(0.2*len(train_dataset)))))
 # val_loader = DataLoader(dataset=val_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
-# test_dataset = datasets.ImageFolder('../datasets/ImageNet/val', transform=transform)
-# test_loader = DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
+# test_dataset = datasets.CIFAR10(root='./data', train=False, transform=transform, download=True)
+# test_loader = DataLoader(dataset=test_dataset, batch_size=BATCH_SIZE, shuffle=False, num_workers=NUM_WORKERS)
+
+train_dataset = datasets.ImageFolder('../datasets/ImageNet/train', transform=transform)
+train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
+val_dataset = Subset(train_dataset, list(range(int(0.01 * len(train_dataset)))))
+val_loader = DataLoader(dataset=val_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
+test_dataset = datasets.ImageFolder('../datasets/ImageNet/val', transform=transform)
+test_loader = DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
 
 
 class PreTrainer(object):
@@ -130,7 +156,7 @@ class PreTrainer(object):
 
                 outputs, labels, loss_var = model(inputs)
                 loss_coord = criterion(outputs, labels)
-                loss = loss_coord + loss_var/1e05
+                loss = loss_coord + loss_var / 1e05
                 loss.backward()
                 optimizer.step()
                 running_loss_c += loss_coord.item()
@@ -217,7 +243,7 @@ class FineTuner(object):
             num_classes=1000,
             drop_path_rate=0.1,
             global_pool=True,
-            )
+        )
         print(f'Parameter: {sum(p.numel() for p in self.model.parameters() if p.requires_grad)}')
         self.optimizer = optim.SGD(self.model.parameters(), lr=0)
         self.scheduler = CosineAnnealingLR(self.optimizer, T_max=NUM_EPOCHS)
@@ -257,6 +283,8 @@ class FineTuner(object):
     def finetune_model(self):
         model = self.model.train()
         criterion = nn.CrossEntropyLoss()
+        if AUGMENTATION:
+            criterion = SoftTargetCrossEntropy()
         optimizer = optim.AdamW(model.parameters(), lr=LEARNING_RATE, weight_decay=0.05)
         scheduler = CosineAnnealingLR(optimizer, T_max=NUM_EPOCHS)
 
@@ -275,6 +303,8 @@ class FineTuner(object):
             for i, data in tqdm(enumerate(train_loader, 0), total=len(train_loader)):
                 inputs, labels = data
                 inputs, labels = inputs.to(device), labels.to(device)
+                if AUGMENTATION:
+                    inputs, labels = mixup_fn(inputs, labels)
 
                 optimizer.zero_grad()
 
@@ -290,12 +320,13 @@ class FineTuner(object):
                 correct += (predicted == labels).sum().item()
 
                 inter = 100
-                if i % inter == inter-1:
-                    print(f'[Epoch {epoch}, Batch {i + 1:5d}] loss: {running_loss / 100:.3f}, acc: {correct/total*100:.2f} %')
+                if i % inter == inter - 1:
+                    print(
+                        f'[Epoch {epoch}, Batch {i + 1:5d}] loss: {running_loss / 100:.3f}, acc: {correct / total * 100:.2f} %')
                     running_loss = 0.0
                     self.epochs.append(epoch + 1)
-                    self.losses.append(saving_loss/1000)
-                    self.accuracies.append(correct/total*100)
+                    self.losses.append(saving_loss / 1000)
+                    self.accuracies.append(correct / total * 100)
                     saving_loss = 0.0
                     correct = 0
                     total = 0
@@ -334,7 +365,7 @@ class FineTuner(object):
             'accuracies': self.accuracies,
         }
         torch.save(checkpoint, fine_model_path)
-#         torch.save(checkpoint, dynamic_model_path+str(self.epochs[-1])+f'_lr{LEARNING_RATE}.pt')
+        #         torch.save(checkpoint, dynamic_model_path+str(self.epochs[-1])+f'_lr{LEARNING_RATE}.pt')
         print(f"****** Model checkpoint saved at epochs {self.epochs[-1]} ******")
 
 
