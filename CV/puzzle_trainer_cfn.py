@@ -5,6 +5,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 from matplotlib import pyplot as plt
+from timm.data import create_transform, IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD, Mixup
+from timm.loss import SoftTargetCrossEntropy
 from torch.optim.lr_scheduler import CosineAnnealingLR
 from torch.utils.data import DataLoader, Subset
 from torchvision import datasets, transforms
@@ -35,6 +37,7 @@ pre_model_path = f'./save/{TASK_NAME}_{MODEL_NAME}_ep{NUM_EPOCHS}_lr{LEARNING_RA
 pre_load_model_path = './save/xxx.pt'
 
 '''Fine-tuning'''
+AUGMENTATION = True
 LEARNING_RATE = 3e-05
 BATCH_SIZE = 256
 NUM_EPOCHS = 100
@@ -44,6 +47,7 @@ TASK_NAME = 'classification_ImageNet'
 fine_load_model_path = './save/xxx.pt'  # duplicate file
 fine_model_path = fine_load_model_path[:-3] + f'___{TASK_NAME}_ep{NUM_EPOCHS}_lr{LEARNING_RATE}_b{BATCH_SIZE}.pt'
 
+'''Pre-training'''
 # transform = transforms.Compose([
 #     transforms.Pad(padding=3),
 #     transforms.CenterCrop(30),
@@ -58,6 +62,39 @@ transform = transforms.Compose([
     transforms.ToTensor(),
     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 ])
+
+'''Fine-tuning'''
+transform = transforms.Compose([
+    transforms.Resize(256, interpolation=PIL.Image.BICUBIC),
+    transforms.CenterCrop(224),
+    transforms.ToTensor(),
+    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+])
+
+if AUGMENTATION:
+    transform = create_transform(
+        input_size=224,
+        is_training=True,
+        color_jitter=None,
+        auto_augment='rand-m9-mstd0.5-inc1',
+        interpolation='bicubic',
+        re_prob=0.25,
+        re_mode='pixel',
+        re_count=1,
+        mean=IMAGENET_DEFAULT_MEAN,
+        std=IMAGENET_DEFAULT_STD,
+    )
+
+mixup_fn = Mixup(
+    mixup_alpha=0.8,
+    cutmix_alpha=1.0,
+    cutmix_minmax=None,
+    prob=1.0,
+    switch_prob=0.5,
+    mode='batch',
+    label_smoothing=0.1,
+    num_classes=1000
+)
 
 '''Pre-training'''
 # train_dataset = datasets.CIFAR10(root='./data', train=True, transform=transform, download=True)
@@ -250,6 +287,8 @@ class FineTuner(object):
     def finetune_model(self):
         model = self.model.train()
         criterion = nn.CrossEntropyLoss()
+        if AUGMENTATION:
+            criterion = SoftTargetCrossEntropy()
         optimizer = optim.AdamW(model.parameters(), lr=LEARNING_RATE, weight_decay=0.05)
         scheduler = CosineAnnealingLR(optimizer, T_max=NUM_EPOCHS)
 
@@ -268,6 +307,8 @@ class FineTuner(object):
             for i, data in tqdm(enumerate(train_loader, 0), total=len(train_loader)):
                 inputs, labels = data
                 inputs, labels = inputs.to(device), labels.to(device)
+                if AUGMENTATION:
+                    inputs, labels = mixup_fn(inputs, labels)
 
                 optimizer.zero_grad()
 
@@ -279,16 +320,20 @@ class FineTuner(object):
                 running_loss += loss.item()
                 saving_loss += loss.item()
                 _, predicted = torch.max(outputs.data, 1)
-                total += labels.size(0)
-                correct += (predicted == labels).sum().item()
+                if not AUGMENTATION:
+                    total += labels.size(0)
+                    correct += (predicted == labels).sum().item()
 
                 inter = 100
                 if i % inter == inter-1:
-                    print(f'[Epoch {epoch}, Batch {i + 1:5d}] loss: {running_loss / 100:.3f}, acc: {correct/total*100:.2f} %')
-                    running_loss = 0.0
+                    if AUGMENTATION:
+                        print(f'[Epoch {epoch}, Batch {i + 1:5d}] loss: {running_loss / 100:.3f}')
+                    else:
+                        print(f'[Epoch {epoch}, Batch {i + 1:5d}] loss: {running_loss / 100:.3f}, acc: {correct/total*100:.2f} %')
+                        self.accuracies.append(correct/total*100)
                     self.epochs.append(epoch + 1)
                     self.losses.append(saving_loss/1000)
-                    self.accuracies.append(correct/total*100)
+                    running_loss = 0.0
                     saving_loss = 0.0
                     correct = 0
                     total = 0

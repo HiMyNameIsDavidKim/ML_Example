@@ -316,17 +316,20 @@ class FineTuner(object):
                 running_loss += loss.item()
                 saving_loss += loss.item()
                 _, predicted = torch.max(outputs.data, 1)
-                total += labels.size(0)
-                correct += (predicted == labels).sum().item()
+                if not AUGMENTATION:
+                    total += labels.size(0)
+                    correct += (predicted == labels).sum().item()
 
                 inter = 100
                 if i % inter == inter - 1:
-                    print(
-                        f'[Epoch {epoch}, Batch {i + 1:5d}] loss: {running_loss / 100:.3f}, acc: {correct / total * 100:.2f} %')
-                    running_loss = 0.0
+                    if AUGMENTATION:
+                        print(f'[Epoch {epoch}, Batch {i + 1:5d}] loss: {running_loss / 100:.3f}')
+                    else:
+                        print(f'[Epoch {epoch}, Batch {i + 1:5d}] loss: {running_loss / 100:.3f}, acc: {correct / total * 100:.2f} %')
+                        self.accuracies.append(correct / total * 100)
                     self.epochs.append(epoch + 1)
                     self.losses.append(saving_loss / 1000)
-                    self.accuracies.append(correct / total * 100)
+                    running_loss = 0.0
                     saving_loss = 0.0
                     correct = 0
                     total = 0
