@@ -106,24 +106,22 @@ mixup_fn = Mixup(
 # test_dataset = PuzzleDataset(dataset=test_dataset)
 # test_loader = DataLoader(dataset=test_dataset, batch_size=BATCH_SIZE, shuffle=False, num_workers=NUM_WORKERS)
 
-train_dataset = datasets.ImageFolder('./data/ImageNet/val', transform=transform)
 # train_dataset = datasets.ImageFolder('../datasets/ImageNet/train', transform=transform)
-train_dataset = PuzzleDataset(dataset=train_dataset)
-train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
-val_dataset = Subset(train_dataset, list(range(int(0.01*len(train_dataset)))))
-val_loader = DataLoader(dataset=val_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
-test_dataset = datasets.ImageFolder('./data/ImageNet/val', transform=transform)
-# test_dataset = datasets.ImageFolder('../datasets/ImageNet/val', transform=transform)
-test_dataset = PuzzleDataset(dataset=test_dataset)
-test_loader = DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
-
-'''Fine-tuning'''
-# train_dataset = datasets.ImageFolder('../datasets/ImageNet/train', transform=transform)
+# train_dataset = PuzzleDataset(dataset=train_dataset)
 # train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
 # val_dataset = Subset(train_dataset, list(range(int(0.01*len(train_dataset)))))
 # val_loader = DataLoader(dataset=val_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
 # test_dataset = datasets.ImageFolder('../datasets/ImageNet/val', transform=transform)
+# test_dataset = PuzzleDataset(dataset=test_dataset)
 # test_loader = DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
+
+'''Fine-tuning'''
+train_dataset = datasets.ImageFolder('../datasets/ImageNet/train', transform=transform)
+train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS, drop_last=True)
+val_dataset = Subset(train_dataset, list(range(int(0.01*len(train_dataset)))))
+val_loader = DataLoader(dataset=val_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS, drop_last=True)
+test_dataset = datasets.ImageFolder('../datasets/ImageNet/val', transform=transform)
+test_loader = DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS, drop_last=True)
 
 
 class PreTrainer(object):
@@ -289,7 +287,7 @@ class FineTuner(object):
         criterion = nn.CrossEntropyLoss()
         if AUGMENTATION:
             criterion = SoftTargetCrossEntropy()
-        optimizer = optim.AdamW(model.parameters(), lr=LEARNING_RATE, weight_decay=0.05)
+        optimizer = optim.SGD(model.parameters(), lr=LEARNING_RATE)
         scheduler = CosineAnnealingLR(optimizer, T_max=NUM_EPOCHS)
 
         for epoch in range(NUM_EPOCHS):

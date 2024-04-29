@@ -26,26 +26,22 @@ class AlexNet(nn.Module):
         self.conv.add_module('relu5_s1', nn.ReLU(inplace=True))
         self.conv.add_module('pool5_s1', nn.MaxPool2d(kernel_size=3, stride=2))
 
-        self.fc6 = nn.Sequential()
-        self.fc6.add_module('fc6_s1', nn.Linear(256 * 12 * 12, 1024))
-        self.fc6.add_module('relu6_s1', nn.ReLU(inplace=True))
-        self.fc6.add_module('drop6_s1', nn.Dropout(p=0.5))
-
-        self.fc7 = nn.Sequential()
-        self.fc7.add_module('fc7', nn.Linear(1024, 4096))
-        self.fc7.add_module('relu7', nn.ReLU(inplace=True))
-        self.fc7.add_module('drop7', nn.Dropout(p=0.5))
-
-        self.fc8 = nn.Sequential()
-        self.fc8.add_module('fc8', nn.Linear(4096, classes))
-        self.fc8.add_module('softmax', nn.Softmax(dim=1))  # Softmax activation for classification
+        self.avgpool = nn.AdaptiveAvgPool2d((6, 6))
+        self.classifier = nn.Sequential(
+            nn.Dropout(p=0.5),
+            nn.Linear(256 * 6 * 6, 4096),
+            nn.ReLU(inplace=True),
+            nn.Dropout(p=0.5),
+            nn.Linear(4096, 4096),
+            nn.ReLU(inplace=True),
+            nn.Linear(4096, 1000),
+        )
 
     def forward(self, x):
         x = self.conv(x)
-        x = x.view(x.size(0), -1)
-        x = self.fc6(x)
-        x = self.fc7(x)
-        x = self.fc8(x)
+        x = self.avgpool(x)
+        x = torch.flatten(x, 1)
+        x = self.classifier(x)
         return x
 
 
