@@ -326,14 +326,15 @@ class FineTuner(object):
                         print(f'[Epoch {epoch}, Batch {i + 1:5d}] loss: {running_loss / 100:.3f}')
                     else:
                         print(f'[Epoch {epoch}, Batch {i + 1:5d}] loss: {running_loss / 100:.3f}, acc: {correct / total * 100:.2f} %')
-                        self.accuracies.append(correct / total * 100)
+                        self.accuracies.append(correct/total*100)
                     self.epochs.append(epoch + 1)
-                    self.losses.append(saving_loss / 1000)
+                    self.losses.append(saving_loss/inter)
                     running_loss = 0.0
                     saving_loss = 0.0
                     correct = 0
                     total = 0
-                if i % 7000 == 6999:
+                mid_term = len(train_loader)//3
+                if i % mid_term == mid_term-1:
                     self.val_model(epoch)
             self.model = model
             self.optimizer = optimizer
