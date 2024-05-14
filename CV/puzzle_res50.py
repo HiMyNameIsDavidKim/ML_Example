@@ -14,8 +14,8 @@ from util.tester import visualDoubleLoss
 
 # --------------------------------------------------------
 # PuzzleCNN
-# img_size=30, patch_size=10, num_puzzle=9
-# input = [batch, 3, 30, 30]
+# img_size=225, patch_size=75, num_puzzle=9
+# input = [batch, 3, 225, 225]
 # shuffle
 # dim_resnet = [batch, 2048]
 # dim_fc = [batch, 4096]

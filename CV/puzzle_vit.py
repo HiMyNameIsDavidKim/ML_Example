@@ -13,12 +13,12 @@ from torchsummary import summary
 from util.tester import visualDoubleLoss
 
 # --------------------------------------------------------
-# PuzzleCNN
-# img_size=30, patch_size=10, num_puzzle=9
-# input = [batch, 3, 30, 30]
+# PuzzleViT
+# img_size=225, patch_size=75, num_puzzle=9
+# input = [batch, 3, 225, 225]
 # shuffle
-# dim_resnet = [batch, 2048]
-# dim_fc = [batch, 4096]
+# dim_vit = [batch, 196, 768]
+# dim_fc = [batch, 1000] -> [batch, 4096] x 5
 # output = [batch, 9, 2]
 # --------------------------------------------------------
 

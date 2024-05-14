@@ -13,12 +13,12 @@ from torchsummary import summary
 from util.tester import visualDoubleLoss
 
 # --------------------------------------------------------
-# PuzzleCNN
-# img_size=30, patch_size=10, num_puzzle=9
-# input = [batch, 3, 30, 30]
+# PuzzleViT(768)
+# img_size=225, patch_size=75, num_puzzle=9
+# input = [batch, 3, 225, 225]
 # shuffle
-# dim_resnet = [batch, 2048]
-# dim_fc = [batch, 4096]
+# dim_vit = [batch, 196, 768]
+# dim_fc = [batch, 1000] x 3
 # output = [batch, 9, 2]
 # --------------------------------------------------------
 
@@ -30,7 +30,7 @@ class PuzzleViT(nn.Module):
         self.size_puzzle = size_puzzle
         self.threshold = threshold
         self.vit_features = timm.create_model('vit_base_patch16_224', pretrained=False)
-        self.vit_features.head = nn.Linear(768, 1000)
+        # self.vit_features.head = nn.Linear(768, 1000)
         self.fc1 = nn.Linear(1000, 1000)
         self.fc2 = nn.Linear(1000, self.num_puzzle * 2)
         self.map_values = []
