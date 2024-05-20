@@ -159,12 +159,19 @@ def sprt_base_patch16_img192(**kwargs):
         mlp_ratio=4, norm_layer=partial(nn.LayerNorm, eps=1e-6), **kwargs)
     return model
 
+def sprt_large_patch16_img192(**kwargs):
+    model = SPRTransformer(
+        img_size=192, patch_size=16, in_chans=2, embed_dim=1024, depth=24, num_heads=32,
+        out_patch_size=8, out_chans=1, decoder_embed_dim=1024, decoder_depth=12, decoder_num_heads=16,
+        mlp_ratio=4, norm_layer=partial(nn.LayerNorm, eps=1e-6), **kwargs)
+    return model
+
 
 if __name__ == '__main__':
     # set recommended archs
-    sprt = sprt_base_patch16_img192  # decoder: 512 dim, 8 blocks
+    sprt = sprt_large_patch16_img192
     # output = sprt(torch.rand(1, 2, 192, 192), color='green')
     # output = sprt(torch.rand(1, 2, 192, 192), color='blue')
 
-    model = sprt_base_patch16_img192()
+    model = sprt_large_patch16_img192()
     summary(model, (2, 192, 192))
