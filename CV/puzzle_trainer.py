@@ -14,8 +14,8 @@ from torchvision.models import resnet50
 import math
 from tqdm import tqdm
 
-from CV.puzzle_res50 import PuzzleCNNCoord
-from CV.puzzle_vit import PuzzleViT
+from CV.puzzle_res50_preTrue import PuzzleCNNCoord
+from CV.puzzle_vit_preTrue import PuzzleViT
 from CV.util.tester import visualDoubleLoss
 
 import facebook_vit
