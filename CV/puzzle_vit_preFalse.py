@@ -30,11 +30,9 @@ class PuzzleViT(nn.Module):
         self.size_puzzle = size_puzzle
         self.threshold = threshold
         self.vit_features = timm.create_model('vit_base_patch16_224', pretrained=False)
-        self.fc1 = nn.Linear(1000, 4096)
-        self.fc2 = nn.Linear(4096, 4096)
-        self.fc3 = nn.Linear(4096, 4096)
-        self.fc4 = nn.Linear(4096, 4096)
-        self.fc5 = nn.Linear(4096, self.num_puzzle * 2)
+        # self.vit_features.head = nn.Linear(768, 1000)
+        self.fc1 = nn.Linear(1000, 1000)
+        self.fc2 = nn.Linear(1000, self.num_puzzle * 2)
         self.map_values = []
         self.map_coord = None
         self.min_dist = 0
@@ -129,10 +127,7 @@ class PuzzleViT(nn.Module):
         x = self.vit_features(x)
 
         x = F.relu(self.fc1(x))
-        x = F.relu(self.fc2(x))
-        x = F.relu(self.fc3(x))
-        x = F.relu(self.fc4(x))
-        x = self.fc5(x)
+        x = self.fc2(x)
         x = x.view(-1, self.num_puzzle, 2)
 
         loss_var = self.forward_loss_var(x)
