@@ -117,6 +117,7 @@ class PreTrainer(object):
         self.epochs = []
         self.losses_c = []
         self.losses_t = []
+        self.accuracies = []
 
     def process(self, load=False):
         self.build_model(load)
@@ -173,8 +174,8 @@ class PreTrainer(object):
                     self.losses_t.append(running_loss_t / inter)
                     running_loss_c = 0.
                     running_loss_t = 0.
-                if batch_idx % 7000 == 6999:
-                    self.val_model(epoch)
+                # if batch_idx % 7000 == 6999:
+                #     self.val_model(epoch)
             scheduler.step()
             self.save_model()
             visualDoubleLoss(self.losses_c, self.losses_t)
@@ -203,14 +204,16 @@ class PreTrainer(object):
                 labels_ = model.mapping(labels)
                 correct += (pred_ == labels_).all(dim=2).sum().item()
 
+        acc = 100 * correct / (total * labels.size(1))
         print(f'[Epoch {epoch + 1}] Avg diff on the test set: {diff / total:.2f}')
-        print(f'[Epoch {epoch + 1}] Accuracy on the test set: {100 * correct / (total * labels.size(1)):.2f}%')
+        print(f'[Epoch {epoch + 1}] Accuracy on the test set: {acc:.2f}%')
         torch.set_printoptions(precision=2)
         total = labels.size(1)
         correct = (pred_[0] == labels_[0]).all(dim=1).sum().item()
         print(f'[Sample result]')
         print(torch.cat((pred_[0], labels_[0]), dim=1))
         print(f'Accuracy: {100 * correct / total:.2f}%')
+        self.accuracies.append(acc)
 
     def save_model(self):
         checkpoint = {
@@ -219,8 +222,11 @@ class PreTrainer(object):
             'optimizer': self.optimizer.state_dict(),
             'losses_coord': self.losses_c,
             'losses_total': self.losses_t,
+            'accuracies': self.accuracies,
         }
         torch.save(checkpoint, pre_model_path)
+        # if self.epochs[-1] % 50 == 0:
+        #     torch.save(checkpoint, pre_model_path[:-3]+f'_{self.epochs[-1]}l{NUM_EPOCHS}.pt')
         print(f"****** Model checkpoint saved at epochs {self.epochs[-1]} ******")
 
 

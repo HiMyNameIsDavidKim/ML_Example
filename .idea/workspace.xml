@@ -5,14 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6dc597b5-90f3-42c0-9fbe-571e0fb81339" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/CV/puzzle_vit_preTrue.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CV/puzzle_res50.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/puzzle_res50.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CV/puzzle_res50_preFalse.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/puzzle_res50_preTrue.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CV/puzzle_tester.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/puzzle_tester.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/CV/puzzle_trainer.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/puzzle_trainer.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CV/puzzle_vit.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/puzzle_vit.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CV/puzzle_vit_preFalse.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/puzzle_vit_large.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -470,7 +464,10 @@
       <workItem from="1716116791408" duration="598000" />
       <workItem from="1716167468381" duration="5334000" />
       <workItem from="1716211532369" duration="598000" />
-      <workItem from="1716252497943" duration="7246000" />
+      <workItem from="1716252497943" duration="8904000" />
+      <workItem from="1716339031323" duration="4714000" />
+      <workItem from="1716385076209" duration="600000" />
+      <workItem from="1716432190227" duration="996000" />
     </task>
     <servers />
   </component>
