@@ -177,5 +177,6 @@ def tile_norm(tile):
 
 if __name__ == '__main__':
     model = PuzzleCNNCoord()
+    model.augment_tile = transforms.Compose([])
     output, target, loss_var = model(torch.rand(2, 3, 225, 225))
     summary(model, (3, 225, 225))

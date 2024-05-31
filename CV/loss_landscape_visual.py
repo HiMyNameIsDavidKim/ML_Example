@@ -15,7 +15,7 @@ def get_params(model_orig,  model_perb, direction, alpha):
     return model_perb
 
 
-batch_size = 1
+batch_size = 16
 model = ptcv_get_model("resnet20_cifar10", pretrained=True)
 model.eval()
 criterion = torch.nn.CrossEntropyLoss()
@@ -75,7 +75,25 @@ for i in [30, 120, 210, 300]:
     plt.show()
 
 # 2D plot
-plt.plot(loss_list[:, 0], loss_list[:, 2])
+loss_list = []
+for lam in lams1:
+    model_perb1 = get_params(model, model_perb1, top_eigenvector[0], lam)
+    loss_list.append(criterion(model_perb1(inputs), targets).item())
+loss_list = np.array(loss_list)
+
+plt.plot(lams1, loss_list)
+plt.ylabel('Loss')
+plt.xlabel('Perturbation')
+plt.title('Loss landscape perturbed based on top Hessian eigenvector')
+plt.show()
+
+loss_list = []
+for lam in lams2:
+    model_perb2 = get_params(model, model_perb2, top_eigenvector[1], lam)
+    loss_list.append(criterion(model_perb2(inputs), targets).item())
+loss_list = np.array(loss_list)
+
+plt.plot(lams2, loss_list)
 plt.ylabel('Loss')
 plt.xlabel('Perturbation')
 plt.title('Loss landscape perturbed based on top Hessian eigenvector')
