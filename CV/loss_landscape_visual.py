@@ -43,8 +43,6 @@ top_eigenvalues, top_eigenvector = hessian_comp.eigenvalues(top_n=2)
 
 lams1 = np.linspace(-0.5, 0.5, 21).astype(np.float32)
 lams2 = np.linspace(-0.5, 0.5, 21).astype(np.float32)
-loss_list = []
-
 model_perb1 = ptcv_get_model("resnet20_cifar10", pretrained=True)
 model_perb1.eval()
 # model_perb1 = model_perb1.cuda()
@@ -52,6 +50,7 @@ model_perb2 = ptcv_get_model("resnet20_cifar10", pretrained=True)
 model_perb2.eval()
 # model_perb2 = model_perb2.cuda()
 
+loss_list = []
 for lam1 in lams1:
     for lam2 in lams2:
         model_perb1 = get_params(model, model_perb1, top_eigenvector[0], lam1)
