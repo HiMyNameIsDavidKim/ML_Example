@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import torchprofile
 from torchsummary import summary
+import time
 
 # --------------------------------------------------------
 # Ref : https://github.com/bbrattoli/JigsawPuzzlePytorch/blob/master/JigsawNetwork.py
@@ -129,5 +130,19 @@ if __name__ == '__main__':
     output = model(torch.rand(2, 9, 3, 75, 75))
     print(output.shape)
     summary(model, (9, 3, 75, 75))
-    flops = torchprofile.profile_macs(model, torch.rand(1, 9, 3, 75, 75))
-    print(f"FLOPs: {flops}")
+
+    # flops = torchprofile.profile_macs(model, torch.rand(1, 9, 3, 75, 75))
+    # print(f"FLOPs: {flops}")
+
+    device = 'cpu'
+    batch_size = 32
+    input_data = torch.randn(batch_size, 9, 3, 75, 75).to(device)
+    num_batches = 10
+    start_time = time.time()
+    with torch.no_grad():
+        for i in range(num_batches):
+            _ = model(input_data)
+    end_time = time.time()
+    total_time = end_time - start_time
+    throughput = (batch_size * num_batches) / total_time
+    print(f"Throughput: {throughput:.2f} images/second")
