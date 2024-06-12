@@ -6,7 +6,12 @@
   <component name="ChangeListManager">
     <list default="true" id="6dc597b5-90f3-42c0-9fbe-571e0fb81339" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CV/loss_landscape_visual.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/loss_landscape_visual.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CV/puzzle_res50.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/puzzle_res50.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CV/puzzle_res50_1000mlp.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/puzzle_res50_1000mlp.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CV/puzzle_res50_preTrue.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/puzzle_res50_preTrue.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CV/puzzle_vit.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/puzzle_vit.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CV/puzzle_vit_large.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/puzzle_vit_large.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CV/puzzle_vit_preTrue.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/puzzle_vit_preTrue.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -479,7 +484,12 @@
       <workItem from="1717116276945" duration="4988000" />
       <workItem from="1717341940597" duration="600000" />
       <workItem from="1717380137862" duration="8383000" />
-      <workItem from="1717468884736" duration="709000" />
+      <workItem from="1717468884736" duration="2113000" />
+      <workItem from="1717548252577" duration="1605000" />
+      <workItem from="1717723888277" duration="1999000" />
+      <workItem from="1717980803371" duration="2402000" />
+      <workItem from="1718066750656" duration="2529000" />
+      <workItem from="1718154335515" duration="1548000" />
     </task>
     <servers />
   </component>

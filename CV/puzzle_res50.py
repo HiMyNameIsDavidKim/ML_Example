@@ -85,6 +85,7 @@ class PuzzleCNNCoord(nn.Module):
         for i, (img, ids_shuffle) in enumerate(zip(x, ids_shuffles)):
             pieces = [img[:, i:i + p, j:j + p] for i in range(0, H, p) for j in range(0, W, p)]
             shuffled_pieces = [pieces[idx] for idx in ids_shuffle]
+            shuffled_pieces = [self.augment_tile(piece) for piece in shuffled_pieces]
             shuffled_img = [torch.cat(row, dim=2) for row in [shuffled_pieces[i:i+n] for i in range(0, len(shuffled_pieces), n)]]
             shuffled_img = torch.cat(shuffled_img, dim=1)
             x[i] = shuffled_img
