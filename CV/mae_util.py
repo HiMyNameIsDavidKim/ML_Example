@@ -8,8 +8,12 @@
 # --------------------------------------------------------
 
 import numpy as np
+import math
 
 import torch
+from torchvision import transforms
+from torchvision.transforms import functional as F
+
 
 # --------------------------------------------------------
 # 2D sine-cosine position embedding
@@ -94,3 +98,73 @@ def interpolate_pos_embed(model, checkpoint_model):
             pos_tokens = pos_tokens.permute(0, 2, 3, 1).flatten(1, 2)
             new_pos_embed = torch.cat((extra_tokens, pos_tokens), dim=1)
             checkpoint_model['pos_embed'] = new_pos_embed
+
+
+class RandomResizedCrop(transforms.RandomResizedCrop):
+    """
+    RandomResizedCrop for matching TF/TPU implementation: no for-loop is used.
+    This may lead to results different with torchvision's version.
+    Following BYOL's TF code:
+    https://github.com/deepmind/deepmind-research/blob/master/byol/utils/dataset.py#L206
+    """
+    @staticmethod
+    def get_params(img, scale, ratio):
+        width, height = F._get_image_size(img)
+        area = height * width
+
+        target_area = area * torch.empty(1).uniform_(scale[0], scale[1]).item()
+        log_ratio = torch.log(torch.tensor(ratio))
+        aspect_ratio = torch.exp(
+            torch.empty(1).uniform_(log_ratio[0], log_ratio[1])
+        ).item()
+
+        w = int(round(math.sqrt(target_area * aspect_ratio)))
+        h = int(round(math.sqrt(target_area / aspect_ratio)))
+
+        w = min(w, width)
+        h = min(h, height)
+
+        i = torch.randint(0, height - h + 1, size=(1,)).item()
+        j = torch.randint(0, width - w + 1, size=(1,)).item()
+
+        return i, j, h, w
+
+
+# --------------------------------------------------------
+# LARS optimizer, implementation from MoCo v3:
+# https://github.com/facebookresearch/moco-v3
+# --------------------------------------------------------
+class LARS(torch.optim.Optimizer):
+    """
+    LARS optimizer, no rate scaling or weight decay for parameters <= 1D.
+    """
+    def __init__(self, params, lr=0, weight_decay=0, momentum=0.9, trust_coefficient=0.001):
+        defaults = dict(lr=lr, weight_decay=weight_decay, momentum=momentum, trust_coefficient=trust_coefficient)
+        super().__init__(params, defaults)
+
+    @torch.no_grad()
+    def step(self):
+        for g in self.param_groups:
+            for p in g['params']:
+                dp = p.grad
+
+                if dp is None:
+                    continue
+
+                if p.ndim > 1: # if not normalization gamma/beta or bias
+                    dp = dp.add(p, alpha=g['weight_decay'])
+                    param_norm = torch.norm(p)
+                    update_norm = torch.norm(dp)
+                    one = torch.ones_like(param_norm)
+                    q = torch.where(param_norm > 0.,
+                                    torch.where(update_norm > 0,
+                                    (g['trust_coefficient'] * param_norm / update_norm), one),
+                                    one)
+                    dp = dp.mul(q)
+
+                param_state = self.state[p]
+                if 'mu' not in param_state:
+                    param_state['mu'] = torch.zeros_like(p)
+                mu = param_state['mu']
+                mu.mul_(g['momentum']).add_(dp)
+                p.add_(mu, alpha=-g['lr'])

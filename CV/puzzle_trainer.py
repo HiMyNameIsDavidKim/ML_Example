@@ -12,6 +12,7 @@ from torch.utils.data import DataLoader, Subset
 from torchvision import datasets, transforms
 from torchvision.models import resnet50
 import math
+
 from tqdm import tqdm
 
 from CV.puzzle_res50_preTrue import PuzzleCNNCoord
@@ -19,24 +20,34 @@ from CV.puzzle_vit_preTrue import PuzzleViT
 from CV.util.tester import visualDoubleLoss
 
 import facebook_vit
-from mae_util import interpolate_pos_embed
+from mae_util import interpolate_pos_embed, RandomResizedCrop, LARS
 from timm.models.layers import trunc_normal_
 
 device = 'cpu'
 # device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
 '''Pre-training'''
-LEARNING_RATE = 3e-05
-BATCH_SIZE = 64
-NUM_EPOCHS = 20
-NUM_WORKERS = 2
-TASK_NAME = 'puzzle_ImageNet'
-MODEL_NAME = 'cnn50'
-pre_model_path = f'./save/{TASK_NAME}_{MODEL_NAME}_ep{NUM_EPOCHS}_lr{LEARNING_RATE}_b{BATCH_SIZE}.pt'
-pre_load_model_path = './save/xxx.pt'
+# LEARNING_RATE = 3e-05
+# BATCH_SIZE = 64
+# NUM_EPOCHS = 20
+# NUM_WORKERS = 2
+# TASK_NAME = 'puzzle_ImageNet'
+# MODEL_NAME = 'cnn50'
+# pre_model_path = f'./save/{TASK_NAME}_{MODEL_NAME}_ep{NUM_EPOCHS}_lr{LEARNING_RATE}_b{BATCH_SIZE}.pt'
+# pre_load_model_path = './save/xxx.pt'
 
 '''Fine-tuning'''
-AUGMENTATION = True
+# AUGMENTATION = True
+# LEARNING_RATE = 3e-05
+# BATCH_SIZE = 64
+# NUM_EPOCHS = 100
+# WARMUP_EPOCHS = 5
+# NUM_WORKERS = 2
+# TASK_NAME = 'classification_ImageNet'
+# fine_load_model_path = './save/xxx.pt'  # duplicate file
+# fine_model_path = fine_load_model_path[:-3] + f'___{TASK_NAME}_ep{NUM_EPOCHS}_lr{LEARNING_RATE}_b{BATCH_SIZE}_SGD.pt'
+
+'''Linear-probing'''
 LEARNING_RATE = 3e-05
 BATCH_SIZE = 64
 NUM_EPOCHS = 100
@@ -44,16 +55,9 @@ WARMUP_EPOCHS = 5
 NUM_WORKERS = 2
 TASK_NAME = 'classification_ImageNet'
 fine_load_model_path = './save/xxx.pt'  # duplicate file
-fine_model_path = fine_load_model_path[:-3] + f'___{TASK_NAME}_ep{NUM_EPOCHS}_lr{LEARNING_RATE}_b{BATCH_SIZE}.pt'
+fine_model_path = fine_load_model_path[:-3] + f'___{TASK_NAME}_ep{NUM_EPOCHS}_lr{LEARNING_RATE}_b{BATCH_SIZE}_LARS.pt'
 
 '''Pre-training'''
-# transform = transforms.Compose([
-#     transforms.Pad(padding=3),
-#     transforms.CenterCrop(30),
-#     transforms.ToTensor(),
-#     transforms.Normalize((0.5,), (0.5,))
-# ])
-
 # transform = transforms.Compose([
 #     transforms.Resize(256, interpolation=PIL.Image.BICUBIC),
 #     transforms.CenterCrop(224),
@@ -63,27 +67,27 @@ fine_model_path = fine_load_model_path[:-3] + f'___{TASK_NAME}_ep{NUM_EPOCHS}_lr
 # ])
 
 '''Fine-tuning'''
-transform = transforms.Compose([
-    transforms.Resize(256, interpolation=PIL.Image.BICUBIC),
-    transforms.CenterCrop(224),
-    transforms.ToTensor(),
-    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-])
-
-if AUGMENTATION:
-    transform = create_transform(
-        input_size=224,
-        is_training=True,
-        color_jitter=None,
-        auto_augment='rand-m9-mstd0.5-inc1',
-        interpolation='bicubic',
-        re_prob=0.25,
-        re_mode='pixel',
-        re_count=1,
-        mean=IMAGENET_DEFAULT_MEAN,
-        std=IMAGENET_DEFAULT_STD,
-    )
-
+# transform = transforms.Compose([
+#     transforms.Resize(256, interpolation=PIL.Image.BICUBIC),
+#     transforms.CenterCrop(224),
+#     transforms.ToTensor(),
+#     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+# ])
+#
+# if AUGMENTATION:
+#     transform = create_transform(
+#         input_size=224,
+#         is_training=True,
+#         color_jitter=None,
+#         auto_augment='rand-m9-mstd0.5-inc1',
+#         interpolation='bicubic',
+#         re_prob=0.25,
+#         re_mode='pixel',
+#         re_count=1,
+#         mean=IMAGENET_DEFAULT_MEAN,
+#         std=IMAGENET_DEFAULT_STD,
+#     )
+#
 mixup_fn = Mixup(
     mixup_alpha=0.8,
     cutmix_alpha=1.0,
@@ -93,6 +97,14 @@ mixup_fn = Mixup(
     mode='batch',
     label_smoothing=0.1,
     num_classes=1000
+)
+
+'''Linear-probing'''
+transform = transforms.Compose([
+            RandomResizedCrop(224, interpolation=PIL.Image.BICUBIC),
+            transforms.RandomHorizontalFlip(),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])]
 )
 
 # train_dataset = datasets.CIFAR10(root='./data', train=True, transform=transform, download=True)
@@ -333,6 +345,152 @@ class FineTuner(object):
                     else:
                         print(f'[Epoch {epoch}, Batch {i + 1:5d}] loss: {running_loss / 100:.3f}, acc: {correct / total * 100:.2f} %')
                         self.accuracies.append(correct/total*100)
+                    self.epochs.append(epoch + 1)
+                    self.losses.append(saving_loss/inter)
+                    running_loss = 0.0
+                    saving_loss = 0.0
+                    correct = 0
+                    total = 0
+                mid_term = len(train_loader)//3
+                if i % mid_term == mid_term-1:
+                    self.val_model(epoch)
+            self.model = model
+            self.optimizer = optimizer
+            self.scheduler = scheduler
+            self.save_model()
+            self.val_model(epoch)
+            scheduler.step()
+        print('****** Finished Fine-tuning ******')
+
+    def val_model(self, epoch=-1):
+        self.model.eval()
+
+        correct = 0
+        total = 0
+        with torch.no_grad():
+            for i, data in tqdm(enumerate(val_loader, 0), total=len(val_loader)):
+                images, labels = data
+                images, labels = images.to(device), labels.to(device)
+                outputs = self.model(images)
+                _, predicted = torch.max(outputs.data, 1)
+                total += labels.size(0)
+                correct += (predicted == labels).sum().item()
+        print(f'[Epoch {epoch + 1}] Accuracy of {len(val_dataset)} test images: {100 * correct / total:.2f} %')
+
+    def save_model(self):
+        checkpoint = {
+            'model': self.model.state_dict(),
+            'optimizer': self.optimizer.state_dict(),
+            'scheduler': self.scheduler.state_dict(),
+            'epochs': self.epochs,
+            'losses': self.losses,
+            'accuracies': self.accuracies,
+        }
+        torch.save(checkpoint, fine_model_path)
+        #         torch.save(checkpoint, dynamic_model_path+str(self.epochs[-1])+f'_lr{LEARNING_RATE}.pt')
+        print(f"****** Model checkpoint saved at epochs {self.epochs[-1]} ******")
+
+
+class LinearProber(object):
+    def __init__(self):
+        self.model = None
+        self.optimizer = None
+        self.scheduler = None
+        self.epochs = [0]
+        self.losses = [0]
+        self.accuracies = [0]
+
+    def process(self, load=False):
+        self.build_model(load)
+        self.linearprob_model()
+        self.save_model()
+
+    def build_model(self, load):
+        self.model = facebook_vit.__dict__['vit_base_patch16'](
+            num_classes=1000,
+            global_pool=False,
+        )
+        print(f'Parameter: {sum(p.numel() for p in self.model.parameters() if p.requires_grad)}')
+        self.optimizer = optim.SGD(self.model.parameters(), lr=0)
+        self.scheduler = CosineAnnealingLR(self.optimizer, T_max=NUM_EPOCHS)
+
+        if load:
+            checkpoint = torch.load(fine_load_model_path, map_location=device)
+            checkpoint_model = checkpoint['model']
+            for key in list(checkpoint_model.keys()):
+                if key.startswith('vit_features.'):
+                    new_key = key.replace('vit_features.', '')
+                    checkpoint_model[new_key] = checkpoint_model.pop(key)
+            for key in list(checkpoint_model.keys()):
+                if key.startswith('norm.'):
+                    new_key = key.replace('norm.', 'fc_norm.')
+                    checkpoint_model[new_key] = checkpoint_model.pop(key)
+
+            state_dict = self.model.state_dict()
+            for k in ['head.weight', 'head.bias']:
+                if k in checkpoint_model and checkpoint_model[k].shape != state_dict[k].shape:
+                    print(f"Removing key {k} from pretrained checkpoint")
+                    del checkpoint_model[k]
+            interpolate_pos_embed(self.model, checkpoint_model)
+            msg = self.model.load_state_dict(checkpoint_model, strict=False)
+            print(msg)
+            trunc_normal_(self.model.head.weight, std=0.01)
+            self.model.head = torch.nn.Sequential(torch.nn.BatchNorm1d(self.model.head.in_features, affine=False, eps=1e-6),
+                                             self.model.head)
+            for _, p in self.model.named_parameters():
+                p.requires_grad = False
+            for _, p in self.model.head.named_parameters():
+                p.requires_grad = True
+            self.model.to(device)
+
+            if 'given' not in str(fine_load_model_path):
+                self.epochs = checkpoint['epochs']
+            print(f'Parameter: {sum(p.numel() for p in self.model.parameters() if p.requires_grad)}')
+            print(f'Epoch: {self.epochs[-1]}')
+            print(f'****** Reset epochs and losses ******')
+            self.epochs = []
+            self.losses = []
+            self.accuracies = []
+
+    def linearprob_model(self):
+        model = self.model.train()
+        criterion = nn.CrossEntropyLoss()
+        optimizer = LARS(model.parameters(), lr=LEARNING_RATE, weight_decay=0)
+        scheduler = CosineAnnealingLR(optimizer, T_max=NUM_EPOCHS)
+
+        for epoch in range(NUM_EPOCHS):
+            if epoch < WARMUP_EPOCHS:
+                lr_warmup = ((epoch + 1) / WARMUP_EPOCHS) * LEARNING_RATE
+                for param_group in optimizer.param_groups:
+                    param_group['lr'] = lr_warmup
+                if epoch + 1 == WARMUP_EPOCHS:
+                    scheduler = CosineAnnealingLR(optimizer, T_max=NUM_EPOCHS)
+            print(f"epoch {epoch + 1} learning rate : {optimizer.param_groups[0]['lr']}")
+            running_loss = 0.0
+            saving_loss = 0.0
+            correct = 0
+            total = 0
+            for i, data in tqdm(enumerate(train_loader, 0), total=len(train_loader)):
+                inputs, labels = data
+                inputs, labels = inputs.to(device), labels.to(device)
+
+                optimizer.zero_grad()
+
+                outputs = model(inputs)
+                loss = criterion(outputs, labels)
+                loss.backward()
+                optimizer.step()
+
+                running_loss += loss.item()
+                saving_loss += loss.item()
+                _, predicted = torch.max(outputs.data, 1)
+                total += labels.size(0)
+                correct += (predicted == labels).sum().item()
+
+                inter = 100
+                if i % inter == inter - 1:
+                    print(f'[Epoch {epoch}, Batch {i + 1:5d}] loss: {running_loss / 100:.3f}, acc: {correct / total * 100:.2f} %')
+                    self.accuracies.append(correct/total*100)
                     self.epochs.append(epoch + 1)
                     self.losses.append(saving_loss/inter)
                     running_loss = 0.0
