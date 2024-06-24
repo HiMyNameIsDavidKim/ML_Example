@@ -421,10 +421,6 @@ class LinearProber(object):
                 if key.startswith('vit_features.'):
                     new_key = key.replace('vit_features.', '')
                     checkpoint_model[new_key] = checkpoint_model.pop(key)
-            for key in list(checkpoint_model.keys()):
-                if key.startswith('norm.'):
-                    new_key = key.replace('norm.', 'fc_norm.')
-                    checkpoint_model[new_key] = checkpoint_model.pop(key)
 
             state_dict = self.model.state_dict()
             for k in ['head.weight', 'head.bias']:
