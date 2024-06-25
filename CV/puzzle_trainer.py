@@ -451,7 +451,7 @@ class LinearProber(object):
     def linearprob_model(self):
         model = self.model.train()
         criterion = nn.CrossEntropyLoss()
-        optimizer = LARS(model.parameters(), lr=LEARNING_RATE, weight_decay=0)
+        optimizer = LARS(model.parameters(), lr=LEARNING_RATE, momentum=0.9, weight_decay=0)
         scheduler = CosineAnnealingLR(optimizer, T_max=NUM_EPOCHS)
 
         for epoch in range(NUM_EPOCHS):
