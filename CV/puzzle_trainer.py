@@ -303,7 +303,7 @@ class FineTuner(object):
         criterion = nn.CrossEntropyLoss()
         if AUGMENTATION:
             criterion = SoftTargetCrossEntropy()
-        optimizer = optim.AdamW(model.parameters(), lr=LEARNING_RATE, weight_decay=0.05)
+        optimizer = optim.SGD(model.parameters(), lr=LEARNING_RATE, momentum=0.9, weight_decay=0)
         scheduler = CosineAnnealingLR(optimizer, T_max=NUM_EPOCHS)
 
         for epoch in range(NUM_EPOCHS):
@@ -408,7 +408,8 @@ class LinearProber(object):
     def build_model(self, load):
         self.model = facebook_vit.__dict__['vit_base_patch16'](
             num_classes=1000,
-            global_pool=False,
+            drop_path_rate=0.1,
+            global_pool=True,
         )
         print(f'Parameter: {sum(p.numel() for p in self.model.parameters() if p.requires_grad)}')
         self.optimizer = optim.SGD(self.model.parameters(), lr=0)
@@ -421,6 +422,10 @@ class LinearProber(object):
                 if key.startswith('vit_features.'):
                     new_key = key.replace('vit_features.', '')
                     checkpoint_model[new_key] = checkpoint_model.pop(key)
+            for key in list(checkpoint_model.keys()):
+                if key.startswith('norm.'):
+                    new_key = key.replace('norm.', 'fc_norm.')
+                    checkpoint_model[new_key] = checkpoint_model.pop(key)
 
             state_dict = self.model.state_dict()
             for k in ['head.weight', 'head.bias']:
@@ -430,12 +435,10 @@ class LinearProber(object):
             interpolate_pos_embed(self.model, checkpoint_model)
             msg = self.model.load_state_dict(checkpoint_model, strict=False)
             print(msg)
-            trunc_normal_(self.model.head.weight, std=0.01)
-            self.model.head = torch.nn.Sequential(torch.nn.BatchNorm1d(self.model.head.in_features, affine=False, eps=1e-6),
-                                             self.model.head)
+            trunc_normal_(self.model.head.weight, std=2e-5)
             for _, p in self.model.named_parameters():
                 p.requires_grad = False
-            for _, p in self.model.head.named_parameters():
+            for _, p in self.model.head.named_parameters():  # fc_norm train?
                 p.requires_grad = True
             self.model.to(device)
 
