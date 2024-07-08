@@ -33,8 +33,9 @@ device = 'cpu'
 # NUM_WORKERS = 2
 # TASK_NAME = 'puzzle_ImageNet'
 # MODEL_NAME = 'cnn50'
-# pre_model_path = f'./save/{TASK_NAME}_{MODEL_NAME}_ep{NUM_EPOCHS}_lr{LEARNING_RATE}_b{BATCH_SIZE}.pt'
 # pre_load_model_path = './save/xxx.pt'
+# pre_model_path = f'./save/{TASK_NAME}_{MODEL_NAME}_ep{NUM_EPOCHS}_lr{LEARNING_RATE}_b{BATCH_SIZE}.pt'
+# pre_reload_model_path = './save/xxx.pt'
 
 '''Fine-tuning'''
 # AUGMENTATION = True
@@ -46,6 +47,7 @@ device = 'cpu'
 # TASK_NAME = 'classification_ImageNet'
 # fine_load_model_path = './save/xxx.pt'  # duplicate file
 # fine_model_path = fine_load_model_path[:-3] + f'___{TASK_NAME}_ep{NUM_EPOCHS}_lr{LEARNING_RATE}_b{BATCH_SIZE}_SGD.pt'
+# fine_reload_model_path = './save/xxx.pt'
 
 '''Linear-probing'''
 LEARNING_RATE = 3e-05
@@ -53,9 +55,10 @@ BATCH_SIZE = 64
 NUM_EPOCHS = 100
 WARMUP_EPOCHS = 5
 NUM_WORKERS = 2
-TASK_NAME = 'classification_ImageNet'
+TASK_NAME = 'linear_ImageNet'
 fine_load_model_path = './save/xxx.pt'  # duplicate file
-fine_model_path = fine_load_model_path[:-3] + f'___{TASK_NAME}_ep{NUM_EPOCHS}_lr{LEARNING_RATE}_b{BATCH_SIZE}_LARS.pt'
+fine_model_path = fine_load_model_path[:-3] + f'___{TASK_NAME}_ep{NUM_EPOCHS}_lr{LEARNING_RATE}_b{BATCH_SIZE}_SGD.pt'
+fine_reload_model_path = './save/xxx.pt'
 
 '''Pre-training'''
 # transform = transforms.Compose([
@@ -126,18 +129,19 @@ class PreTrainer(object):
     def __init__(self):
         self.model = None
         self.optimizer = None
+        self.scheduler = None
         self.epochs = []
         self.losses_c = []
         self.losses_t = []
         self.accuracies = []
 
-    def process(self, load=False):
+    def process(self, load=False, reload=False):
         self.build_model(load)
-        self.pretrain_model()
+        self.pretrain_model(reload)
         self.save_model()
 
     def build_model(self, load):
-        self.model = PuzzleCNNCoord().to(device)
+        self.model = PuzzleViT(size_puzzle=75).to(device)
         print(f'Parameter: {sum(p.numel() for p in self.model.parameters() if p.requires_grad)}')
         if load:
             checkpoint = torch.load(pre_load_model_path)
@@ -152,14 +156,32 @@ class PreTrainer(object):
             self.losses_c = []
             self.losses_t = []
 
-    def pretrain_model(self):
-        model = self.model
+    def pretrain_model(self, reload):
+        model = self.model.train()
         criterion = nn.SmoothL1Loss()
         optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
         scheduler = CosineAnnealingLR(optimizer, T_max=NUM_EPOCHS)
+        range_epochs = range(NUM_EPOCHS)
+        if reload:
+            checkpoint = torch.load(pre_reload_model_path)
+            model.load_state_dict(checkpoint['model'])
+            model.train()
+            optimizer.load_state_dict(checkpoint['optimizer'])
+            try:
+                scheduler.load_state_dict(checkpoint['scheduler'])
+            except:
+                temp_optim = optim.Adam(model.parameters(), lr=LEARNING_RATE)
+                temp_scheduler = CosineAnnealingLR(temp_optim, T_max=NUM_EPOCHS)
+                [temp_scheduler.step() for _ in range(checkpoint['epochs'][-1])]
+                scheduler.load_state_dict(temp_scheduler.state_dict())
+            self.epochs = checkpoint['epochs']
+            self.losses_c = checkpoint['losses_coord']
+            self.losses_t = checkpoint['losses_total']
+            self.accuracies = checkpoint['accuracies']
+            range_epochs = range(self.epochs[-1], NUM_EPOCHS)
 
-        model.train()
-        for epoch in range(NUM_EPOCHS):
+        for epoch in range_epochs:
+            print(f"epoch {epoch + 1} learning rate : {optimizer.param_groups[0]['lr']}")
             running_loss_c = 0.
             running_loss_t = 0.
             for batch_idx, (inputs, _) in tqdm(enumerate(train_loader, 0), total=len(train_loader)):
@@ -180,8 +202,6 @@ class PreTrainer(object):
                     print(f'[Epoch {epoch + 1}] [Batch {batch_idx + 1}] Loss: {running_loss_c / inter:.4f}')
                     print(f'[Epoch {epoch + 1}] [Batch {batch_idx + 1}] Total Loss: {running_loss_t / inter:.4f}')
                     self.epochs.append(epoch + 1)
-                    self.model = model
-                    self.optimizer = optimizer
                     self.losses_c.append(running_loss_c / inter)
                     self.losses_t.append(running_loss_t / inter)
                     running_loss_c = 0.
@@ -189,6 +209,9 @@ class PreTrainer(object):
                 # if batch_idx % 7000 == 6999:
                 #     self.val_model(epoch)
             scheduler.step()
+            self.model = model
+            self.optimizer = optimizer
+            self.scheduler = scheduler
             self.save_model()
             visualDoubleLoss(self.losses_c, self.losses_t)
             self.val_model(epoch)
@@ -232,6 +255,7 @@ class PreTrainer(object):
             'epochs': self.epochs,
             'model': self.model.state_dict(),
             'optimizer': self.optimizer.state_dict(),
+            'scheduler': self.scheduler.state_dict(),
             'losses_coord': self.losses_c,
             'losses_total': self.losses_t,
             'accuracies': self.accuracies,
@@ -251,9 +275,9 @@ class FineTuner(object):
         self.losses = [0]
         self.accuracies = [0]
 
-    def process(self, load=False):
+    def process(self, load=False, reload=False):
         self.build_model(load)
-        self.finetune_model()
+        self.finetune_model(reload)
         self.save_model()
 
     def build_model(self, load):
@@ -298,15 +322,27 @@ class FineTuner(object):
             self.losses = []
             self.accuracies = []
 
-    def finetune_model(self):
+    def finetune_model(self, reload):
         model = self.model.train()
         criterion = nn.CrossEntropyLoss()
         if AUGMENTATION:
             criterion = SoftTargetCrossEntropy()
         optimizer = optim.SGD(model.parameters(), lr=LEARNING_RATE, momentum=0.9, weight_decay=0)
         scheduler = CosineAnnealingLR(optimizer, T_max=NUM_EPOCHS)
+        range_epochs = range(NUM_EPOCHS)
+        if reload:
+            checkpoint = torch.load(fine_reload_model_path)
+            model.load_state_dict(checkpoint['model'])
+            model.train()
+            optimizer.load_state_dict(checkpoint['optimizer'])
+            scheduler.load_state_dict(checkpoint['scheduler'])
+            self.epochs = checkpoint['epochs']
+            self.losses = checkpoint['losses']
+            self.accuracies = checkpoint['accuracies']
+            range_epochs = range(self.epochs[-1], NUM_EPOCHS)
+            WARMUP_EPOCHS = 0
 
-        for epoch in range(NUM_EPOCHS):
+        for epoch in range_epochs:
             if epoch < WARMUP_EPOCHS:
                 lr_warmup = ((epoch + 1) / WARMUP_EPOCHS) * LEARNING_RATE
                 for param_group in optimizer.param_groups:
@@ -400,9 +436,9 @@ class LinearProber(object):
         self.losses = [0]
         self.accuracies = [0]
 
-    def process(self, load=False):
+    def process(self, load=False, reload=False):
         self.build_model(load)
-        self.linearprob_model()
+        self.linearprob_model(reload)
         self.save_model()
 
     def build_model(self, load):
@@ -451,13 +487,25 @@ class LinearProber(object):
             self.losses = []
             self.accuracies = []
 
-    def linearprob_model(self):
+    def linearprob_model(self, reload):
         model = self.model.train()
         criterion = nn.CrossEntropyLoss()
         optimizer = optim.SGD(model.parameters(), lr=LEARNING_RATE, momentum=0.9, weight_decay=0)
         scheduler = CosineAnnealingLR(optimizer, T_max=NUM_EPOCHS)
+        range_epochs = range(NUM_EPOCHS)
+        if reload:
+            checkpoint = torch.load(fine_reload_model_path)
+            model.load_state_dict(checkpoint['model'])
+            model.train()
+            optimizer.load_state_dict(checkpoint['optimizer'])
+            scheduler.load_state_dict(checkpoint['scheduler'])
+            self.epochs = checkpoint['epochs']
+            self.losses = checkpoint['losses']
+            self.accuracies = checkpoint['accuracies']
+            range_epochs = range(self.epochs[-1], NUM_EPOCHS)
+            WARMUP_EPOCHS = 0
 
-        for epoch in range(NUM_EPOCHS):
+        for epoch in range_epochs:
             if epoch < WARMUP_EPOCHS:
                 lr_warmup = ((epoch + 1) / WARMUP_EPOCHS) * LEARNING_RATE
                 for param_group in optimizer.param_groups:

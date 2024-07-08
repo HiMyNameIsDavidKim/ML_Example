@@ -5,6 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6dc597b5-90f3-42c0-9fbe-571e0fb81339" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/CV/puzzle_imagenet_vit.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CV/puzzle_vit_delAug.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CV/puzzle_vit_delPerm.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/CV/puzzle_trainer.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/puzzle_trainer.py" afterDir="false" />
     </list>
@@ -502,6 +505,14 @@
       <workItem from="1719451269226" duration="4524000" />
       <workItem from="1719536014122" duration="598000" />
       <workItem from="1719796969967" duration="4506000" />
+      <workItem from="1719882697131" duration="1285000" />
+      <workItem from="1719968789486" duration="598000" />
+      <workItem from="1720022721041" duration="602000" />
+      <workItem from="1720054913052" duration="1795000" />
+      <workItem from="1720097942995" duration="598000" />
+      <workItem from="1720141721732" duration="1681000" />
+      <workItem from="1720403590816" duration="2287000" />
+      <workItem from="1720407239939" duration="5808000" />
     </task>
     <servers />
   </component>
