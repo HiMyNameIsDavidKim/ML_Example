@@ -11,6 +11,7 @@ from torchvision.models import resnet50
 import math
 
 from util.tester import visualDoubleLoss
+from torchsummary import summary
 
 # --------------------------------------------------------
 # PuzzleCNN
@@ -187,77 +188,5 @@ def tile_norm(tile):
 
 if __name__ == '__main__':
     model = PuzzleCNNCoord(size_puzzle=75).to(device)
-    criterion = nn.SmoothL1Loss()
-    optimizer = optim.AdamW(model.parameters(), lr=lr, weight_decay=0.05)
-    scheduler = CosineAnnealingLR(optimizer, T_max=NUM_EPOCHS)
-
-    ls = []
-    ls_t = []
-    for epoch in range(NUM_EPOCHS):
-        model.train()
-
-        running_loss = 0.
-        running_loss_t = 0.
-        for batch_idx, (inputs, _) in enumerate(train_loader):
-            inputs = inputs.to(device)
-
-            outputs, labels, loss_var = model(inputs)
-
-            optimizer.zero_grad()
-
-            loss_coord = criterion(outputs, labels)
-            print(f'loss coord : {loss_coord}')
-            print(f'loss_var : {loss_var}')
-            loss = loss_coord + loss_var/1e05
-
-            loss.backward()
-            optimizer.step()
-
-            running_loss += loss_coord.item()
-            running_loss_t += loss.item()
-
-            inter = 30
-            if batch_idx % inter == inter-1:
-                print(f'[Epoch {epoch+1}] [Batch {batch_idx+1}] Loss: {running_loss/inter:.4f}')
-                print(f'[Epoch {epoch+1}] [Batch {batch_idx+1}] Total Loss: {running_loss_t/inter:.4f}')
-                ls.append(running_loss/inter)
-                ls_t.append(running_loss_t/inter)
-                running_loss = 0.
-                running_loss_t = 0.
-        scheduler.step()
-        visualDoubleLoss(ls, ls_t)
-
-        model.eval()
-
-        total = 0
-        diff = 0
-        correct = 0
-        with torch.no_grad():
-            for inputs, _ in test_loader:
-                inputs = inputs.to(device)
-
-                outputs, labels, _ = model(inputs)
-
-                pred = outputs
-                total += labels.size(0)
-                diff += (torch.dist(pred, labels)).sum().item()
-                pred_ = model.mapping(pred)
-                labels_ = model.mapping(labels)
-                correct += (pred_ == labels_).all(dim=2).sum().item()
-
-        print(f'[Epoch {epoch+1}] Avg diff on the test set: {diff / total:.2f}')
-        print(f'[Epoch {epoch+1}] Accuracy on the test set: {100 * correct / (total*labels.size(1)):.2f}%')
-        torch.set_printoptions(precision=2)
-        total = labels.size(1)
-        correct = (pred_[0] == labels_[0]).all(dim=1).sum().item()
-        print(torch.cat((pred_[0], labels_[0]), dim=1))
-        print(f'Accuracy: {100 * correct / (labels.size(1)):.2f}')
-
-        checkpoint = {
-            'model': model.state_dict(),
-            'optimizer': optimizer.state_dict(),
-            'losses': ls,
-            'total_losses': ls_t,
-        }
-        torch.save(checkpoint, f'./save/puzzle_res50_ep{NUM_EPOCHS}_lr{lr}_b{batch_size}.pt')
-        print(f"### Model checkpoint saved at epoch {epoch+1} ###")
+    output, target, loss_var = model(torch.rand(2, 3, 225, 225))
+    summary(model, (3, 225, 225))
