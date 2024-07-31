@@ -101,6 +101,116 @@ class Tester(object):
         print(f'Accuracy: {100 * correct / total:.2f}%')
 
 
+def loss_checker(self):
+    checkpoint = torch.load(test_model_path, map_location='cpu')
+    self.epochs = checkpoint['epochs']
+    self.losses_c = checkpoint['losses_coord']
+    self.losses_t = checkpoint['losses_total']
+    print(f'Steps: {len(self.epochs)} steps')
+    ls_x = []
+    ls_y = []
+    for x, y in enumerate(self.losses_t):
+        ls_x.append(x)
+        ls_y.append(y)
+    plt.figure(figsize=(4, 3), dpi=200)
+    plt.plot(ls_x, ls_y)
+    plt.xlabel('Steps', fontsize=10)
+    plt.ylabel('Training Loss', fontsize=10)
+    plt.xticks(fontsize=8)
+    plt.yticks(fontsize=8)
+
+    ax = plt.gca()
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    plt.xticks(range(0, 20001, 4000))
+
+    plt.show()
+    [print(f'Average Loss: {i:.3f}') for i in self.losses_t]
+
+def acc_checker(self):
+    checkpoint = torch.load(test_model_path, map_location='cpu')
+    self.epochs = checkpoint['epochs']
+    self.acc = checkpoint['accuracies']
+    ls_x = []
+    ls_y = []
+    for x, y in enumerate(self.acc):
+        ls_x.append(x)
+        ls_y.append(y)
+    plt.figure(figsize=(4, 3), dpi=200)
+    plt.plot(ls_x, ls_y)
+    plt.xlabel('Epochs', fontsize=10)
+    plt.ylabel('Validation Accuracy', fontsize=10)
+    plt.xticks(fontsize=8)
+    plt.yticks(fontsize=8)
+
+    ax = plt.gca()
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+
+    plt.show()
+
+def lr_checker(self):
+    self.build_model(load=True)
+    model = self.model
+    criterion = nn.CrossEntropyLoss()
+    optimizer = optim.SGD(model.parameters(), lr=LEARNING_RATE, momentum=0.9)
+    scheduler = CosineAnnealingLR(optimizer, T_max=NUM_EPOCHS)
+
+    ls_epoch = []
+    ls_lr = []
+    for epoch in range(NUM_EPOCHS):
+        running_loss = 0.0
+        saving_loss = 0.0
+        ls_epoch.append(epoch)
+        ls_lr.append(optimizer.param_groups[0]["lr"])
+        scheduler.step()
+    plt.plot(ls_epoch, ls_lr)
+    plt.title('LR Plot')
+    plt.xlabel('Epoch')
+    plt.ylabel('LR')
+    plt.show()
+
+def lr_compare(self):
+    LEARNING_RATE = 1e-05
+    NUM_EPOCHS = 100
+    self.build_model(load=True)
+    model = self.model
+    criterion = nn.CrossEntropyLoss()
+    optimizer = optim.SGD(model.parameters(), lr=LEARNING_RATE, momentum=0.9)
+    scheduler = CosineAnnealingLR(optimizer, T_max=NUM_EPOCHS)
+    ls_epoch = []
+    ls_lr = []
+    for epoch in range(NUM_EPOCHS):
+        running_loss = 0.0
+        saving_loss = 0.0
+        ls_epoch.append(epoch)
+        ls_lr.append(optimizer.param_groups[0]["lr"])
+        scheduler.step()
+    plt.plot(ls_epoch, ls_lr, label='Curve 1')
+
+    LEARNING_RATE = 2e-05
+    NUM_EPOCHS = 50
+    model = self.model
+    criterion = nn.CrossEntropyLoss()
+    optimizer = optim.SGD(model.parameters(), lr=LEARNING_RATE, momentum=0.9)
+    scheduler = CosineAnnealingLR(optimizer, T_max=NUM_EPOCHS)
+    ls_epoch = []
+    ls_lr = []
+    for epoch in range(NUM_EPOCHS):
+        running_loss = 0.0
+        saving_loss = 0.0
+        ls_epoch.append(epoch)
+        ls_lr.append(optimizer.param_groups[0]["lr"])
+        scheduler.step()
+    plt.plot(ls_epoch, ls_lr, label='Curve 2')
+
+    plt.title('LR Plot')
+    plt.xlabel('Epoch')
+    plt.ylabel('LR')
+    plt.legend()
+    plt.show()
+
+
 if __name__ == '__main__':
     tester = Tester()
     tester.process()
