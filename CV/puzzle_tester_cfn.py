@@ -100,6 +100,59 @@ class Tester(object):
         permutations_array = np.load(f'./data/permutations_1000.npy')
         return permutations_array[idx]
 
+    def visual_model(self):
+        self.build_model(True)
+        model = self.model
+
+        model.eval()
+
+        with torch.no_grad():
+            for batch_idx, (images, labels, original) in tqdm(enumerate(test_loader, 0), total=len(test_loader)):
+                if batch_idx in [100, 200, 300, 400, 500]:
+                    images = images.to(device)
+                    labels = labels.to(device)
+
+                    outputs = model(images)
+
+                    _, pred = torch.max(outputs.data, 1)
+                    labels = torch.tensor([self.idx2order1000(label) for label in labels])
+                    outputs = torch.tensor([self.idx2order1000(p) for p in pred])
+                    visualization(labels, outputs, images)
+
+
+def visualization(labels, outputs, shuffled_inputs):
+    n = int(math.sqrt(9))
+    ids_pred = outputs[0].to('cpu')
+    ids_label = labels[0].to('cpu')
+    ids_pred = torch.argsort(ids_pred)
+    ids_label = torch.argsort(ids_label)
+    shuffled_input = shuffled_inputs[0]
+    pieces = torch.split(shuffled_input, 1, dim=0)
+    pieces = [t.squeeze(0) for t in pieces]
+    pieces_pred = [pieces[idx] for idx in ids_pred]
+    pieces_label = [pieces[idx] for idx in ids_label]
+    img_input = [torch.cat(row, dim=2) for row in [pieces[i:i + n] for i in range(0, len(pieces), n)]]
+    img_pred = [torch.cat(row, dim=2) for row in [pieces_pred[i:i + n] for i in range(0, len(pieces_pred), n)]]
+    img_label = [torch.cat(row, dim=2) for row in [pieces_label[i:i + n] for i in range(0, len(pieces_label), n)]]
+    img_input = torch.cat(img_input, dim=1)
+    img_pred = torch.cat(img_pred, dim=1)
+    img_label = torch.cat(img_label, dim=1)
+    img_input = img_input.permute(1, 2, 0).cpu().numpy()
+    img_pred = img_pred.permute(1, 2, 0).cpu().numpy()
+    img_label = img_label.permute(1, 2, 0).cpu().numpy()
+    mean = np.array([0.485, 0.456, 0.406])
+    std = np.array([0.229, 0.224, 0.225])
+    img_input = img_input * std + mean
+    img_pred = img_pred * std + mean
+    img_label = img_label * std + mean
+    imgs = [img_input, img_pred, img_label]
+    fig, axs = plt.subplots(1, 3, figsize=(15, 5))
+    fig.subplots_adjust(wspace=0.05)
+    for i, ax in enumerate(axs):
+        ax.imshow(imgs[i])
+        ax.axis('off')
+    plt.show()
+
 
 if __name__ == '__main__':
     tester = Tester()

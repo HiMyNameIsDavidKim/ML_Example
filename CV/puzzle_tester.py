@@ -56,6 +56,7 @@ class Tester(object):
 
     def build_model(self, load):
         self.model = PuzzleViT().to(device)
+        self.model.augment_tile = transforms.Compose([])
         print(f'Parameter: {sum(p.numel() for p in self.model.parameters() if p.requires_grad)}')
         if load:
             checkpoint = torch.load(test_model_path)
@@ -99,6 +100,61 @@ class Tester(object):
         print(f'[Sample result]')
         print(torch.cat((pred_[0], labels_[0]), dim=1))
         print(f'Accuracy: {100 * correct / total:.2f}%')
+
+    def visual_model(self):
+        self.build_model(True)
+        model = self.model
+
+        model.eval()
+
+        with torch.no_grad():
+            for batch_idx, (inputs, _) in tqdm(enumerate(test_loader, 0), total=len(test_loader)):
+                inputs = inputs.to(device)
+
+                outputs, labels, _, shuffled_inputs = model(inputs)
+
+                visualization(labels, model, outputs, shuffled_inputs)
+
+def visualization(labels, model, outputs, shuffled_inputs):
+    H, W = 225, 225
+    p = 75
+    n = int(math.sqrt(9))
+    start, end = 0, n
+    min_dist = (end - start) / n
+    map_values = list(torch.arange(start, end, min_dist))
+    map_coord = torch.tensor([(i, j) for i in map_values for j in map_values])
+    ids_pred = torch.zeros([9], dtype=torch.long)
+    ids_label = torch.zeros([9], dtype=torch.long)
+    for i in range(9):
+        coord_pred = model.mapping(outputs)[0][i].to('cpu')
+        coord_label = labels[0][i].to('cpu')
+        index_pred = (map_coord == coord_pred).all(dim=1).nonzero(as_tuple=True)[0].item()
+        index_label = (map_coord == coord_label).all(dim=1).nonzero(as_tuple=True)[0].item()
+        ids_pred[i] = index_pred
+        ids_label[i] = index_label
+    shuffled_input = shuffled_inputs[0]
+    pieces = [shuffled_input[:, i:i + p, j:j + p] for i in range(0, H, p) for j in range(0, W, p)]
+    pieces_pred = [pieces[idx] for idx in ids_pred]
+    pieces_label = [pieces[idx] for idx in ids_label]
+    img_pred = [torch.cat(row, dim=2) for row in [pieces_pred[i:i + n] for i in range(0, len(pieces_pred), n)]]
+    img_label = [torch.cat(row, dim=2) for row in [pieces_label[i:i + n] for i in range(0, len(pieces_label), n)]]
+    img_pred = torch.cat(img_pred, dim=1)
+    img_label = torch.cat(img_label, dim=1)
+    img_input = shuffled_input.permute(1, 2, 0).cpu().numpy()
+    img_pred = img_pred.permute(1, 2, 0).cpu().numpy()
+    img_label = img_label.permute(1, 2, 0).cpu().numpy()
+    mean = np.array([0.485, 0.456, 0.406])
+    std = np.array([0.229, 0.224, 0.225])
+    img_input = img_input * std + mean
+    img_pred = img_pred * std + mean
+    img_label = img_label * std + mean
+    imgs = [img_input, img_pred, img_label]
+    fig, axs = plt.subplots(1, 3, figsize=(15, 5))
+    fig.subplots_adjust(wspace=0.05)
+    for i, ax in enumerate(axs):
+        ax.imshow(imgs[i])
+        ax.axis('off')
+    plt.show()
 
 
 def loss_checker(self):
