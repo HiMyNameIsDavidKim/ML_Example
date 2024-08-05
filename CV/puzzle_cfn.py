@@ -136,8 +136,8 @@ if __name__ == '__main__':
 
     device = 'cpu'
     batch_size = 32
+    num_batches = 5
     input_data = torch.randn(batch_size, 9, 3, 75, 75).to(device)
-    num_batches = 10
     start_time = time.time()
     with torch.no_grad():
         for i in range(num_batches):

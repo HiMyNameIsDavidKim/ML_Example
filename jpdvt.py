@@ -433,7 +433,7 @@ if __name__ == '__main__':
 
     device = 'cpu'
     batch_size = 32
-    num_batches = 10
+    num_batches = 5
     inputs = torch.rand(batch_size, 3, 255, 255)
     t = torch.full((batch_size,), 1000)
     time_emb = torch.rand(batch_size, 225, 8)
