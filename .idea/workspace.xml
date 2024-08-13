@@ -6,9 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="6dc597b5-90f3-42c0-9fbe-571e0fb81339" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CV/puzzle_cfn.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/puzzle_cfn.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CV/puzzle_cfn_entire.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/puzzle_cfn_entire.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/jpdvt.py" beforeDir="false" afterPath="$PROJECT_DIR$/jpdvt.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -537,6 +534,14 @@
       <workItem from="1722387289119" duration="21591000" />
       <workItem from="1722476529587" duration="4910000" />
       <workItem from="1722565112078" duration="6770000" />
+      <workItem from="1722820566802" duration="3679000" />
+      <workItem from="1722905365254" duration="598000" />
+      <workItem from="1722992382250" duration="597000" />
+      <workItem from="1723078248033" duration="597000" />
+      <workItem from="1723166862191" duration="599000" />
+      <workItem from="1723427897425" duration="597000" />
+      <workItem from="1723469145325" duration="626000" />
+      <workItem from="1723509443379" duration="2388000" />
     </task>
     <servers />
   </component>
@@ -548,7 +553,7 @@
     <SUITE FILE_PATH="coverage/ML_Example$laboratory.coverage" NAME="laboratory Coverage Results" MODIFIED="1699342318248" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
     <SUITE FILE_PATH="coverage/ML_Example$spr_transformer.coverage" NAME="spr_transformer Coverage Results" MODIFIED="1716171783183" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
     <SUITE FILE_PATH="coverage/ML_Example$puzzle_cfn_entire.coverage" NAME="puzzle_cfn_entire Coverage Results" MODIFIED="1717400542741" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
-    <SUITE FILE_PATH="coverage/ML_Example$puzzle_vit.coverage" NAME="puzzle_vit Coverage Results" MODIFIED="1722567196983" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
+    <SUITE FILE_PATH="coverage/ML_Example$puzzle_vit.coverage" NAME="puzzle_vit Coverage Results" MODIFIED="1723469289317" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
     <SUITE FILE_PATH="coverage/ML_Example$shuffled_mae_imagenet.coverage" NAME="shuffled_mae_imagenet Coverage Results" MODIFIED="1705036885892" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
     <SUITE FILE_PATH="coverage/ML_Example$shuffled_mae.coverage" NAME="shuffled_mae Coverage Results" MODIFIED="1704435694803" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
     <SUITE FILE_PATH="coverage/ML_Example$spr_transformer_hd.coverage" NAME="spr_transformer_hd Coverage Results" MODIFIED="1714014416256" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
