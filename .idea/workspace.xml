@@ -5,6 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6dc597b5-90f3-42c0-9fbe-571e0fb81339" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/CV/puzzle_trainer_jpdvt.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -542,6 +543,8 @@
       <workItem from="1723427897425" duration="597000" />
       <workItem from="1723469145325" duration="626000" />
       <workItem from="1723509443379" duration="2388000" />
+      <workItem from="1723559792842" duration="886000" />
+      <workItem from="1723593381885" duration="2372000" />
     </task>
     <servers />
   </component>
