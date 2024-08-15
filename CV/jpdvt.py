@@ -424,17 +424,18 @@ def measure_throughput(model, inputs, t, time_emb, num_iterations=100):
 
 
 if __name__ == '__main__':
-    model = JPDVT()
-    inputs = torch.rand(2, 3, 255, 255)
+    IMAGE_SIZE = 255
+    model = JPDVT(input_size=IMAGE_SIZE)
+    inputs = torch.rand(2, 3, IMAGE_SIZE, IMAGE_SIZE)
     t = torch.full((2,), 1000)
     time_emb = torch.rand(2, 225, 8)
     outputs = model(inputs, t, time_emb)  # x, t, time_emb
-    summary(model, input_size=[(1, 3, 255, 255), (1,), (1, 225, 8)])
+    summary(model, input_size=[(1, 3, IMAGE_SIZE, IMAGE_SIZE), (1,), (1, 225, 8)])
 
     device = 'cpu'
     batch_size = 32
     num_batches = 5
-    inputs = torch.rand(batch_size, 3, 255, 255)
+    inputs = torch.rand(batch_size, 3, IMAGE_SIZE, IMAGE_SIZE)
     t = torch.full((batch_size,), 1000)
     time_emb = torch.rand(batch_size, 225, 8)
     start_time = time.time()
