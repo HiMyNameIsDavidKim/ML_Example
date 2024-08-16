@@ -5,13 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6dc597b5-90f3-42c0-9fbe-571e0fb81339" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/CV/jpdvt_diffusion.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/CV/jpdvt_diffusion_utils.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/CV/jpdvt_gaussian_diffusion.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/CV/jpdvt_respace.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CV/jpdvt.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/jpdvt.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CV/puzzle_trainer_jpdvt.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/puzzle_trainer_jpdvt.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CV/puzzle_tester.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/puzzle_tester.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -550,7 +545,7 @@
       <workItem from="1723509443379" duration="2388000" />
       <workItem from="1723559792842" duration="886000" />
       <workItem from="1723593381885" duration="18177000" />
-      <workItem from="1723682789427" duration="2964000" />
+      <workItem from="1723682789427" duration="5349000" />
     </task>
     <servers />
   </component>

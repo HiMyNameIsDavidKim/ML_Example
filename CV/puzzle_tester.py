@@ -79,6 +79,7 @@ class Tester(object):
         total = 0
         diff = 0
         correct = 0
+        correct_puzzle = 0
         with torch.no_grad():
             for batch_idx, (inputs, _) in tqdm(enumerate(test_loader, 0), total=len(test_loader)):
                 inputs = inputs.to(device)
@@ -91,9 +92,13 @@ class Tester(object):
                 pred_ = model.mapping(pred)
                 labels_ = model.mapping(labels)
                 correct += (pred_ == labels_).all(dim=2).sum().item()
+                correct_puzzle += (pred_ == labels_).all(dim=2).all(dim=1).sum().item()
 
+        acc = 100 * correct / (total * labels.size(1))
+        acc_puzzle = 100 * correct_puzzle / (total)
         print(f'[Epoch {epoch + 1}] Avg diff on the test set: {diff / total:.2f}')
-        print(f'[Epoch {epoch + 1}] Accuracy on the test set: {100 * correct / (total * labels.size(1)):.2f}%')
+        print(f'[Epoch {epoch + 1}] Accuracy (Fragment-level) on the test set: {acc:.2f}%')
+        print(f'[Epoch {epoch + 1}] Accuracy (Puzzle-level) on the test set: {acc_puzzle:.2f}%')
         torch.set_printoptions(precision=2)
         total = labels.size(1)
         correct = (pred_[0] == labels_[0]).all(dim=1).sum().item()
