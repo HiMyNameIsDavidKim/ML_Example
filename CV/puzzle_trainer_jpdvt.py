@@ -11,7 +11,7 @@ from collections import OrderedDict
 import torch.distributed as dist
 import logging
 from PIL import Image
-from jpdvt import DiT_models, get_2d_sincos_pos_embed
+from puzzle_jpdvt import DiT_models, get_2d_sincos_pos_embed
 from copy import deepcopy
 from jpdvt_diffusion import create_diffusion
 from sklearn.metrics import pairwise_distances
