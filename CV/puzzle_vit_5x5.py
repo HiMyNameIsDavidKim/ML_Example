@@ -14,7 +14,7 @@ from util.tester import visualDoubleLoss
 
 
 class PuzzleViT(nn.Module):
-    def __init__(self, num_puzzle=9, size_puzzle=75, threshold=0.8):
+    def __init__(self, num_puzzle=25, size_puzzle=45, threshold=0.8):
         super(PuzzleViT, self).__init__()
         self.num_puzzle = num_puzzle
         self.size_puzzle = size_puzzle
@@ -27,8 +27,8 @@ class PuzzleViT(nn.Module):
         self.map_coord = None
         self.min_dist = 0
         self.augment_tile = transforms.Compose([
-            transforms.RandomCrop(64),
-            transforms.Resize((75, 75)),
+            transforms.RandomCrop(35),
+            transforms.Resize((45, 45)),
             transforms.Lambda(rgb_jittering),
             transforms.Lambda(tile_norm),
         ])
@@ -40,40 +40,6 @@ class PuzzleViT(nn.Module):
 
         noise = torch.rand(N, self.num_puzzle, device=x.device)
         ids_shuffles = torch.argsort(noise, dim=1)
-        ids_restores = torch.argsort(ids_shuffles, dim=1)
-
-        for i, (img, ids_shuffle) in enumerate(zip(x, ids_shuffles)):
-            pieces = [img[:, i:i + p, j:j + p] for i in range(0, H, p) for j in range(0, W, p)]
-            shuffled_pieces = [pieces[idx] for idx in ids_shuffle]
-            shuffled_pieces = [self.augment_tile(piece) for piece in shuffled_pieces]
-            shuffled_img = [torch.cat(row, dim=2) for row in [shuffled_pieces[i:i+n] for i in range(0, len(shuffled_pieces), n)]]
-            shuffled_img = torch.cat(shuffled_img, dim=1)
-            x[i] = shuffled_img
-
-        start, end = 0, n
-        self.min_dist = (end-start)/n
-        self.map_values = list(torch.arange(start, end, self.min_dist))
-        self.map_coord = torch.tensor([(i, j) for i in self.map_values for j in self.map_values])
-
-        coord_shuffles = torch.zeros([N, self.num_puzzle, 2])
-        coord_restores = torch.zeros([N, self.num_puzzle, 2])
-        for i, (ids_shuffle, ids_restore) in enumerate(zip(ids_shuffles, ids_restores)):
-            coord_shuffles[i] = self.map_coord[ids_shuffle]
-            coord_restores[i] = self.map_coord[ids_restore]
-
-        return x, coord_restores.to(x.device)
-
-    def random_shuffle_1000(self, x):
-        N, C, H, W = x.shape
-        p = self.size_puzzle
-        n = int(math.sqrt(self.num_puzzle))
-
-        perm = np.load(f'./data/permutations_1000.npy')
-        if np.min(perm) == 1:
-            perm -= 1
-        orders = [np.random.randint(len(perm)) for _ in range(N)]
-        ids_shuffles = np.array([perm[o] for o in orders])
-        ids_shuffles = torch.tensor(ids_shuffles, device=x.device)
         ids_restores = torch.argsort(ids_shuffles, dim=1)
 
         for i, (img, ids_shuffle) in enumerate(zip(x, ids_shuffles)):
@@ -112,7 +78,7 @@ class PuzzleViT(nn.Module):
         return target
 
     def forward(self, x):
-        x, target = self.random_shuffle_1000(x)
+        x, target = self.random_shuffle(x)
         x = x[:, :, :-1, :-1]
 
         x = self.vit_features(x)

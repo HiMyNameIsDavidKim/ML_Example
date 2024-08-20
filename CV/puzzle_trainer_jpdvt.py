@@ -33,21 +33,37 @@ MODEL_NAME = 'jpdvt'
 pre_load_model_path = './save/xxx.pt'
 pre_model_path = f'./save/{TASK_NAME}_{MODEL_NAME}_ep{NUM_EPOCHS}_lr{LEARNING_RATE}_b{BATCH_SIZE}.pt'
 
-'''CIFAR10'''
-INPUT_SIZE = 225
+# '''CIFAR10'''
+# INPUT_SIZE = 225
+# AFTER_CROP_SIZE = 192
+# transform = transforms.Compose([
+#     transforms.Resize((INPUT_SIZE, INPUT_SIZE)),
+#     transforms.ToTensor(),
+#     transforms.Normalize((0.5,), (0.5,))
+# ])
+#
+# train_dataset = datasets.CIFAR10(root='./data', train=True, transform=transform, download=True)
+# train_loader = DataLoader(dataset=train_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
+# val_dataset = Subset(train_dataset, list(range(int(0.2 * len(train_dataset)))))
+# val_loader = DataLoader(dataset=val_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
+# test_dataset = datasets.CIFAR10(root='./data', train=False, transform=transform, download=True)
+# test_loader = DataLoader(dataset=test_dataset, batch_size=BATCH_SIZE, shuffle=False, num_workers=NUM_WORKERS)
+
+'''IMAGENET'''
+INPUT_SIZE = 288
 AFTER_CROP_SIZE = 192
 transform = transforms.Compose([
     transforms.Resize((INPUT_SIZE, INPUT_SIZE)),
     transforms.ToTensor(),
-    transforms.Normalize((0.5,), (0.5,))
+    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 ])
 
-train_dataset = datasets.CIFAR10(root='./data', train=True, transform=transform, download=True)
-train_loader = DataLoader(dataset=train_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
-val_dataset = Subset(train_dataset, list(range(int(0.2 * len(train_dataset)))))
-val_loader = DataLoader(dataset=val_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
-test_dataset = datasets.CIFAR10(root='./data', train=False, transform=transform, download=True)
-test_loader = DataLoader(dataset=test_dataset, batch_size=BATCH_SIZE, shuffle=False, num_workers=NUM_WORKERS)
+train_dataset = datasets.ImageFolder('../datasets/ImageNet/train', transform=transform)
+train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS, drop_last=True)
+val_dataset = Subset(train_dataset, list(range(int(0.01 * len(train_dataset)))))
+val_loader = DataLoader(dataset=val_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS, drop_last=True)
+test_dataset = datasets.ImageFolder('../datasets/ImageNet/val', transform=transform)
+test_loader = DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS, drop_last=True)
 
 
 class PreTrainer(object):
@@ -145,7 +161,7 @@ class PreTrainer(object):
         with torch.no_grad():
             for batch_idx, (x, _) in tqdm(enumerate(val_loader, 0), total=len(val_loader)):
                 x = x.to(device)
-                x_crop = torch.zeros(BATCH_SIZE, 3, 192, 192).to(device)
+                x_crop = torch.zeros(BATCH_SIZE, 3, AFTER_CROP_SIZE, AFTER_CROP_SIZE).to(device)
                 for idx, x_ in enumerate(x):
                     centercrop = transforms.CenterCrop((64, 64))
                     patchs = rearrange(x_, 'c (p1 h1) (p2 w1)-> c (p1 p2) h1 w1', p1=3, p2=3, h1=INPUT_SIZE//3, w1=INPUT_SIZE//3)
