@@ -27,15 +27,15 @@ device = 'cpu'
 # device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
 '''Pre-training'''
-# LEARNING_RATE = 3e-05
-# BATCH_SIZE = 64
-# NUM_EPOCHS = 20
-# NUM_WORKERS = 2
-# TASK_NAME = 'puzzle_ImageNet'
-# MODEL_NAME = 'cnn50'
-# pre_load_model_path = './save/xxx.pt'
-# pre_model_path = f'./save/{TASK_NAME}_{MODEL_NAME}_ep{NUM_EPOCHS}_lr{LEARNING_RATE}_b{BATCH_SIZE}.pt'
-# pre_reload_model_path = './save/xxx.pt'
+LEARNING_RATE = 3e-05
+BATCH_SIZE = 64
+NUM_EPOCHS = 20
+NUM_WORKERS = 2
+TASK_NAME = 'puzzle_ImageNet'
+MODEL_NAME = 'cnn50'
+pre_load_model_path = './save/xxx.pt'
+pre_model_path = f'./save/{TASK_NAME}_{MODEL_NAME}_ep{NUM_EPOCHS}_lr{LEARNING_RATE}_b{BATCH_SIZE}.pt'
+pre_reload_model_path = './save/xxx.pt'
 
 '''Fine-tuning'''
 # AUGMENTATION = True
@@ -50,24 +50,24 @@ device = 'cpu'
 # fine_reload_model_path = './save/xxx.pt'
 
 '''Linear-probing'''
-LEARNING_RATE = 3e-05
-BATCH_SIZE = 64
-NUM_EPOCHS = 100
-WARMUP_EPOCHS = 5
-NUM_WORKERS = 2
-TASK_NAME = 'linear_ImageNet'
-fine_load_model_path = './save/xxx.pt'  # duplicate file
-fine_model_path = fine_load_model_path[:-3] + f'___{TASK_NAME}_ep{NUM_EPOCHS}_lr{LEARNING_RATE}_b{BATCH_SIZE}_SGD.pt'
-fine_reload_model_path = './save/xxx.pt'
+# LEARNING_RATE = 3e-05
+# BATCH_SIZE = 64
+# NUM_EPOCHS = 100
+# WARMUP_EPOCHS = 5
+# NUM_WORKERS = 2
+# TASK_NAME = 'linear_ImageNet'
+# fine_load_model_path = './save/xxx.pt'  # duplicate file
+# fine_model_path = fine_load_model_path[:-3] + f'___{TASK_NAME}_ep{NUM_EPOCHS}_lr{LEARNING_RATE}_b{BATCH_SIZE}_SGD.pt'
+# fine_reload_model_path = './save/xxx.pt'
 
 '''Pre-training'''
-# transform = transforms.Compose([
-#     transforms.Resize(256, interpolation=PIL.Image.BICUBIC),
-#     transforms.CenterCrop(224),
-#     transforms.Pad(padding=(0, 0, 1, 1)),
-#     transforms.ToTensor(),
-#     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-# ])
+transform = transforms.Compose([
+    transforms.Resize(256, interpolation=PIL.Image.BICUBIC),
+    transforms.CenterCrop(224),
+    transforms.Pad(padding=(0, 0, 1, 1)),
+    transforms.ToTensor(),
+    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+])
 
 '''Fine-tuning'''
 # transform = transforms.Compose([
@@ -103,12 +103,12 @@ fine_reload_model_path = './save/xxx.pt'
 # )
 
 '''Linear-probing'''
-transform = transforms.Compose([
-            RandomResizedCrop(224, interpolation=PIL.Image.BICUBIC),
-            transforms.RandomHorizontalFlip(),
-            transforms.ToTensor(),
-            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])]
-)
+# transform = transforms.Compose([
+#             RandomResizedCrop(224, interpolation=PIL.Image.BICUBIC),
+#             transforms.RandomHorizontalFlip(),
+#             transforms.ToTensor(),
+#             transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])]
+# )
 
 # train_dataset = datasets.CIFAR10(root='./data', train=True, transform=transform, download=True)
 # train_loader = DataLoader(dataset=train_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
