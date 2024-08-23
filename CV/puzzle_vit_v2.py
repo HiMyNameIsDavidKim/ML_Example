@@ -130,7 +130,7 @@ class PuzzleViT(nn.Module):
         x = self.vit_features(x)
         x_cls = self.classification_head(x[:, 0])
 
-        x = self.puzzle_head_fc1(x[:, 0])
+        x = self.puzzle_head_fc1(x)
         x = F.relu(self.puzzle_head_fc2(x))
         x = self.puzzle_head_fc3(x)
         x = x.view(-1, self.num_puzzle, 2)
