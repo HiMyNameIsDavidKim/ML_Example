@@ -13,9 +13,9 @@ from torchsummary import summary
 from util.tester import visualDoubleLoss
 
 
-class PuzzleViT(nn.Module):
+class JCViT(nn.Module):
     def __init__(self, num_puzzle=9, size_puzzle=75, threshold=0.8):
-        super(PuzzleViT, self).__init__()
+        super(JCViT, self).__init__()
         self.num_puzzle = num_puzzle
         self.size_puzzle = size_puzzle
         self.threshold = threshold
@@ -27,8 +27,8 @@ class PuzzleViT(nn.Module):
         self.map_coord = None
         self.min_dist = 0
         self.augment_tile = transforms.Compose([
-            transforms.RandomCrop(64),
-            transforms.Resize((75, 75)),
+            transforms.RandomCrop(96),
+            transforms.Resize(75),
             transforms.Lambda(rgb_jittering),
             transforms.Lambda(tile_norm),
         ])
@@ -45,8 +45,6 @@ class PuzzleViT(nn.Module):
         x_ = torch.zeros(N, 3, 225, 225, device=x.device)
         for i, (img, ids_shuffle) in enumerate(zip(x, ids_shuffles)):
             # cropped_img = torch.zeros(3, 96 * 3, 96 * 3)
-            crop = transforms.RandomCrop((96, 96))
-            resize = transforms.Resize((75, 75))
             n_patches = 3
             gap = 48
             patch_size = 100
@@ -58,18 +56,18 @@ class PuzzleViT(nn.Module):
                     right = left + patch_size
                     lower = upper + patch_size
 
-                    patch = crop(img[:, left:right, upper:lower])
-                    patch = resize(patch)
+                    patch = self.augment_tile(img[:, left:right, upper:lower])
                     pieces.append(patch)
                     # cropped_img[:, j * 96:j * 96 + 96, k * 96:k * 96 + 96] = patch
             shuffled_pieces = [pieces[idx] for idx in ids_shuffle]
-            shuffled_img = [torch.cat(row, dim=2) for row in [shuffled_pieces[i:i + n] for i in range(0, len(shuffled_pieces), n)]]
+            shuffled_img = [torch.cat(row, dim=2) for row in
+                            [shuffled_pieces[i:i + n] for i in range(0, len(shuffled_pieces), n)]]
             shuffled_img = torch.cat(shuffled_img, dim=1)
             x_[i] = shuffled_img
         x = x_
 
         start, end = 0, n
-        self.min_dist = (end-start)/n
+        self.min_dist = (end - start) / n
         self.map_values = list(torch.arange(start, end, self.min_dist))
         self.map_coord = torch.tensor([(i, j) for i in self.map_values for j in self.map_values])
 
@@ -94,12 +92,13 @@ class PuzzleViT(nn.Module):
             pieces = [img[:, i:i + p, j:j + p] for i in range(0, H, p) for j in range(0, W, p)]
             shuffled_pieces = [pieces[idx] for idx in ids_shuffle]
             shuffled_pieces = [self.augment_tile(piece) for piece in shuffled_pieces]
-            shuffled_img = [torch.cat(row, dim=2) for row in [shuffled_pieces[i:i+n] for i in range(0, len(shuffled_pieces), n)]]
+            shuffled_img = [torch.cat(row, dim=2) for row in
+                            [shuffled_pieces[i:i + n] for i in range(0, len(shuffled_pieces), n)]]
             shuffled_img = torch.cat(shuffled_img, dim=1)
             x[i] = shuffled_img
 
         start, end = 0, n
-        self.min_dist = (end-start)/n
+        self.min_dist = (end - start) / n
         self.map_values = list(torch.arange(start, end, self.min_dist))
         self.map_coord = torch.tensor([(i, j) for i in self.map_values for j in self.map_values])
 
@@ -128,12 +127,13 @@ class PuzzleViT(nn.Module):
             pieces = [img[:, i:i + p, j:j + p] for i in range(0, H, p) for j in range(0, W, p)]
             shuffled_pieces = [pieces[idx] for idx in ids_shuffle]
             shuffled_pieces = [self.augment_tile(piece) for piece in shuffled_pieces]
-            shuffled_img = [torch.cat(row, dim=2) for row in [shuffled_pieces[i:i+n] for i in range(0, len(shuffled_pieces), n)]]
+            shuffled_img = [torch.cat(row, dim=2) for row in
+                            [shuffled_pieces[i:i + n] for i in range(0, len(shuffled_pieces), n)]]
             shuffled_img = torch.cat(shuffled_img, dim=1)
             x[i] = shuffled_img
 
         start, end = 0, n
-        self.min_dist = (end-start)/n
+        self.min_dist = (end - start) / n
         self.map_values = list(torch.arange(start, end, self.min_dist))
         self.map_coord = torch.tensor([(i, j) for i in self.map_values for j in self.map_values])
 
@@ -169,9 +169,7 @@ class PuzzleViT(nn.Module):
         x = self.fc2(x)
         x = x.view(-1, self.num_puzzle, 2)
 
-        loss_var = self.forward_loss_var(x)
-
-        return x, target, loss_var
+        return x, target
 
 
 def rgb_jittering(tile):
