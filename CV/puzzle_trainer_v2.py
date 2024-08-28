@@ -167,7 +167,7 @@ class PreTrainer(object):
                 outputs, labels, loss_var, outputs_cls = model(inputs)
                 loss_coord = criterion(outputs, labels)
                 loss_cls = criterion_cls(outputs_cls, labels_cls)
-                loss = loss_cls + (loss_coord + loss_var / 1e05)
+                loss = loss_cls + loss_coord
                 loss.backward()
                 optimizer.step()
                 running_loss_c += loss_coord.item()
