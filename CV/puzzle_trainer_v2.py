@@ -2,38 +2,30 @@ import PIL
 import numpy as np
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 import torch.optim as optim
-from matplotlib import pyplot as plt
 from timm.data import create_transform, IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD, Mixup
 from timm.loss import SoftTargetCrossEntropy
 from torch.optim.lr_scheduler import CosineAnnealingLR
 from torch.utils.data import DataLoader, Subset
 from torchvision import datasets, transforms
-from torchvision.models import resnet50
 import math
 
 from tqdm import tqdm
 
-from CV.puzzle_res50_preTrue import PuzzleCNNCoord
-from CV.puzzle_vit_v2 import PuzzleViT
+from CV.puzzle_vit_v2 import JCViT_v2
 from CV.util.tester import visualDoubleLoss
 
-import facebook_vit
-from mae_util import interpolate_pos_embed, RandomResizedCrop, LARS
-from timm.models.layers import trunc_normal_
 
 device = 'cpu'
 # device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
 '''Pre-training'''
-AUGMENTATION = True
 LEARNING_RATE = 3e-05
 BATCH_SIZE = 64
 NUM_EPOCHS = 20
 NUM_WORKERS = 2
 TASK_NAME = 'puzzle_ImageNet'
-MODEL_NAME = 'cnn50'
+MODEL_NAME = 'jcvit_v2'
 pre_load_model_path = './save/xxx.pt'
 pre_model_path = f'./save/{TASK_NAME}_{MODEL_NAME}_ep{NUM_EPOCHS}_lr{LEARNING_RATE}_b{BATCH_SIZE}.pt'
 pre_reload_model_path = './save/xxx.pt'
@@ -46,31 +38,6 @@ transform = transforms.Compose([
     transforms.ToTensor(),
     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 ])
-
-if AUGMENTATION:
-    transform = create_transform(
-        input_size=224,
-        is_training=True,
-        color_jitter=None,
-        auto_augment='rand-m9-mstd0.5-inc1',
-        interpolation='bicubic',
-        re_prob=0.25,
-        re_mode='pixel',
-        re_count=1,
-        mean=IMAGENET_DEFAULT_MEAN,
-        std=IMAGENET_DEFAULT_STD,
-    )
-
-mixup_fn = Mixup(
-    mixup_alpha=0.8,
-    cutmix_alpha=1.0,
-    cutmix_minmax=None,
-    prob=1.0,
-    switch_prob=0.5,
-    mode='batch',
-    label_smoothing=0.1,
-    num_classes=1000
-)
 
 
 # train_dataset = datasets.CIFAR10(root='./data', train=True, transform=transform, download=True)
@@ -105,7 +72,7 @@ class PreTrainer(object):
         self.save_model()
 
     def build_model(self, load):
-        self.model = PuzzleViT(size_puzzle=75).to(device)
+        self.model = JCViT_v2().to(device)
         print(f'Parameter: {sum(p.numel() for p in self.model.parameters() if p.requires_grad)}')
         if load:
             checkpoint = torch.load(pre_load_model_path)
@@ -126,8 +93,6 @@ class PreTrainer(object):
         model = self.model.train()
         criterion = nn.SmoothL1Loss()
         criterion_cls = nn.CrossEntropyLoss()
-        if AUGMENTATION:
-            criterion_cls = SoftTargetCrossEntropy()
         optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
         scheduler = CosineAnnealingLR(optimizer, T_max=NUM_EPOCHS)
         range_epochs = range(NUM_EPOCHS)
@@ -159,20 +124,21 @@ class PreTrainer(object):
             for batch_idx, (inputs, labels_cls) in tqdm(enumerate(train_loader, 0), total=len(train_loader)):
                 inputs = inputs.to(device)
                 labels_cls = labels_cls.to(device)
-                if AUGMENTATION:
-                    inputs, labels_cls = mixup_fn(inputs, labels_cls)
 
                 optimizer.zero_grad()
 
-                outputs, labels, loss_var, outputs_cls = model(inputs)
+                outputs, labels, outputs_cls = model(inputs)
+
                 loss_coord = criterion(outputs, labels)
                 loss_cls = criterion_cls(outputs_cls, labels_cls)
                 loss = loss_cls + loss_coord
                 loss.backward()
                 optimizer.step()
+
                 running_loss_c += loss_coord.item()
                 running_loss_cls += loss_cls.item()
                 running_loss_t += loss.item()
+
                 _, predicted = torch.max(outputs_cls.data, 1)
                 total += labels_cls.size(0)
                 correct += (predicted == labels_cls).sum().item()
@@ -196,7 +162,7 @@ class PreTrainer(object):
             self.optimizer = optimizer
             self.scheduler = scheduler
             self.save_model()
-            visualDoubleLoss(self.losses_c, self.losses_t)
+            visualDoubleLoss(self.losses_c, self.losses_cls)
             self.val_model(epoch)
         print('****** Finished Fine-tuning ******')
         self.model = model
@@ -215,7 +181,7 @@ class PreTrainer(object):
                 inputs = inputs.to(device)
                 labels_cls = labels_cls.to(device)
 
-                outputs, labels, _, outputs_cls = model(inputs)
+                outputs, labels, outputs_cls = model(inputs)
 
                 pred = outputs
                 total += labels.size(0)
