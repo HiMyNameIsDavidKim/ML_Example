@@ -5,11 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6dc597b5-90f3-42c0-9fbe-571e0fb81339" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/CV/puzzle_jcvit.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CV/puzzle_trainer_v2.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/puzzle_trainer_v2.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CV/puzzle_vit_v2.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/puzzle_vit_v2.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CV/zJustTest.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/zJustTest.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CV/puzzle_vit_JPwLEG.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/puzzle_vit_JPwLEG.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -71,8 +68,8 @@
       <recent name="$PROJECT_DIR$/prediction/data" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/CV/data/JPwLEG" />
       <recent name="$PROJECT_DIR$/CV" />
+      <recent name="$PROJECT_DIR$/CV/data/JPwLEG" />
       <recent name="$PROJECT_DIR$" />
       <recent name="$PROJECT_DIR$/CV/data" />
       <recent name="$PROJECT_DIR$/CV/util" />
@@ -567,7 +564,8 @@
       <workItem from="1724805896722" duration="4078000" />
       <workItem from="1724892513037" duration="2490000" />
       <workItem from="1724978630055" duration="1201000" />
-      <workItem from="1725237968481" duration="4974000" />
+      <workItem from="1725237968481" duration="6210000" />
+      <workItem from="1725324474420" duration="727000" />
     </task>
     <servers />
   </component>
