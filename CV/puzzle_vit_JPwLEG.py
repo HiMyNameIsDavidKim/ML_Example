@@ -136,7 +136,7 @@ class JCViT(nn.Module):
         return target
 
     def forward(self, x):
-        x, target = self.random_shuffle_JPwLEG_1000(x)
+        x, target = self.random_shuffle_JPwLEG(x)
         x = x[:, :, :-1, :-1]
 
         x = self.vit_features(x)
