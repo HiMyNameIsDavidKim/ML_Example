@@ -1,5 +1,6 @@
 import PIL
 import numpy as np
+import pandas as pd
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -268,6 +269,83 @@ def lr_compare(self):
     plt.title('LR Plot')
     plt.xlabel('Epoch')
     plt.ylabel('LR')
+    plt.legend()
+    plt.show()
+
+def tracker(file_name):
+    df = pd.read_csv(file_name, header=None)
+
+    tensors = []
+    for i in range(0, len(df.columns), 3):
+        if i + 1 < len(df.columns):
+            tensor = torch.tensor(df.iloc[:, [i, i + 1]].values, dtype=torch.float32)
+            tensors.append(tensor)
+
+    label = tensors[0]
+    center = torch.ones(9, 2)
+    corrects = []
+    center_preds = []
+
+    for idx, pred in enumerate(tensors[1:]):
+        correct = (pred == label).all(dim=1).sum().item()
+        center_pred = (pred == center).all(dim=1).sum().item()
+        corrects.append(correct)
+        center_preds.append(center_pred)
+
+    plt.figure(figsize=(10, 5))
+    epochs = range(len(corrects))
+
+    plt.plot(epochs, center_preds, label='Center', marker='s')
+    plt.plot(epochs, corrects, label='Correct', marker='o')
+
+    plt.xlabel('Epoch')
+    plt.ylabel('Count')
+    plt.title('Tracking')
+    plt.xticks(epochs)
+    plt.yticks(range(10))
+    plt.legend()
+    plt.show()
+
+def tracker_mean(ls):
+    corrects = []
+    center_preds = []
+
+    for f, i_files in enumerate(ls):
+        df = pd.read_csv(f'./save/tracking_sample_{i_files}.csv', header=None)
+
+        tensors = []
+        for i in range(0, len(df.columns), 3):
+            if i + 1 < len(df.columns):
+                tensor = torch.tensor(df.iloc[:, [i, i + 1]].values, dtype=torch.float32)
+                tensors.append(tensor)
+
+        if f == 0:
+            corrects = [0] * (len(tensors) - 1)
+            center_preds = [0] * (len(tensors) - 1)
+
+        label = tensors[0]
+        center = torch.ones(9, 2)
+
+        for idx, pred in enumerate(tensors[1:]):
+            correct = (pred == label).all(dim=1).sum().item()
+            center_pred = (pred == center).all(dim=1).sum().item()
+            corrects[idx] += correct
+            center_preds[idx] += center_pred
+
+    corrects = [correct / len(ls) for correct in corrects]
+    center_preds = [center_pred / len(ls) for center_pred in center_preds]
+
+    plt.figure(figsize=(10, 5))
+    epochs = range(len(corrects))
+
+    plt.plot(epochs, center_preds, label='Center', marker='s')
+    plt.plot(epochs, corrects, label='Correct', marker='o')
+
+    plt.xlabel('Epoch')
+    plt.ylabel('Count')
+    plt.title('Tracking')
+    plt.xticks(epochs)
+    plt.yticks(range(10))
     plt.legend()
     plt.show()
 
