@@ -71,10 +71,6 @@ class JCViT_v2(nn.Module):
         return target
 
     def forward(self, x):
-        # x_cls = x[:, :, :-1, :-1]
-        # x_cls = self.vit_features(x_cls)
-        # x_cls = self.classification_head(x_cls[:, 0])
-
         x, target = self.random_shuffle(x)
         x = x[:, :, :-1, :-1]
         x = self.vit_features(x)
