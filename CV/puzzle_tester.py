@@ -281,12 +281,13 @@ def tracker(file_name):
             tensor = torch.tensor(df.iloc[:, [i, i + 1]].values, dtype=torch.float32)
             tensors.append(tensor)
 
-    label = tensors[0]
+    labels = tensors[::2]
+    preds = tensors[1::2]
     center = torch.ones(9, 2)
     corrects = []
     center_preds = []
 
-    for idx, pred in enumerate(tensors[1:]):
+    for idx, (label, pred) in enumerate(zip(labels, preds)):
         correct = (pred == label).all(dim=1).sum().item()
         center_pred = (pred == center).all(dim=1).sum().item()
         corrects.append(correct)
@@ -306,6 +307,7 @@ def tracker(file_name):
     plt.legend()
     plt.show()
 
+
 def tracker_mean(ls):
     corrects = []
     center_preds = []
@@ -320,13 +322,14 @@ def tracker_mean(ls):
                 tensors.append(tensor)
 
         if f == 0:
-            corrects = [0] * (len(tensors) - 1)
-            center_preds = [0] * (len(tensors) - 1)
+            corrects = [0] * (len(tensors) // 2)
+            center_preds = [0] * (len(tensors) // 2)
 
-        label = tensors[0]
+        labels = tensors[::2]
+        preds = tensors[1::2]
         center = torch.ones(9, 2)
 
-        for idx, pred in enumerate(tensors[1:]):
+        for idx, (label, pred) in enumerate(zip(labels, preds)):
             correct = (pred == label).all(dim=1).sum().item()
             center_pred = (pred == center).all(dim=1).sum().item()
             corrects[idx] += correct
