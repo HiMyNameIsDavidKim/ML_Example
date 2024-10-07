@@ -5,12 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6dc597b5-90f3-42c0-9fbe-571e0fb81339" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/CV/puzzle_trainer_adv.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CV/puzzle_jcvit.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/puzzle_fcvit.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CV/puzzle_trainer_v2.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/puzzle_trainer_cls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CV/puzzle_vit_v2.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/puzzle_vit_cls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CV/zJustTest.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/zJustTest.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CV/puzzle_trainer_adv.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/puzzle_trainer_adv.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -591,7 +586,7 @@
       <workItem from="1727931726429" duration="167000" />
       <workItem from="1727940768421" duration="2636000" />
       <workItem from="1728004670152" duration="1304000" />
-      <workItem from="1728263358582" duration="2604000" />
+      <workItem from="1728263358582" duration="2928000" />
     </task>
     <servers />
   </component>

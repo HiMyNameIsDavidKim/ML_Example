@@ -74,7 +74,7 @@ class PreTrainer(object):
     def pretrain_model(self, reload):
         model = self.model.train()
         criterion = nn.SmoothL1Loss()
-        optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
+        optimizer = optim.AdamW(model.parameters(), lr=LEARNING_RATE, weight_decay=0.05)
         scheduler = CosineAnnealingLR(optimizer, T_max=NUM_EPOCHS)
         range_epochs = range(NUM_EPOCHS)
         if reload:
@@ -138,7 +138,7 @@ class PreTrainer(object):
             for batch_idx, (inputs, _) in tqdm(enumerate(val_loader, 0), total=len(val_loader)):
                 inputs = inputs.to(device)
 
-                outputs, labels, _ = model(inputs)
+                outputs, labels = model(inputs)
 
                 pred = outputs
                 total += labels.size(0)
