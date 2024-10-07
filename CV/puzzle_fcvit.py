@@ -8,9 +8,9 @@ import math
 from torchsummary import summary
 
 
-class JCViT(nn.Module):
+class FCViT(nn.Module):
     def __init__(self, num_puzzle=9, size_puzzle=75):
-        super(JCViT, self).__init__()
+        super(FCViT, self).__init__()
         self.num_puzzle = num_puzzle
         self.size_puzzle = size_puzzle
         self.vit_features = timm.create_model('vit_base_patch16_224', pretrained=False)
@@ -125,6 +125,6 @@ def fragment_norm(fragment):
 
 
 if __name__ == '__main__':
-    model = JCViT()
+    model = FCViT()
     output, target = model(torch.rand(2, 3, 225, 225))
     summary(model, (3, 225, 225))

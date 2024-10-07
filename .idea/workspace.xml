@@ -5,8 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6dc597b5-90f3-42c0-9fbe-571e0fb81339" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/CV/puzzle_vit_tracking.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CV/puzzle_trainer_adv.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CV/puzzle_jcvit.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/puzzle_fcvit.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CV/puzzle_trainer_v2.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/puzzle_trainer_cls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CV/puzzle_vit_v2.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/puzzle_vit_cls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CV/zJustTest.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/zJustTest.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -574,7 +578,20 @@
       <workItem from="1725929733309" duration="1932000" />
       <workItem from="1726015563745" duration="601000" />
       <workItem from="1726102180808" duration="601000" />
-      <workItem from="1726187739498" duration="4043000" />
+      <workItem from="1726187739498" duration="4653000" />
+      <workItem from="1727107558571" duration="118000" />
+      <workItem from="1727139113610" duration="5398000" />
+      <workItem from="1727226872054" duration="597000" />
+      <workItem from="1727311274116" duration="3182000" />
+      <workItem from="1727397206615" duration="599000" />
+      <workItem from="1727616996483" duration="586000" />
+      <workItem from="1727658269208" duration="598000" />
+      <workItem from="1727763226971" duration="223000" />
+      <workItem from="1727833615008" duration="3688000" />
+      <workItem from="1727931726429" duration="167000" />
+      <workItem from="1727940768421" duration="2636000" />
+      <workItem from="1728004670152" duration="1304000" />
+      <workItem from="1728263358582" duration="2604000" />
     </task>
     <servers />
   </component>
@@ -660,7 +677,7 @@
     <SUITE FILE_PATH="coverage/ML_Example$puzzle_vit_v2.coverage" NAME="puzzle_vit_v2 Coverage Results" MODIFIED="1725253002643" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
     <SUITE FILE_PATH="coverage/ML_Example$lotto_1hot.coverage" NAME="lotto_1hot Coverage Results" MODIFIED="1680855895432" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/prediction" />
     <SUITE FILE_PATH="coverage/ML_Example$shape_learning.coverage" NAME="shape_learning Coverage Results" MODIFIED="1685585368212" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
-    <SUITE FILE_PATH="coverage/ML_Example$zJustTest.coverage" NAME="zJustTest Coverage Results" MODIFIED="1725424186173" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
+    <SUITE FILE_PATH="coverage/ML_Example$zJustTest.coverage" NAME="zJustTest Coverage Results" MODIFIED="1727942404485" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
     <SUITE FILE_PATH="coverage/ML_Example$jpdvt.coverage" NAME="jpdvt Coverage Results" MODIFIED="1723611361816" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
     <SUITE FILE_PATH="coverage/ML_Example$facebook_vit.coverage" NAME="facebook_vit Coverage Results" MODIFIED="1719801453862" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
     <SUITE FILE_PATH="coverage/ML_Example$select_permutations.coverage" NAME="select_permutations Coverage Results" MODIFIED="1711522390538" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV/util" />
