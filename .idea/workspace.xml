@@ -5,10 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6dc597b5-90f3-42c0-9fbe-571e0fb81339" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/CV/puzzle_fcvit_dis.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/CV/puzzle_fcvit_gen.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CV/puzzle_fcvit_gen.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/puzzle_fcvit_gen.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/CV/puzzle_trainer_adv.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/puzzle_trainer_adv.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CV/puzzle_trainer_fcvit.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/puzzle_trainer_fcvit.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -592,7 +592,7 @@
       <workItem from="1728263358582" duration="5444000" />
       <workItem from="1728273744694" duration="2306000" />
       <workItem from="1728350315390" duration="3192000" />
-      <workItem from="1728354173508" duration="2437000" />
+      <workItem from="1728354173508" duration="7017000" />
     </task>
     <servers />
   </component>
@@ -658,7 +658,7 @@
     <SUITE FILE_PATH="coverage/ML_Example$vit_cifar10.coverage" NAME="vit_cifar10 Coverage Results" MODIFIED="1679971290257" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
     <SUITE FILE_PATH="coverage/ML_Example$generation_0.coverage" NAME="generation_0 Coverage Results" MODIFIED="1699281287562" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/NLP/lecture_chatgpt/part02/ch03" />
     <SUITE FILE_PATH="coverage/ML_Example$positional_enhancement.coverage" NAME="positional_enhancement Coverage Results" MODIFIED="1691730760677" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
-    <SUITE FILE_PATH="coverage/ML_Example$puzzle_fcvit_gen.coverage" NAME="puzzle_fcvit_gen Coverage Results" MODIFIED="1728352834629" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
+    <SUITE FILE_PATH="coverage/ML_Example$puzzle_fcvit_gen.coverage" NAME="puzzle_fcvit_gen Coverage Results" MODIFIED="1728369519466" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
     <SUITE FILE_PATH="coverage/ML_Example$facebook_mae.coverage" NAME="facebook_mae Coverage Results" MODIFIED="1716256543748" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
     <SUITE FILE_PATH="coverage/ML_Example$puzzle_trainer_ce.coverage" NAME="puzzle_trainer_ce Coverage Results" MODIFIED="1712042744249" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />
     <SUITE FILE_PATH="coverage/ML_Example$vit_pixelAI.coverage" NAME="vit_pixelAI Coverage Results" MODIFIED="1700537386972" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CV" />

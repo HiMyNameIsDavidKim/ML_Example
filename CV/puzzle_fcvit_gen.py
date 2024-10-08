@@ -47,11 +47,26 @@ class FCGen(nn.Module):
 
         return x
 
-    def mapping(self, target):
-        diff = torch.abs(target.unsqueeze(3) - torch.tensor(self.map_values, device=target.device))
+    def mapping2perm(self, x):
+        diff = torch.abs(x.unsqueeze(3) - torch.tensor(self.map_values, device=x.device))
         min_indices = torch.argmin(diff, dim=3)
-        target[:] = min_indices
-        return target
+        x[:] = min_indices
+        x = self.coord2perm(x)
+        return x
+
+    def coord2perm(self, x):
+        N, h, v = x.shape
+        x_perm = torch.empty((N, h), device=x.device)
+        dic = {
+            (0, 0): 0, (0, 1): 1, (0, 2): 2,
+            (1, 0): 3, (1, 1): 4, (1, 2): 5,
+            (2, 0): 6, (2, 1): 7, (2, 2): 8
+        }
+
+        for i, b in enumerate(x):
+            for j, x_coord in enumerate(b):
+                x_perm[i, j] = dic[tuple(x_coord.tolist())]
+        return x_perm
 
     def forward(self, x):
         x = self.augmentation(x)
@@ -62,6 +77,7 @@ class FCGen(nn.Module):
         x = F.relu(self.fc1(x))
         x = self.fc2(x)
         x = x.view(-1, self.num_puzzle, 2)
+        x = self.mapping2perm(x)
 
         return x
 

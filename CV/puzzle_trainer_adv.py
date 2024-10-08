@@ -9,7 +9,6 @@ from torchvision import datasets, transforms
 
 from tqdm import tqdm
 
-from CV.puzzle_fcvit import FCViT
 from CV.puzzle_fcvit_gen import FCGen, inverse_loss
 from CV.puzzle_fcvit_dis import FCDis
 from CV.util.tester import visualDoubleLoss, visualLoss
@@ -20,12 +19,12 @@ device = 'cpu'
 '''Pre-training'''
 LEARNING_RATE = 3e-05
 BATCH_SIZE = 2  # 64
-NUM_EPOCHS = 20
+NUM_EPOCHS = 100
 NUM_WORKERS = 2
-TASK_NAME = 'puzzle_ImageNet'
-MODEL_NAME = 'cnn50'
-pre_load_model_path = './save/path.pt'
+TASK_NAME = 'puzzle_imagenet'
+MODEL_NAME = 'adv'
 pre_model_path = f'./save/{TASK_NAME}_{MODEL_NAME}_ep{NUM_EPOCHS}_lr{LEARNING_RATE}_b{BATCH_SIZE}.pt'
+pre_load_model_path = './save/path.pt'
 pre_reload_model_path = './save/path.pt'
 
 '''Pre-training'''
@@ -51,6 +50,8 @@ class PreTrainer(object):
         self.model_dis = None
         self.optimizer_gen = None
         self.optimizer_dis = None
+        self.scheduler_gen = None
+        self.scheduler_dis = None
         self.epochs = []
         self.losses_gen = []
         self.losses_dis = []
@@ -88,6 +89,8 @@ class PreTrainer(object):
         criterion_dis = nn.SmoothL1Loss()
         optimizer_gen = optim.AdamW(model_gen.parameters(), lr=LEARNING_RATE, weight_decay=0.05)
         optimizer_dis = optim.AdamW(model_dis.parameters(), lr=LEARNING_RATE, weight_decay=0.05)
+        scheduler_gen = CosineAnnealingLR(optimizer_gen, T_max=NUM_EPOCHS)
+        scheduler_dis = CosineAnnealingLR(optimizer_dis, T_max=NUM_EPOCHS)
         range_epochs = range(NUM_EPOCHS)
         if reload:
             checkpoint = torch.load(pre_reload_model_path)
@@ -97,6 +100,18 @@ class PreTrainer(object):
             model_dis.train()
             optimizer_gen.load_state_dict(checkpoint['optimizer_gen'])
             optimizer_dis.load_state_dict(checkpoint['optimizer_dis'])
+            try:
+                scheduler_gen = CosineAnnealingLR(optimizer_gen, T_max=NUM_EPOCHS)
+                scheduler_dis = CosineAnnealingLR(optimizer_dis, T_max=NUM_EPOCHS)
+            except:
+                temp_optim_gen = optim.Adam(model_gen.parameters(), lr=LEARNING_RATE)
+                temp_optim_dis = optim.Adam(model_dis.parameters(), lr=LEARNING_RATE)
+                temp_scheduler_gen = CosineAnnealingLR(temp_optim_gen, T_max=NUM_EPOCHS)
+                temp_scheduler_dis = CosineAnnealingLR(temp_optim_dis, T_max=NUM_EPOCHS)
+                [temp_scheduler_gen.step() for _ in range(checkpoint['epochs'][-1])]
+                [temp_scheduler_dis.step() for _ in range(checkpoint['epochs'][-1])]
+                scheduler_gen.load_state_dict(temp_scheduler_gen.state_dict())
+                scheduler_dis.load_state_dict(temp_scheduler_dis.state_dict())
             self.epochs = checkpoint['epochs']
             self.losses_gen = checkpoint['losses_gen']
             self.losses_dis = checkpoint['losses_dis']
@@ -145,10 +160,14 @@ class PreTrainer(object):
                     self.losses_dis.append(running_loss_dis / inter)
                     running_loss_gen = 0.
                     running_loss_dis = 0.
+            scheduler_gen.step()
+            scheduler_dis.step()
             self.model_gen = model_gen
             self.model_dis = model_dis
             self.optimizer_gen = optimizer_gen
             self.optimizer_dis = optimizer_dis
+            self.scheduler_gen = scheduler_gen
+            self.scheduler_dis = scheduler_dis
             self.save_model()
             visualDoubleLoss(self.losses_gen, self.losses_dis)
             self.val_model(epoch)
@@ -196,6 +215,8 @@ class PreTrainer(object):
             'model_dis': self.model_dis.state_dict(),
             'optimizer_gen': self.optimizer_gen.state_dict(),
             'optimizer_dis': self.optimizer_dis.state_dict(),
+            'scheduler_gen': self.scheduler_gen.state_dict(),
+            'scheduler_dis': self.scheduler_dis.state_dict(),
             'losses_gen': self.losses_gen,
             'losses_dis': self.losses_dis,
             'accuracies': self.accuracies,
