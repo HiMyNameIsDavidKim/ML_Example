@@ -97,21 +97,9 @@ def fragment_norm(fragment):
     return fragment
 
 
-def smooth_l1_loss(outputs, targets, beta=1.0, reduction='mean'):
-    diff = torch.abs(outputs - targets)
-    loss = torch.where(diff < beta, 0.5 * (diff ** 2) / beta, diff - 0.5 * beta)
-
-    if reduction == 'mean':
-        return loss.mean()
-    elif reduction == 'sum':
-        return loss.sum()
-    else:
-        return loss
-
-
 def inverse_loss(outputs, targets, beta=1.0, reduction='mean'):
     diff = torch.abs(outputs - targets)
-    loss = torch.where(diff < beta, (beta - diff) ** 2 / beta, 0.5 * beta / diff)
+    loss = torch.where(diff < beta, 2 - 0.5*(diff**2), 1.5 - diff)
 
     if reduction == 'mean':
         return loss.mean()

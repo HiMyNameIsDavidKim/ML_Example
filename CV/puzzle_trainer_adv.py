@@ -136,7 +136,10 @@ class PreTrainer(object):
                 loss_gen 은 정답에 가까우면 커져야 하므로, 커스텀 알고리즘 함수 선언 (완)
                 -> inverse loss 알고리즘 확인 필요!
                 
-                서버2 돌려보고 에러 확인
+                서버2 돌려보고 에러 확인 (완)
+                
+                (추가) dis만 프리트레이닝 붙여서 미리 결과 보기
+                (추가) SAM 세미나 준비
                 '''
 
                 perm = model_gen(inputs)

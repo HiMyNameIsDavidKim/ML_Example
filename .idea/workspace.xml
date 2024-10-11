@@ -7,8 +7,8 @@
     <list default="true" id="6dc597b5-90f3-42c0-9fbe-571e0fb81339" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/CV/puzzle_fcvit_gen.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/puzzle_fcvit_gen.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CV/puzzle_trainer.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/puzzle_trainer.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/CV/puzzle_trainer_adv.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/puzzle_trainer_adv.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CV/puzzle_trainer_fcvit.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/puzzle_trainer_fcvit.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -592,7 +592,11 @@
       <workItem from="1728263358582" duration="5444000" />
       <workItem from="1728273744694" duration="2306000" />
       <workItem from="1728350315390" duration="3192000" />
-      <workItem from="1728354173508" duration="7017000" />
+      <workItem from="1728354173508" duration="7481000" />
+      <workItem from="1728521639536" duration="5382000" />
+      <workItem from="1728564559009" duration="562000" />
+      <workItem from="1728606025431" duration="3764000" />
+      <workItem from="1728613530789" duration="357000" />
     </task>
     <servers />
   </component>

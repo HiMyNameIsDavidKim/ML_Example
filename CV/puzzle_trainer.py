@@ -159,7 +159,7 @@ class PreTrainer(object):
     def pretrain_model(self, reload):
         model = self.model.train()
         criterion = nn.SmoothL1Loss()
-        optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
+        optimizer = optim.AdamW(model.parameters(), lr=LEARNING_RATE, weight_decay=0.05)
         scheduler = CosineAnnealingLR(optimizer, T_max=NUM_EPOCHS)
         range_epochs = range(NUM_EPOCHS)
         if reload:
