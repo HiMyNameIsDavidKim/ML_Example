@@ -70,12 +70,16 @@ class PreTrainer(object):
         if load:
             checkpoint = torch.load(pre_load_model_path)
             self.epochs = checkpoint['epochs']
-            self.model_gen.load_state_dict(checkpoint['model_gen'])
-            self.model_dis.load_state_dict(checkpoint['model_dis'])
-            self.losses_gen = checkpoint['losses_gen']
-            self.losses_dis = checkpoint['losses_dis']
-            print(f'Parameter of gen: {sum(p.numel() for p in self.model_gen.parameters() if p.requires_grad)}')
-            print(f'Parameter of dis: {sum(p.numel() for p in self.model_dis.parameters() if p.requires_grad)}')
+            if checkpoint.get('model'):
+                self.model_dis.load_state_dict(checkpoint['model'])
+                print(f'Parameter of dis: {sum(p.numel() for p in self.model_dis.parameters() if p.requires_grad)}')
+            elif checkpoint.get('model_gen') and checkpoint.get('model_dis'):
+                self.model_gen.load_state_dict(checkpoint['model_gen'])
+                self.model_dis.load_state_dict(checkpoint['model_dis'])
+                self.losses_gen = checkpoint['losses_gen']
+                self.losses_dis = checkpoint['losses_dis']
+                print(f'Parameter of gen: {sum(p.numel() for p in self.model_gen.parameters() if p.requires_grad)}')
+                print(f'Parameter of dis: {sum(p.numel() for p in self.model_dis.parameters() if p.requires_grad)}')
             print(f'Epoch: {self.epochs[-1]}')
             print(f'****** Reset epochs and losses ******')
             self.epochs = []
@@ -134,11 +138,10 @@ class PreTrainer(object):
                 val 부분에서 dis 모델에 perm 부분 없앴기 때문에 수정 필요 (완)
                 
                 loss_gen 은 정답에 가까우면 커져야 하므로, 커스텀 알고리즘 함수 선언 (완)
-                -> inverse loss 알고리즘 확인 필요!
                 
                 서버2 돌려보고 에러 확인 (완)
+                dis만 프리트레이닝 붙여서 미리 결과 보기 (완)
                 
-                (추가) dis만 프리트레이닝 붙여서 미리 결과 보기
                 (추가) SAM 세미나 준비
                 '''
 
