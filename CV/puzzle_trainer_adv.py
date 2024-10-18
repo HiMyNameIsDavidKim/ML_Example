@@ -132,19 +132,6 @@ class PreTrainer(object):
                 optimizer_gen.zero_grad()
                 optimizer_dis.zero_grad()
 
-                '''
-                gen 모델이 perm 아웃풋 하도록 수정 (완)
-                dis 모델이 perm 받아서 섞도록 수정 (완)
-                val 부분에서 dis 모델에 perm 부분 없앴기 때문에 수정 필요 (완)
-                
-                loss_gen 은 정답에 가까우면 커져야 하므로, 커스텀 알고리즘 함수 선언 (완)
-                
-                서버2 돌려보고 에러 확인 (완)
-                dis만 프리트레이닝 붙여서 미리 결과 보기 (완)
-                
-                (추가) SAM 세미나 준비
-                '''
-
                 perm = model_gen(inputs)
                 outputs, labels = model_dis(inputs, perm)
 

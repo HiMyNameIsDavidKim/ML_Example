@@ -6,7 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="6dc597b5-90f3-42c0-9fbe-571e0fb81339" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CV/puzzle_trainer_adv.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/puzzle_trainer_adv.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -595,7 +594,13 @@
       <workItem from="1728564559009" duration="562000" />
       <workItem from="1728606025431" duration="3764000" />
       <workItem from="1728613530789" duration="1507000" />
-      <workItem from="1728868459801" duration="3452000" />
+      <workItem from="1728868459801" duration="3484000" />
+      <workItem from="1728954490087" duration="599000" />
+      <workItem from="1728967719981" duration="43000" />
+      <workItem from="1729040322182" duration="1235000" />
+      <workItem from="1729128619930" duration="600000" />
+      <workItem from="1729215068298" duration="636000" />
+      <workItem from="1729217996427" duration="603000" />
     </task>
     <servers />
   </component>
