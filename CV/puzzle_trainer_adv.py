@@ -17,13 +17,15 @@ device = 'cpu'
 # device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
 '''Pre-training'''
-LEARNING_RATE = 3e-05
+LEARNING_RATE_GEN = 3e-05
+LR_RATIO = 1000
+LEARNING_RATE_DIS = LEARNING_RATE_GEN / LR_RATIO
 BATCH_SIZE = 2  # 64
 NUM_EPOCHS = 100
 NUM_WORKERS = 2
 TASK_NAME = 'puzzle_imagenet'
 MODEL_NAME = 'adv'
-pre_model_path = f'./save/{TASK_NAME}_{MODEL_NAME}_ep{NUM_EPOCHS}_lr{LEARNING_RATE}_b{BATCH_SIZE}.pt'
+pre_model_path = f'./save/{TASK_NAME}_{MODEL_NAME}_ep{NUM_EPOCHS}_lr{LEARNING_RATE_GEN}_r{LR_RATIO}_b{BATCH_SIZE}.pt'
 pre_load_model_path = './save/path.pt'
 pre_reload_model_path = './save/path.pt'
 
@@ -91,8 +93,8 @@ class PreTrainer(object):
         model_dis = self.model_dis.train()
         criterion_gen = inverse_loss
         criterion_dis = nn.SmoothL1Loss()
-        optimizer_gen = optim.AdamW(model_gen.parameters(), lr=LEARNING_RATE, weight_decay=0.05)
-        optimizer_dis = optim.AdamW(model_dis.parameters(), lr=LEARNING_RATE, weight_decay=0.05)
+        optimizer_gen = optim.AdamW(model_gen.parameters(), lr=LEARNING_RATE_GEN, weight_decay=0.05)
+        optimizer_dis = optim.AdamW(model_dis.parameters(), lr=LEARNING_RATE_DIS, weight_decay=0.05)
         scheduler_gen = CosineAnnealingLR(optimizer_gen, T_max=NUM_EPOCHS)
         scheduler_dis = CosineAnnealingLR(optimizer_dis, T_max=NUM_EPOCHS)
         range_epochs = range(NUM_EPOCHS)
@@ -108,8 +110,8 @@ class PreTrainer(object):
                 scheduler_gen = CosineAnnealingLR(optimizer_gen, T_max=NUM_EPOCHS)
                 scheduler_dis = CosineAnnealingLR(optimizer_dis, T_max=NUM_EPOCHS)
             except:
-                temp_optim_gen = optim.Adam(model_gen.parameters(), lr=LEARNING_RATE)
-                temp_optim_dis = optim.Adam(model_dis.parameters(), lr=LEARNING_RATE)
+                temp_optim_gen = optim.Adam(model_gen.parameters(), lr=LEARNING_RATE_GEN)
+                temp_optim_dis = optim.Adam(model_dis.parameters(), lr=LEARNING_RATE_DIS)
                 temp_scheduler_gen = CosineAnnealingLR(temp_optim_gen, T_max=NUM_EPOCHS)
                 temp_scheduler_dis = CosineAnnealingLR(temp_optim_dis, T_max=NUM_EPOCHS)
                 [temp_scheduler_gen.step() for _ in range(checkpoint['epochs'][-1])]
