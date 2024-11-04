@@ -5,6 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6dc597b5-90f3-42c0-9fbe-571e0fb81339" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/CV/luma.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/CV/puzzle_trainer_adv.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/puzzle_trainer_adv.py" afterDir="false" />
     </list>
@@ -68,9 +69,9 @@
       <recent name="$PROJECT_DIR$/prediction/data" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/CV" />
       <recent name="$PROJECT_DIR$/CV/save" />
       <recent name="$PROJECT_DIR$/CV/data" />
-      <recent name="$PROJECT_DIR$/CV" />
       <recent name="$PROJECT_DIR$/CV/data/JPwLEG" />
       <recent name="$PROJECT_DIR$" />
     </key>
@@ -602,7 +603,32 @@
       <workItem from="1729128619930" duration="600000" />
       <workItem from="1729215068298" duration="636000" />
       <workItem from="1729217996427" duration="881000" />
-      <workItem from="1729472963757" duration="1004000" />
+      <workItem from="1729472963757" duration="1740000" />
+      <workItem from="1729558411400" duration="8287000" />
+      <workItem from="1729644495458" duration="597000" />
+      <workItem from="1729684041347" duration="391000" />
+      <workItem from="1729730861003" duration="601000" />
+      <workItem from="1729782721120" duration="335000" />
+      <workItem from="1729819549658" duration="597000" />
+      <workItem from="1729839366740" duration="711000" />
+      <workItem from="1730078596287" duration="2078000" />
+      <workItem from="1730087403051" duration="4000" />
+      <workItem from="1730166519822" duration="1032000" />
+      <workItem from="1730249563367" duration="667000" />
+      <workItem from="1730251525810" duration="595000" />
+      <workItem from="1730273798763" duration="597000" />
+      <workItem from="1730336697115" duration="1299000" />
+      <workItem from="1730350183716" duration="598000" />
+      <workItem from="1730363887835" duration="3000" />
+      <workItem from="1730363989454" duration="598000" />
+      <workItem from="1730377182648" duration="703000" />
+      <workItem from="1730381140300" duration="598000" />
+      <workItem from="1730421581002" duration="597000" />
+      <workItem from="1730511084273" duration="1008000" />
+      <workItem from="1730638464782" duration="662000" />
+      <workItem from="1730642062126" duration="5000" />
+      <workItem from="1730684158398" duration="2293000" />
+      <workItem from="1730688883094" duration="2128000" />
     </task>
     <servers />
   </component>
