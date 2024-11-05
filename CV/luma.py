@@ -14,30 +14,42 @@ client = LumaAI(
 
 # Basic
 generation = client.generations.create(
-    prompt="Make the alpaca looking left and right, simple green cosmic backgrounds, camera orbit right, middle speed.",
-    loop=False,
+    prompt="mother’s love close-up shot, " +
+           "the parrot spreads its wings to protect its two babies in a nest, " +
+           "babies are huddled close together under their parents' wings, " +
+           "heavy rain and lush greenery background, " +
+           "middle speed.",
+    loop=True,
     keyframes={
-        # "frame0": {
-        #     "type": "image",
-        #     "url": "https://i.ibb.co/44bY42f/1.png"
-        # },
-        "frame1": {
+        "frame0": {
             "type": "image",
-            "url": "https://i.ibb.co/G3GJFvb/2.png"
-        }
+            "url": "https://i.ibb.co/YDHcbx6/image.png"
+        },
+        # "frame1": {
+        #     "type": "image",
+        #     "url": "https://i.ibb.co/G3GJFvb/2.png"
+        # }
     }
 )
 
 # Extend
-# generation = client.generations.create(
-#     prompt="Make the alpaca looking left and right, simple green cosmic backgrounds, camera orbit right, middle speed.",
-#     keyframes={
-#       "frame0": {
-#         "type": "generation",
-#         "id": "0135ef49-5d8c-4e02-943e-902ec66f28a3"
-#       }
-#     }
-# )
+generation = client.generations.create(
+    prompt="mother’s love close-up shot, " +
+           "the parrot spreads its wings to protect its two babies in a nest, " +
+           "babies are huddled close together under their parents' wings, " +
+           "heavy rain and lush greenery background, " +
+           "middle speed.",
+    keyframes={
+      "frame0": {
+        "type": "generation",
+        "id": "b25edc94-ce8c-450d-8235-68a26d0724a4"
+      },
+      "frame1": {
+        "type": "image",
+        "url": "https://i.ibb.co/YDHcbx6/image.png"
+      }
+    }
+)
 
 completed = False
 print(f'### Dreaming loop started. ###')
