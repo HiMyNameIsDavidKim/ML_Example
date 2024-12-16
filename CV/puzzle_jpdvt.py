@@ -428,9 +428,9 @@ if __name__ == '__main__':
     model = JPDVT(input_size=IMAGE_SIZE)
     inputs = torch.rand(2, 3, IMAGE_SIZE, IMAGE_SIZE)
     t = torch.full((2,), 1000)
-    time_emb = torch.rand(2, 225, 8)
+    time_emb = torch.rand(2, 144, 8)
     outputs = model(inputs, t, time_emb)  # x, t, time_emb
-    summary(model, input_size=[(1, 3, IMAGE_SIZE, IMAGE_SIZE), (1,), (1, 225, 8)])
+    summary(model, input_size=[(1, 3, IMAGE_SIZE, IMAGE_SIZE), (1,), (1, 144, 8)])
 
     device = 'cpu'
     batch_size = 32
