@@ -11,7 +11,7 @@ from torchvision import datasets, transforms
 import math
 from tqdm import tqdm
 
-from CV.puzzle_fcvit import FCViT
+from CV.puzzle_fcvit_3x3 import FCViT
 
 
 device = 'cpu'

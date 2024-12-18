@@ -9,33 +9,29 @@ from torchsummary import summary
 
 
 class FCViT(nn.Module):
-    def __init__(self, backbone='vit_base_patch16_224', num_fragment=9, size_fragment=75, **kwargs):
+    def __init__(self, num_puzzle=9, size_puzzle=75):
         super(FCViT, self).__init__()
-        self.backbone = backbone
-        self.num_fragment = num_fragment
-        self.size_fragment = size_fragment
-        self.size_puzzle = int(self.size_fragment * (self.num_fragment ** 0.5))
-        self.size_fragment_crop = round(size_fragment * 0.85)
-        self.vit_features = timm.create_model(self.backbone, pretrained=False)
+        self.num_puzzle = num_puzzle
+        self.size_puzzle = size_puzzle
+        self.vit_features = timm.create_model('vit_base_patch16_224', pretrained=False)
         # self.vit_features.head = nn.Linear(768, 1000)  # fc0
         self.fc1 = nn.Linear(1000, 1000)
-        self.fc2 = nn.Linear(1000, self.num_fragment * 2)
+        self.fc2 = nn.Linear(1000, self.num_puzzle * 2)
         self.map_values = []
         self.map_coord = None
         self.augment_fragment = transforms.Compose([
-            transforms.RandomCrop((self.size_fragment_crop, self.size_fragment_crop)),
-            transforms.Resize((self.size_fragment, self.size_fragment)),
+            transforms.RandomCrop((64, 64)),
+            transforms.Resize((75, 75)),
             transforms.Lambda(rgb_jittering),
             transforms.Lambda(fragment_norm),
         ])
-        self.margin = int(self.size_puzzle - self.vit_features.patch_embed.img_size[0])
 
     def random_shuffle(self, x):
         N, C, H, W = x.shape
-        p = self.size_fragment
-        n = int(math.sqrt(self.num_fragment))
+        p = self.size_puzzle
+        n = int(math.sqrt(self.num_puzzle))
 
-        noise = torch.rand(N, self.num_fragment, device=x.device)
+        noise = torch.rand(N, self.num_puzzle, device=x.device)
         ids_shuffles = torch.argsort(noise, dim=1)
         ids_restores = torch.argsort(ids_shuffles, dim=1)
 
@@ -52,8 +48,8 @@ class FCViT(nn.Module):
         self.map_values = list(torch.arange(start, end, self.min_dist))
         self.map_coord = torch.tensor([(i, j) for i in self.map_values for j in self.map_values])
 
-        coord_shuffles = torch.zeros([N, self.num_fragment, 2])
-        coord_restores = torch.zeros([N, self.num_fragment, 2])
+        coord_shuffles = torch.zeros([N, self.num_puzzle, 2])
+        coord_restores = torch.zeros([N, self.num_puzzle, 2])
         for i, (ids_shuffle, ids_restore) in enumerate(zip(ids_shuffles, ids_restores)):
             coord_shuffles[i] = self.map_coord[ids_shuffle]
             coord_restores[i] = self.map_coord[ids_restore]
@@ -62,8 +58,8 @@ class FCViT(nn.Module):
 
     def random_shuffle_1000(self, x):
         N, C, H, W = x.shape
-        p = self.size_fragment
-        n = int(math.sqrt(self.num_fragment))
+        p = self.size_puzzle
+        n = int(math.sqrt(self.num_puzzle))
 
         perm = np.load(f'./data/permutations_1000.npy')
         if np.min(perm) == 1:
@@ -86,8 +82,8 @@ class FCViT(nn.Module):
         self.map_values = list(torch.arange(start, end, self.min_dist))
         self.map_coord = torch.tensor([(i, j) for i in self.map_values for j in self.map_values])
 
-        coord_shuffles = torch.zeros([N, self.num_fragment, 2])
-        coord_restores = torch.zeros([N, self.num_fragment, 2])
+        coord_shuffles = torch.zeros([N, self.num_puzzle, 2])
+        coord_restores = torch.zeros([N, self.num_puzzle, 2])
         for i, (ids_shuffle, ids_restore) in enumerate(zip(ids_shuffles, ids_restores)):
             coord_shuffles[i] = self.map_coord[ids_shuffle]
             coord_restores[i] = self.map_coord[ids_restore]
@@ -102,14 +98,13 @@ class FCViT(nn.Module):
 
     def forward(self, x):
         x, target = self.random_shuffle(x)
-        if self.margin > 0:
-            x = x[:, :, :-self.margin, :-self.margin]
+        x = x[:, :, :-1, :-1]
 
         x = self.vit_features(x)  # fc0 is included
 
         x = F.relu(self.fc1(x))
         x = self.fc2(x)
-        x = x.view(-1, self.num_fragment, 2)
+        x = x.view(-1, self.num_puzzle, 2)
 
         return x, target
 
@@ -129,74 +124,7 @@ def fragment_norm(fragment):
     return fragment
 
 
-def fcvit_base_3x3(**kwargs):
-    model = FCViT(
-        backbone='vit_base_patch16_224', num_fragment=9, size_fragment=75, **kwargs
-    )
-    return model
-
-
-def fcvit_small_3x3(**kwargs):
-    model = FCViT(
-        backbone='vit_small_patch16_224', num_fragment=9, size_fragment=75, **kwargs
-    )
-    return model
-
-
-def fcvit_tiny_3x3(**kwargs):
-    model = FCViT(
-        backbone='vit_tiny_patch16_224', num_fragment=9, size_fragment=75, **kwargs
-    )
-    return model
-
-
-def fcvit_base_4x4(**kwargs):
-    model = FCViT(
-        backbone='vit_base_patch16_224', num_fragment=16, size_fragment=56, **kwargs
-    )
-    return model
-
-
-def fcvit_small_4x4(**kwargs):
-    model = FCViT(
-        backbone='vit_small_patch16_224', num_fragment=16, size_fragment=56, **kwargs
-    )
-    return model
-
-
-def fcvit_tiny_4x4(**kwargs):
-    model = FCViT(
-        backbone='vit_tiny_patch16_224', num_fragment=16, size_fragment=56, **kwargs
-    )
-    return model
-
-
-def fcvit_base_5x5(**kwargs):
-    model = FCViT(
-        backbone='vit_base_patch16_224', num_fragment=25, size_fragment=45, **kwargs
-    )
-    return model
-
-
-def fcvit_small_5x5(**kwargs):
-    model = FCViT(
-        backbone='vit_small_patch16_224', num_fragment=25, size_fragment=45, **kwargs
-    )
-    return model
-
-
-def fcvit_tiny_5x5(**kwargs):
-    model = FCViT(
-        backbone='vit_tiny_patch16_224', num_fragment=25, size_fragment=45, **kwargs
-    )
-    return model
-
-
 if __name__ == '__main__':
-    # summary model
-    model = fcvit_base_3x3()
+    model = FCViT()
     output, target = model(torch.rand(2, 3, 225, 225))
     summary(model, (3, 225, 225))
-
-    # instance model
-    # model = puzzle_fcvit.__dict__['fcvit_base_3x3']()

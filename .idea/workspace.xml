@@ -5,9 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6dc597b5-90f3-42c0-9fbe-571e0fb81339" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/CV/flops.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CV/puzzle_jpdvt.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/puzzle_jpdvt.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CV/flops.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/flops.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CV/puzzle_fcvit.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/puzzle_fcvit_3x3.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CV/puzzle_tester_fcvit.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/puzzle_tester_fcvit.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CV/puzzle_trainer_fcvit.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/puzzle_trainer_fcvit.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/CV/zJustTest.py" beforeDir="false" afterPath="$PROJECT_DIR$/CV/zJustTest.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -683,7 +685,10 @@
       <workItem from="1734069525566" duration="3152000" />
       <workItem from="1734076292048" duration="1484000" />
       <workItem from="1734161248035" duration="6202000" />
-      <workItem from="1734315446043" duration="5014000" />
+      <workItem from="1734315446043" duration="5039000" />
+      <workItem from="1734339442531" duration="598000" />
+      <workItem from="1734398389635" duration="606000" />
+      <workItem from="1734484916102" duration="2392000" />
     </task>
     <servers />
   </component>

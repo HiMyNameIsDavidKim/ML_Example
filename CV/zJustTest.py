@@ -5,7 +5,7 @@ from typing import Tuple, DefaultDict, Counter, Dict
 from fvcore.nn.jit_handles import Handle
 from collections import defaultdict
 
-from puzzle_fcvit import FCViT
+from puzzle_fcvit_3x3 import FCViT
 
 
 if __name__ == '__main__':
