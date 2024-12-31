@@ -23,6 +23,19 @@ import time
 # FC8 : [batch, 4096] -> [batch, 1000]
 # 1000개 클래스는 길이 9의 리스트로 각 요소는 1~9번 퍼즐의 순서 (ex. [9, 4, 6, 8, 3, 2, 5, 1, 7], 1번 퍼즐 위치는 9)
 # --------------------------------------------------------
+# img_size=224, patch_size=56, num_puzzle=16
+# input = [batch, 16, 3, 56, 56]
+# FC1 : AlexNet, [batch, 16, 3, 56, 56] -> [batch, 16, 96, 25, 25]
+# Pool : [batch, 16, 96, 12, 12]
+# FC2 : AlexNet, [batch, 16, 96, 12, 12] -> [batch, 16, 256, 12, 12]
+# Pool : [batch, 16, 256, 5, 5]
+# FC3 : AlexNet, [batch, 16, 256, 5, 5] -> [batch, 16, 384, 5, 5]
+# FC4 : AlexNet, [batch, 16, 384, 5, 5] -> [batch, 16, 384, 5, 5]
+# FC5 : AlexNet, [batch, 16, 384, 5, 5] -> [batch, 16, 256, 5, 5]
+# Pool : [batch, 16, 256, 2, 2]
+# FC6 : [batch, 16, 256 * 2 * 2] -> [batch, 16, 1024]
+# FC7 : [batch, 16 * 1024] -> [batch, 4096]
+# FC8 : [batch, 4096] -> [batch, 1000]
 
 
 class PuzzleCFN(nn.Module):
@@ -50,12 +63,12 @@ class PuzzleCFN(nn.Module):
         self.conv.add_module('pool5_s1', nn.MaxPool2d(kernel_size=3, stride=2))
 
         self.fc6 = nn.Sequential()
-        self.fc6.add_module('fc6_s1', nn.Linear(256 * 3 * 3, 1024))
+        self.fc6.add_module('fc6_s1', nn.Linear(256 * 2 * 2, 1024))
         self.fc6.add_module('relu6_s1', nn.ReLU(inplace=True))
         self.fc6.add_module('drop6_s1', nn.Dropout(p=0.5))
 
         self.fc7 = nn.Sequential()
-        self.fc7.add_module('fc7', nn.Linear(9 * 1024, 4096))
+        self.fc7.add_module('fc7', nn.Linear(16 * 1024, 4096))
         self.fc7.add_module('relu7', nn.ReLU(inplace=True))
         self.fc7.add_module('drop7', nn.Dropout(p=0.5))
 
@@ -69,7 +82,7 @@ class PuzzleCFN(nn.Module):
         x = x.transpose(0, 1)
 
         x_list = []
-        for i in range(9):
+        for i in range(16):
             z = self.conv(x[i])
             z = self.fc6(z.view(B, -1))
             z = z.view([B, 1, -1])
@@ -113,6 +126,6 @@ class LRN(nn.Module):
 
 if __name__ == '__main__':
     model = PuzzleCFN(classes=1000)
-    output = model(torch.rand(2, 9, 3, 75, 75))
+    output = model(torch.rand(2, 16, 3, 56, 56))
     print(output.shape)
-    summary(model, (9, 3, 75, 75))
+    summary(model, (16, 3, 56, 56))

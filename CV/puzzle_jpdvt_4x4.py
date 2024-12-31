@@ -404,4 +404,3 @@ if __name__ == '__main__':
     time_emb = torch.rand(2, 144, 8)
     outputs = model(inputs, t, time_emb)  # x, t, time_emb
     summary(model, input_size=[(1, 3, IMAGE_SIZE, IMAGE_SIZE), (1,), (1, 144, 8)])
-
